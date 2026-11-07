@@ -1,6 +1,9 @@
-"""Rutas URL del proyecto NexoPyme AI (bootstrap 000).
+"""Rutas URL del proyecto NexoPyme AI (bootstrap 000)."""
 
-La ruta `/health/` se incorpora en la tarea T-12.
-"""
+from django.urls import path
 
-urlpatterns: list = []
+from .views import health
+
+urlpatterns = [
+    path("health/", health, name="health"),
+]
