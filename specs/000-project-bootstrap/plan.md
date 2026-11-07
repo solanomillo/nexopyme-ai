@@ -2,7 +2,7 @@
 
 ## Estado y autoridad
 
-**ESPECIFICACIÓN v1.4, PLAN Y TAREAS APROBADOS; AUTORIZACIÓN DE IMPLEMENTACIÓN CONCEDIDA.** La aprobación de la especificación, plan y tareas y la autorización de implementación constan en declaraciones explícitas del usuario; Reviewer emitió APROBADO para plan y tareas. La v1.4 enmienda exclusivamente el criterio de plataformas, autorizada explícitamente por el usuario el 2026-11-07. T-01–T-03 tienen evidencia histórica y dictamen Reviewer APROBADO. T-04 está COMPLETADA: la verificación en Windows 10 y la consolidación del manifiesto único se ejecutaron bajo autorización explícita; Reviewer emitió APROBADO. T-05 está COMPLETADA: el manifiesto completo se instaló en `.venv`, `pip check` pasó y Reviewer emitió APROBADO. T-06 está COMPLETADA: configuración Django y archivos de entorno creados; check por etiquetas ejecutado y Reviewer emitió APROBADO. T-07 está COMPLETADA: preflight read-only y check completo en verde tras la enmienda autorizada del manifiesto a Django 6.0.9 (MySQL 8.0.36); Reviewer emitió APROBADO. T-08 está COMPLETADA: `GRANT` aplicado por el usuario, 18 migraciones aplicadas con éxito y Reviewer emitió APROBADO; T-08 `[x]`. T-09–T-13 no iniciadas.
+**ESPECIFICACIÓN v1.4, PLAN Y TAREAS APROBADOS; AUTORIZACIÓN DE IMPLEMENTACIÓN CONCEDIDA.** La aprobación de la especificación, plan y tareas y la autorización de implementación constan en declaraciones explícitas del usuario; Reviewer emitió APROBADO para plan y tareas. La v1.4 enmienda exclusivamente el criterio de plataformas, autorizada explícitamente por el usuario el 2026-11-07. T-01–T-03 tienen evidencia histórica y dictamen Reviewer APROBADO. T-04 está COMPLETADA: la verificación en Windows 10 y la consolidación del manifiesto único se ejecutaron bajo autorización explícita; Reviewer emitió APROBADO. T-05 está COMPLETADA: el manifiesto completo se instaló en `.venv`, `pip check` pasó y Reviewer emitió APROBADO. T-06 está COMPLETADA: configuración Django y archivos de entorno creados; check por etiquetas ejecutado y Reviewer emitió APROBADO. T-07 está COMPLETADA: preflight read-only y check completo en verde tras la enmienda autorizada del manifiesto a Django 6.0.9 (MySQL 8.0.36); Reviewer emitió APROBADO. T-08 está COMPLETADA: `GRANT` aplicado por el usuario, 18 migraciones aplicadas con éxito y Reviewer emitió APROBADO; T-08 `[x]`. T-09 está COMPLETADA: `migrate --check` confirmó cero pendientes, sin cambios en tablas, datos ni privilegios, y Reviewer emitió APROBADO; T-09 `[x]`. T-10–T-13 no iniciadas.
 
 ## Objetivo, alcance y estrategia
 
@@ -44,7 +44,7 @@ La matriz completa tarea→requisito→criterio→evidencia está en `tasks.md`.
 
 ## Gate de fase
 
-Este plan y `tasks.md` fueron aprobados por Reviewer y por el usuario; la autorización de implementación fue concedida. La especificación v1.4 fue enmendada y aprobada por el usuario exclusivamente en el criterio de plataformas. T-04 ejecutó la verificación temporal y la consolidación del manifiesto único bajo autorización explícita; Reviewer emitió APROBADO. T-05 fue autorizada por el usuario e instaló el manifiesto completo en `.venv` del proyecto; Reviewer emitió APROBADO. T-06 fue autorizada por el usuario y configuró Django con variables de entorno; Reviewer emitió APROBADO. No se conectó a MySQL ni hubo migraciones en T-06. T-07 está COMPLETADA con Reviewer APROBADO. T-08 está COMPLETADA con Reviewer APROBADO: el usuario autorizó completarla, el `GRANT` fue aplicado y las 18 migraciones se aplicaron con éxito. T-09 no puede iniciar sin la autorización explícita del usuario.
+Este plan y `tasks.md` fueron aprobados por Reviewer y por el usuario; la autorización de implementación fue concedida. La especificación v1.4 fue enmendada y aprobada por el usuario exclusivamente en el criterio de plataformas. T-04 ejecutó la verificación temporal y la consolidación del manifiesto único bajo autorización explícita; Reviewer emitió APROBADO. T-05 fue autorizada por el usuario e instaló el manifiesto completo en `.venv` del proyecto; Reviewer emitió APROBADO. T-06 fue autorizada por el usuario y configuró Django con variables de entorno; Reviewer emitió APROBADO. No se conectó a MySQL ni hubo migraciones en T-06. T-07 está COMPLETADA con Reviewer APROBADO. T-08 está COMPLETADA con Reviewer APROBADO: el usuario autorizó completarla, el `GRANT` fue aplicado y las 18 migraciones se aplicaron con éxito. T-09 está COMPLETADA con Reviewer APROBADO: `migrate --check` confirmó cero pendientes. T-10 no puede iniciar sin la autorización explícita del usuario.
 
 ## Registro de ejecución — T-04 (2026-11-07; consolidación ejecutada; Reviewer APROBADO)
 
@@ -159,3 +159,17 @@ No se incluye `FLUSH PRIVILEGES`: `GRANT` actualiza las tablas de privilegios si
 **Límites respetados:** no `flush`, `drop`, reset ni migraciones inversas; no se tocaron otras bases; no se ampliaron privilegios; no se inició T-09; sin secretos ni credenciales en la evidencia. No se ejecutó `migrate --check` porque corresponde a T-09.
 
 **Estado:** T-08 COMPLETADA; Reviewer emitió APROBADO y T-08 quedó `[x]`. El dictamen técnico no sustituye la autorización humana. No se inició T-09.
+
+## Registro de ejecución — T-09 (2026-11-07; sin migraciones pendientes; Reviewer APROBADO)
+
+**Autorización:** el usuario del proyecto (vía Build) autorizó formalmente iniciar T-09 el 2026-11-07.
+
+**Precondiciones:** rama `main` con `origin/main...HEAD` = `0 0`; `.venv` Python 3.14.10; Django 6.0.9; `pip check` sin problemas. Preflight read-only: `VERSION=8.0.36`, `DATABASE=nexopyme_bootstrap_dev`, `CURRENT_USER=nexopyme_user@localhost`, `HOST=127.0.0.1`, `PORT=3306`, `CONFIG_MATCH=True`; grants exactos (siete privilegios + `USAGE ON *.*`); bases visibles `information_schema`, `nexopyme_bootstrap_dev`, `performance_schema`; `TABLE_COUNT=10`; `PREFLIGHT_EXIT=0`.
+
+**Verificación:** `python manage.py migrate --check` con el intérprete `.venv` → sin salida y `MIGRATE_CHECK_EXIT=0`, lo que indica cero migraciones pendientes. Se confirmó en el código de Django 6.0.9 (`migrate.py` L240, L258-261; `recorder.py` L84-97) que el flujo `--check` no ejecuta ninguna escritura.
+
+**Estado posterior:** preflight: grants sin cambios, `TABLE_COUNT=10`, `PREFLIGHT_EXIT=0`. Consulta read-only: 18 filas en `django_migrations`, conjunto esperado presente, sin migraciones ni tablas inesperadas o faltantes; `django_content_type`=6, `auth_permission`=24; `READ_ONLY_TRANSACTION_COMPLETED=True`; `VERIFY_EXIT=0`. `showmigrations` → 18 en `[X]`, `SHOWMIGRATIONS_EXIT=0`; `manage.py check` → `System check identified no issues (0 silenced).`, `CHECK_EXIT=0`; `ruff check .` → `All checks passed!`, `RUFF_EXIT=0`.
+
+**Límites respetados:** solo verificaciones de lectura; no se ejecutó `migrate` sin `--check`; sin escrituras, migraciones, `flush`, `drop`, reset ni cambios de permisos; sin tocar otras bases; T-10 no iniciada; sin secretos. No se modificaron tablas ni datos.
+
+**Estado:** T-09 COMPLETADA; Reviewer emitió APROBADO y T-09 quedó `[x]`. El dictamen técnico no sustituye la autorización humana. No se inició T-10.
