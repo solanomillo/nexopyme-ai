@@ -2,7 +2,7 @@
 
 ## Estado y autoridad
 
-**ESPECIFICACIÓN v1.4, PLAN Y TAREAS APROBADOS; AUTORIZACIÓN DE IMPLEMENTACIÓN CONCEDIDA.** La aprobación de la especificación, plan y tareas y la autorización de implementación constan en declaraciones explícitas del usuario; Reviewer emitió APROBADO para plan y tareas. La v1.4 enmienda exclusivamente el criterio de plataformas, autorizada explícitamente por el usuario el 2026-11-07. T-01–T-03 tienen evidencia histórica y dictamen Reviewer APROBADO. T-04 está COMPLETADA: la verificación en Windows 10 y la consolidación del manifiesto único se ejecutaron bajo autorización explícita; Reviewer emitió APROBADO. T-05 está COMPLETADA: el manifiesto completo se instaló en `.venv`, `pip check` pasó y Reviewer emitió APROBADO. T-06 está COMPLETADA: configuración Django y archivos de entorno creados; check por etiquetas ejecutado y Reviewer emitió APROBADO. T-07 está COMPLETADA: preflight read-only y check completo en verde tras la enmienda autorizada del manifiesto a Django 6.0.9 (MySQL 8.0.36); Reviewer emitió APROBADO. T-08–T-13 no iniciadas.
+**ESPECIFICACIÓN v1.4, PLAN Y TAREAS APROBADOS; AUTORIZACIÓN DE IMPLEMENTACIÓN CONCEDIDA.** La aprobación de la especificación, plan y tareas y la autorización de implementación constan en declaraciones explícitas del usuario; Reviewer emitió APROBADO para plan y tareas. La v1.4 enmienda exclusivamente el criterio de plataformas, autorizada explícitamente por el usuario el 2026-11-07. T-01–T-03 tienen evidencia histórica y dictamen Reviewer APROBADO. T-04 está COMPLETADA: la verificación en Windows 10 y la consolidación del manifiesto único se ejecutaron bajo autorización explícita; Reviewer emitió APROBADO. T-05 está COMPLETADA: el manifiesto completo se instaló en `.venv`, `pip check` pasó y Reviewer emitió APROBADO. T-06 está COMPLETADA: configuración Django y archivos de entorno creados; check por etiquetas ejecutado y Reviewer emitió APROBADO. T-07 está COMPLETADA: preflight read-only y check completo en verde tras la enmienda autorizada del manifiesto a Django 6.0.9 (MySQL 8.0.36); Reviewer emitió APROBADO. T-08 está COMPLETADA: `GRANT` aplicado por el usuario, 18 migraciones aplicadas con éxito y Reviewer emitió APROBADO; T-08 `[x]`. T-09–T-13 no iniciadas.
 
 ## Objetivo, alcance y estrategia
 
@@ -44,7 +44,7 @@ La matriz completa tarea→requisito→criterio→evidencia está en `tasks.md`.
 
 ## Gate de fase
 
-Este plan y `tasks.md` fueron aprobados por Reviewer y por el usuario; la autorización de implementación fue concedida. La especificación v1.4 fue enmendada y aprobada por el usuario exclusivamente en el criterio de plataformas. T-04 ejecutó la verificación temporal y la consolidación del manifiesto único bajo autorización explícita; Reviewer emitió APROBADO. T-05 fue autorizada por el usuario e instaló el manifiesto completo en `.venv` del proyecto; Reviewer emitió APROBADO. T-06 fue autorizada por el usuario y configuró Django con variables de entorno; Reviewer emitió APROBADO. No se conectó a MySQL ni hubo migraciones. T-07 no puede iniciar hasta que el usuario lo autorice.
+Este plan y `tasks.md` fueron aprobados por Reviewer y por el usuario; la autorización de implementación fue concedida. La especificación v1.4 fue enmendada y aprobada por el usuario exclusivamente en el criterio de plataformas. T-04 ejecutó la verificación temporal y la consolidación del manifiesto único bajo autorización explícita; Reviewer emitió APROBADO. T-05 fue autorizada por el usuario e instaló el manifiesto completo en `.venv` del proyecto; Reviewer emitió APROBADO. T-06 fue autorizada por el usuario y configuró Django con variables de entorno; Reviewer emitió APROBADO. No se conectó a MySQL ni hubo migraciones en T-06. T-07 está COMPLETADA con Reviewer APROBADO. T-08 está COMPLETADA con Reviewer APROBADO: el usuario autorizó completarla, el `GRANT` fue aplicado y las 18 migraciones se aplicaron con éxito. T-09 no puede iniciar sin la autorización explícita del usuario.
 
 ## Registro de ejecución — T-04 (2026-11-07; consolidación ejecutada; Reviewer APROBADO)
 
@@ -99,3 +99,63 @@ Las comprobaciones de modelos y de base quedan diferidas a T-07/T-08, cuando exi
 **Enmienda autorizada del manifiesto y revalidación:** se cambió `Django==6.1.3` por `Django==6.0.9` en `requirements.txt` y se reinstaló con `pip install -r requirements.txt` → `Successfully installed Django-6.0.9`, código 0. `pip check` → `No broken requirements found.`, código 0. Metadata de Django 6.0.9: `Requires-Python >=3.12` (Python 3.14.10 cumple), `Requires-Dist: asgiref>=3.9.1`, `sqlparse>=0.5.0`, `tzdata; sys_platform == "win32"`; el resto del manifiesto quedó sin cambios. El backend MySQL de Django 6.0.9 define `minimum_database_version=(8, 0, 11)`, compatible con el servidor 8.0.36. La evidencia histórica de T-04 para Django 6.1.3 se conserva como registro; la resolución vigente del manifiesto es Django 6.0.9.
 
 **Verificación final de T-07 con Django 6.0.9:** `python manage.py check` completo → `System check identified no issues (0 silenced).`, código 0. Verificación read-only vía Django con `START TRANSACTION READ ONLY`: `VERSION=8.0.36`, `DATABASE=nexopyme_bootstrap_dev`, `CURRENT_USER=nexopyme_user@localhost`, `AUTHORIZED_SCHEMA_EXISTS=True`, `TABLE_COUNT=0`, `TABLES=[]`, `GRANT USAGE ON *.*` y `GRANT SELECT ON nexopyme_bootstrap_dev.*`, bases visibles `information_schema`/`nexopyme_bootstrap_dev`/`performance_schema`, `VERSION_MATCH_8_0_36=True`, `DATABASE_MATCH=True`, `USER_MATCH=True`, `READ_ONLY_TRANSACTION_COMPLETED=True`, código 0. Sin escrituras, migraciones ni cambios de permisos; sin secretos. T-07 queda COMPLETADA; Reviewer emitió APROBADO. T-08 no iniciada.
+
+## Registro de preparación — T-08 (2026-11-07; permisos propuestos; pendiente de dictamen y autorización)
+
+**Precondiciones revalidadas:** rama `main` con `origin/main...HEAD` = `0 0`; intérprete `.venv` Python 3.14.10; `pip check` sin problemas; Django 6.0.9. Entorno controlado aprobado: base dedicada y exclusiva del proyecto, tupla autorizada y servidor MySQL 8.0.36, sin indicios de otras bases de negocio. Preflight read-only repetido antes y después de la inspección de migraciones: `VERSION=8.0.36`, `DATABASE=nexopyme_bootstrap_dev`, `CURRENT_USER=nexopyme_user@localhost`, `HOST=127.0.0.1`, `PORT=3306`, `CONFIG_MATCH=True`; grants vigentes `USAGE ON *.*` y `SELECT ON nexopyme_bootstrap_dev.*`; bases visibles `information_schema`, `nexopyme_bootstrap_dev`, `performance_schema`; `TABLE_COUNT=0`, `TABLES=[]`; `READ_ONLY_TRANSACTION_COMPLETED=True`. No se modificaron permisos, tablas ni datos.
+
+**Plan real de migraciones (18):** `contenttypes.0001_initial`, `auth.0001_initial`, `admin.0001_initial`, `admin.0002_logentry_remove_auto_add`, `admin.0003_logentry_add_action_flag_choices`, `contenttypes.0002_remove_content_type_name`, `auth.0002`–`auth.0012`, `sessions.0001_initial`.
+
+**SQL representativo verificado con `sqlmigrate` (recolección de SQL, sin ejecutar DDL):** `CREATE TABLE` para `django_content_type`, `auth_permission`, `auth_group`, `auth_group_permissions`, `auth_user`, `auth_user_groups`, `auth_user_user_permissions`, `django_admin_log` y `django_session`, más `django_migrations` creada por el registrador; `ALTER TABLE ... ADD CONSTRAINT ... UNIQUE`, `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY`, `ALTER TABLE ... MODIFY` y `ALTER TABLE ... DROP COLUMN`; `CREATE INDEX django_session_expire_date_a5c62663 ON django_session (expire_date)`; `UPDATE` de `auth_permission` en `auth.0011`; `INSERT` en `django_migrations` y en la creación de content types/permisos de `post_migrate`. No hay `AddIndex`, `AddConstraint`, `DeleteModel`, `RunSQL`, `DROP TABLE` ni `DELETE` en las 18 migraciones. `contenttypes.0002` usa `RunPython` solo en reversa (`noop` al avanzar) y `auth.0006_require_contenttypes_0002` no tiene operaciones.
+
+**Privilegios propuestos (mínimos para el avance):** `SELECT`, `INSERT`, `UPDATE`, `CREATE`, `ALTER`, `INDEX`, `REFERENCES` sobre `nexopyme_bootstrap_dev.*`.
+
+- `SELECT`: lectura de `django_migrations`, content types, permisos e introspección del esquema.
+- `INSERT`: registro de migraciones aplicadas y creación de content types/permisos en `post_migrate`.
+- `UPDATE`: migración de datos `auth.0011_update_proxy_permissions`; `create_contenttypes` solo inserta, no actualiza.
+- `CREATE`: creación de las tablas de las 18 migraciones y de `django_migrations`.
+- `ALTER`: `MODIFY`, `DROP COLUMN`, `ADD CONSTRAINT UNIQUE` y `ADD CONSTRAINT FOREIGN KEY`.
+- `INDEX`: `CREATE INDEX` de `sessions.0001`; las restricciones únicas creadas vía `ALTER TABLE` se cubren con `ALTER` + `CREATE` + `INSERT`.
+- `REFERENCES`: creación de claves foráneas de `auth`, `admin` y sus tablas intermedias.
+
+MySQL 8.0 exige `ALTER` + `CREATE` + `INSERT` para `ALTER TABLE`, `REFERENCES` sobre la tabla padre para claves foráneas e `INDEX` para `CREATE INDEX`; todo queda cubierto por el grant a nivel de base. No hay vistas, rutinas, triggers ni tablas temporales en el camino.
+
+**Excluidos deliberadamente:** `DELETE`, `DROP`, `CREATE TEMPORARY TABLES`, `LOCK TABLES`, `TRIGGER`, `EVENT`, `CREATE ROUTINE`, `EXECUTE` y `GRANT OPTION`. No son necesarios para el avance; `DELETE` y `DROP` habilitarían operaciones destructivas no autorizadas. La reversión/desaplicación de migraciones requeriría `DELETE`/`DROP` y una autorización separada.
+
+**Sentencias propuestas (no ejecutadas):**
+
+```sql
+GRANT SELECT, INSERT, UPDATE, CREATE, ALTER, INDEX, REFERENCES
+ON `nexopyme_bootstrap_dev`.*
+TO 'nexopyme_user'@'localhost';
+```
+
+No se incluye `FLUSH PRIVILEGES`: `GRANT` actualiza las tablas de privilegios sin requerirlo. El `GRANT` se limita exclusivamente a `nexopyme_bootstrap_dev.*`; no se otorga nada sobre `*.*` ni sobre otras bases.
+
+**Ejecución del `GRANT` (solo tras autorización explícita):** lo ejecuta una cuenta administrativa (root/DBA) fuera de la conexión de la aplicación, porque `nexopyme_user` no tiene `GRANT OPTION`. Registrar fecha, aprobador y resultado redactado. La aplicación nunca recibe privilegios globales ni `GRANT OPTION`. Esta autorización de escritura es distinta e independiente de la autorización read-only de T-07, con aprobador y fecha propios.
+
+**Verificación posterior al `GRANT` y previa a `migrate`:** `SHOW GRANTS FOR 'nexopyme_user'@'localhost'` (o `SHOW GRANTS` desde la propia cuenta) debe mostrar exactamente `USAGE ON *.*` y los siete privilegios sobre `nexopyme_bootstrap_dev.*`, sin otros privilegios globales ni sobre otras bases. Repetir la comparación exacta de tupla y el preflight read-only inmediatamente antes de migrar.
+
+**Resultado esperado de `migrate`:** `python manage.py migrate` ejecutado con el intérprete de `.venv` y sin banderas; 18 migraciones aplicadas, 10 tablas (9 + `django_migrations`) y 18 filas en `django_migrations`. Prohibidos `--fake`, `--fake-initial`, `--run-syncdb`, `--database` distinto de `default` y SQL manual.
+
+**Contingencia:** MySQL no revierte DDL; con `DROP` excluido, un fallo parcial deja el esquema a medias y la recuperación requiere intervención del DBA con autorización separada. Detenerse e informar.
+
+**Consideraciones posteriores:** tras T-08, evaluar si se revocan `CREATE`/`ALTER`/`INDEX`/`REFERENCES`; T-09 solo necesita `SELECT`. T-10 requerirá autorización separada y este grant no cubre la base de pruebas (`test_nexopyme_bootstrap_dev`).
+
+**Estado de la preparación:** T-08 quedó preparada y aprobada técnicamente por el Reviewer (revisión inicial: CAMBIOS NECESARIOS B1–B3, incorporados; re-revisión: APROBADO). El usuario autorizó formalmente completar T-08 y el `GRANT` fue aplicado desde MySQL Workbench. La ejecución se registra a continuación.
+
+## Registro de ejecución — T-08 (2026-11-07; migraciones aplicadas; Reviewer APROBADO)
+
+**Autorización y `GRANT`:** el usuario del proyecto (vía Build) autorizó formalmente completar T-08 el 2026-11-07. El `GRANT` fue aplicado desde una sesión administrativa en MySQL Workbench y `SHOW GRANTS` confirmó los siete privilegios (`SELECT`, `INSERT`, `UPDATE`, `CREATE`, `ALTER`, `INDEX`, `REFERENCES`) limitados a `nexopyme_bootstrap_dev.*` para `'nexopyme_user'@'localhost'`, además de `USAGE ON *.*`. Sin `GRANT OPTION` y sin privilegios sobre otras bases.
+
+**Preflight read-only previo:** `VERSION=8.0.36`, `DATABASE=nexopyme_bootstrap_dev`, `CURRENT_USER=nexopyme_user@localhost`, `HOST=127.0.0.1`, `PORT=3306`, `CONFIG_MATCH=True`; grants exactos (siete privilegios + `USAGE ON *.*`); bases visibles `information_schema`, `nexopyme_bootstrap_dev`, `performance_schema`; `TABLE_COUNT=0`, `TABLES=[]`; `PREFLIGHT_EXIT=0`.
+
+**Ejecución:** `.\.venv\Scripts\python.exe manage.py migrate` (intérprete `.venv`, sin banderas). Salida: `Operations to perform: Apply all migrations: admin, auth, contenttypes, sessions`; 18 migraciones `OK` (`contenttypes.0001`, `auth.0001`, `admin.0001`–`0003`, `contenttypes.0002`, `auth.0002`–`0012`, `sessions.0001`); `MIGRATE_EXIT=0`. No se usaron `--fake`, `--fake-initial`, `--run-syncdb`, `--database` ni SQL manual.
+
+**Verificación posterior read-only:** preflight: `VERSION=8.0.36`, `DATABASE=nexopyme_bootstrap_dev`, `CURRENT_USER=nexopyme_user@localhost`, `CONFIG_MATCH=True`, grants sin cambios (siete privilegios + `USAGE ON *.*`), `TABLE_COUNT=10`, `PREFLIGHT_EXIT=0`. Consulta read-only: `django_migrations` con 18 filas, conjunto esperado presente, sin migraciones inesperadas ni faltantes; 10 tablas, conjunto esperado presente, sin tablas inesperadas ni faltantes; `django_content_type`=6, `auth_permission`=24; `READ_ONLY_TRANSACTION_COMPLETED=True`; `VERIFY_EXIT=0`.
+
+**Verificaciones adicionales:** `showmigrations` → las 18 en `[X]`, `SHOWMIGRATIONS_EXIT=0`; `manage.py check` → `System check identified no issues (0 silenced).`, `CHECK_EXIT=0`; `ruff check .` → `All checks passed!`, `RUFF_EXIT=0`.
+
+**Límites respetados:** no `flush`, `drop`, reset ni migraciones inversas; no se tocaron otras bases; no se ampliaron privilegios; no se inició T-09; sin secretos ni credenciales en la evidencia. No se ejecutó `migrate --check` porque corresponde a T-09.
+
+**Estado:** T-08 COMPLETADA; Reviewer emitió APROBADO y T-08 quedó `[x]`. El dictamen técnico no sustituye la autorización humana. No se inició T-09.
