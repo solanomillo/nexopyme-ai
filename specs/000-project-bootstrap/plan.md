@@ -2,7 +2,7 @@
 
 ## Estado y autoridad
 
-**ESPECIFICACIÓN v1.4, PLAN Y TAREAS APROBADOS; AUTORIZACIÓN DE IMPLEMENTACIÓN CONCEDIDA.** La aprobación de la especificación, plan y tareas y la autorización de implementación constan en declaraciones explícitas del usuario; Reviewer emitió APROBADO para plan y tareas. La v1.4 enmienda exclusivamente el criterio de plataformas, autorizada explícitamente por el usuario el 2026-11-07. T-01–T-03 tienen evidencia histórica y dictamen Reviewer APROBADO. T-04 está COMPLETADA: la verificación en Windows 10 y la consolidación del manifiesto único se ejecutaron bajo autorización explícita; Reviewer emitió APROBADO. T-05 está COMPLETADA: el manifiesto completo se instaló en `.venv`, `pip check` pasó y Reviewer emitió APROBADO. T-06 está COMPLETADA: configuración Django y archivos de entorno creados; check por etiquetas ejecutado y Reviewer emitió APROBADO. T-07 está COMPLETADA: preflight read-only y check completo en verde tras la enmienda autorizada del manifiesto a Django 6.0.9 (MySQL 8.0.36); Reviewer emitió APROBADO. T-08 está COMPLETADA: `GRANT` aplicado por el usuario, 18 migraciones aplicadas con éxito y Reviewer emitió APROBADO; T-08 `[x]`. T-09 está COMPLETADA: `migrate --check` confirmó cero pendientes, sin cambios en tablas, datos ni privilegios, y Reviewer emitió APROBADO; T-09 `[x]`. T-10–T-13 no iniciadas.
+**ESPECIFICACIÓN v1.4, PLAN Y TAREAS APROBADOS; AUTORIZACIÓN DE IMPLEMENTACIÓN CONCEDIDA.** La aprobación de la especificación, plan y tareas y la autorización de implementación constan en declaraciones explícitas del usuario; Reviewer emitió APROBADO para plan y tareas. La v1.4 enmienda exclusivamente el criterio de plataformas, autorizada explícitamente por el usuario el 2026-11-07. T-01–T-03 tienen evidencia histórica y dictamen Reviewer APROBADO. T-04 está COMPLETADA: la verificación en Windows 10 y la consolidación del manifiesto único se ejecutaron bajo autorización explícita; Reviewer emitió APROBADO. T-05 está COMPLETADA: el manifiesto completo se instaló en `.venv`, `pip check` pasó y Reviewer emitió APROBADO. T-06 está COMPLETADA: configuración Django y archivos de entorno creados; check por etiquetas ejecutado y Reviewer emitió APROBADO. T-07 está COMPLETADA: preflight read-only y check completo en verde tras la enmienda autorizada del manifiesto a Django 6.0.9 (MySQL 8.0.36); Reviewer emitió APROBADO. T-08 está COMPLETADA: `GRANT` aplicado por el usuario, 18 migraciones aplicadas con éxito y Reviewer emitió APROBADO; T-08 `[x]`. T-09 está COMPLETADA: `migrate --check` confirmó cero pendientes, sin cambios en tablas, datos ni privilegios, y Reviewer emitió APROBADO; T-09 `[x]`. T-10 está COMPLETADA: pytest 2/2, base de pruebas eliminada, desarrollo intacta y Reviewer emitió APROBADO; T-10 `[x]`. T-11–T-13 no iniciadas.
 
 ## Objetivo, alcance y estrategia
 
@@ -44,7 +44,7 @@ La matriz completa tarea→requisito→criterio→evidencia está en `tasks.md`.
 
 ## Gate de fase
 
-Este plan y `tasks.md` fueron aprobados por Reviewer y por el usuario; la autorización de implementación fue concedida. La especificación v1.4 fue enmendada y aprobada por el usuario exclusivamente en el criterio de plataformas. T-04 ejecutó la verificación temporal y la consolidación del manifiesto único bajo autorización explícita; Reviewer emitió APROBADO. T-05 fue autorizada por el usuario e instaló el manifiesto completo en `.venv` del proyecto; Reviewer emitió APROBADO. T-06 fue autorizada por el usuario y configuró Django con variables de entorno; Reviewer emitió APROBADO. No se conectó a MySQL ni hubo migraciones en T-06. T-07 está COMPLETADA con Reviewer APROBADO. T-08 está COMPLETADA con Reviewer APROBADO: el usuario autorizó completarla, el `GRANT` fue aplicado y las 18 migraciones se aplicaron con éxito. T-09 está COMPLETADA con Reviewer APROBADO: `migrate --check` confirmó cero pendientes. T-10 no puede iniciar sin la autorización explícita del usuario.
+Este plan y `tasks.md` fueron aprobados por Reviewer y por el usuario; la autorización de implementación fue concedida. La especificación v1.4 fue enmendada y aprobada por el usuario exclusivamente en el criterio de plataformas. T-04 ejecutó la verificación temporal y la consolidación del manifiesto único bajo autorización explícita; Reviewer emitió APROBADO. T-05 fue autorizada por el usuario e instaló el manifiesto completo en `.venv` del proyecto; Reviewer emitió APROBADO. T-06 fue autorizada por el usuario y configuró Django con variables de entorno; Reviewer emitió APROBADO. No se conectó a MySQL ni hubo migraciones en T-06. T-07 está COMPLETADA con Reviewer APROBADO. T-08 está COMPLETADA con Reviewer APROBADO: el usuario autorizó completarla, el `GRANT` fue aplicado y las 18 migraciones se aplicaron con éxito. T-09 está COMPLETADA con Reviewer APROBADO: `migrate --check` confirmó cero pendientes. T-10 está COMPLETADA con Reviewer APROBADO: pytest 2/2, base de pruebas eliminada y desarrollo intacta. T-11 no puede iniciar sin la autorización explícita del usuario.
 
 ## Registro de ejecución — T-04 (2026-11-07; consolidación ejecutada; Reviewer APROBADO)
 
@@ -173,3 +173,74 @@ No se incluye `FLUSH PRIVILEGES`: `GRANT` actualiza las tablas de privilegios si
 **Límites respetados:** solo verificaciones de lectura; no se ejecutó `migrate` sin `--check`; sin escrituras, migraciones, `flush`, `drop`, reset ni cambios de permisos; sin tocar otras bases; T-10 no iniciada; sin secretos. No se modificaron tablas ni datos.
 
 **Estado:** T-09 COMPLETADA; Reviewer emitió APROBADO y T-09 quedó `[x]`. El dictamen técnico no sustituye la autorización humana. No se inició T-10.
+
+## Registro de preparación — T-10 (2026-11-07; configuración y procedimiento; sin ejecución)
+
+**Decisión:** mantener dos bases separadas en el mismo MySQL 8.0.36 (`127.0.0.1:3306`): desarrollo `nexopyme_bootstrap_dev` y pruebas `nexopyme_bootstrap_test`. La base de pruebas es desechable y usa un usuario distinto del usuario de desarrollo.
+
+**Estado actual revisado:** no existía configuración de pytest/pytest-django ni tests. Entorno: Python 3.14.10, Django 6.0.9, pytest 9.2.0, pytest-django 4.14.0; `pip check` sin problemas.
+
+**Cómo Django crea, usa y elimina la base de pruebas:** `TEST["NAME"]` se resuelve en `_get_test_db_name()`; si está definido, se usa tal cual (si no, Django usa `test_` + `NAME`). `create_test_db()` llama a `_create_test_db()` mediante `_nodb_cursor()` (mismo usuario de conexión, `NAME=None`), ejecuta `CREATE DATABASE` (o `DROP DATABASE` + `CREATE DATABASE` si la base existe y `autoclobber=True`), cambia `NAME` a la base de pruebas y ejecuta `migrate` con `run_syncdb=True` y `createcachetable`. `destroy_test_db()` ejecuta `DROP DATABASE`. `pytest-django` usa `django_db_setup` → `setup_databases`/`teardown_databases`; por defecto `keepdb=False`, `--reuse-db` conserva la base y `--create-db` fuerza su recreación. Con `TEST["NAME"]="nexopyme_bootstrap_test"`, Django no usa `test_nexopyme_bootstrap_dev`.
+
+**Configuración propuesta:**
+
+- `config/settings_test.py`: deriva de `config.settings`; fija `TEST.NAME="nexopyme_bootstrap_test"`, `TEST.MIRROR=None`, `TEST.MIGRATE=True`, `TEST.CHARSET="utf8mb4"` y `TEST.COLLATION="utf8mb4_unicode_ci"` (verificados en lectura como los de `nexopyme_bootstrap_dev`); toma `MYSQL_TEST_USER` y `MYSQL_TEST_PASSWORD` para el usuario de pruebas. Guardas de importación: solo alias `default`, backend MySQL, `127.0.0.1:3306`, `NAME=nexopyme_bootstrap_dev`, `TEST.NAME=nexopyme_bootstrap_test`, distinto de `NAME`, `MIRROR=None`, `MIGRATE=True`, usuario `nexopyme_test_user` distinto del usuario de desarrollo, y `CHARSET`/`COLLATION` exactos.
+- `pytest.ini`: `DJANGO_SETTINGS_MODULE=config.settings_test`, `pythonpath=.`, descubrimiento `tests.py test_*.py *_tests.py`, `addopts=-ra`.
+- `conftest.py`: `pytest_configure` revalida las mismas invariantes y aborta con código 2 antes de cualquier acceso a MySQL; exige `DJANGO_SETTINGS_MODULE=config.settings_test`, usa `.get()` para no fallar con `KeyError`, y bloquea ejecución paralela, `--no-migrations`/`--nomigrations`, `--reuse-db` y `--create-db`.
+- `tests/test_db_guards.py` (con `tests/__init__.py`): dos pruebas mínimas. La primera valida `SETTINGS_MODULE=config.settings_test`, `TEST.NAME=nexopyme_bootstrap_test`, `MIRROR=None`, `MIGRATE=True`, `CHARSET=utf8mb4`, `COLLATION=utf8mb4_unicode_ci`, `USER=nexopyme_test_user`, `ENGINE`, `HOST` y `PORT`, sin depender de `NAME` (mutable por pytest-django). La segunda usa `@pytest.mark.django_db` y verifica `connection.settings_dict["NAME"]` y `SELECT DATABASE()` contra `nexopyme_bootstrap_test`; es la que ejercita el ciclo de vida de creación/uso/teardown.
+- `.env.example`: agrega `MYSQL_TEST_USER` y `MYSQL_TEST_PASSWORD` vacíos, sin valores reales.
+
+**Usuario y permisos mínimos propuestos:** `nexopyme_test_user@localhost`, solo sobre `nexopyme_bootstrap_test.*`: `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `CREATE`, `ALTER`, `INDEX`, `REFERENCES`, `DROP`. No tiene privilegios sobre `nexopyme_bootstrap_dev.*` ni `GRANT OPTION`; `USAGE ON *.*` es implícito. `DROP` es necesario para `DROP DATABASE` y para `TRUNCATE` en la limpieza de tests; `DELETE` para `flush`/limpieza. No se requieren `CREATE TEMPORARY TABLES`, `LOCK TABLES`, `TRIGGER`, `EVENT`, `CREATE ROUTINE`, `EXECUTE` ni privilegios administrativos.
+
+**SQL propuesto (no ejecutado):**
+
+```sql
+CREATE USER IF NOT EXISTS 'nexopyme_test_user'@'localhost'
+    IDENTIFIED BY '<contraseña-segura>';
+
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES, DROP
+ON nexopyme_bootstrap_test.*
+TO 'nexopyme_test_user'@'localhost';
+```
+
+Opcional, solo si el DBA prefiere precrear la base:
+
+```sql
+CREATE DATABASE IF NOT EXISTS nexopyme_bootstrap_test
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Django crea y destruye la base de pruebas; si se precrea, un `pytest` normal la recreará. No se incluye `FLUSH PRIVILEGES`. La contraseña real se provee mediante `MYSQL_TEST_PASSWORD` y no se documenta.
+
+**Protección de `nexopyme_bootstrap_dev`:**
+
+1. `TEST["NAME"]` explícito evita que Django aplique el prefijo `test_` sobre la base de desarrollo.
+2. `TEST["MIRROR"]=None` evita espejar la base de desarrollo.
+3. El usuario de pruebas no tiene privilegios sobre `nexopyme_bootstrap_dev.*`; MySQL rechazaría cualquier acceso.
+4. `config/settings_test.py` y `conftest.py` abortan si `NAME`, `TEST.NAME`, `USER`, `HOST`, `PORT`, `ENGINE`, `MIRROR` o `MIGRATE` no coinciden con lo autorizado.
+5. No se admite ejecución paralela: los clones `nexopyme_bootstrap_test_1` no están cubiertos por el grant.
+6. `manage.py test` no es la vía autorizada; la única vía es pytest con `config.settings_test`.
+
+**Notas de seguridad adicionales:** (a) el módulo de pruebas importa `config.settings`, que exige `MYSQL_USER`/`MYSQL_PASSWORD` de desarrollo; esos valores no se usan para la conexión de pruebas y pueden ser ficticios en el proceso de pytest, siempre que `MYSQL_USER` no coincida con `nexopyme_test_user` y `MYSQL_DATABASE=nexopyme_bootstrap_dev`; (b) las constantes de `config/settings_test.py` y `conftest.py` deben mantenerse sincronizadas (comentario explícito); (c) si pytest se interrumpe antes del teardown, `nexopyme_bootstrap_test` puede quedar residual y el siguiente `pytest` la recrea; la limpieza manual `DROP DATABASE nexopyme_bootstrap_test` requiere autorización expresa y nunca debe tocar desarrollo; (d) el camino de aborto de `conftest.py` no se ejecutó en la preparación por la restricción de no ejecutar pytest; se validará en la ejecución controlada; (e) `CREATE USER IF NOT EXISTS` es un alta inicial: si el usuario ya existe, la contraseña no se actualiza y se requerirá `ALTER USER` con autorización expresa.
+
+**Verificación de la preparación:** `py_compile` de `config/settings_test.py`, `conftest.py`, `tests/__init__.py` y `tests/test_db_guards.py` → código 0; `ruff check .` → `All checks passed!`. La importación de `config.settings_test` con variables de entorno de prueba, sin conexión MySQL, confirmó `TEST.NAME=nexopyme_bootstrap_test`, `USER=nexopyme_test_user`, `NAME=nexopyme_bootstrap_dev`, `MIRROR=None`, `MIGRATE=True` y `ENGINE=django.db.backends.mysql`; la importación con `MYSQL_TEST_USER=nexopyme_user` fue rechazada con `ImproperlyConfigured`. Consulta read-only a `INFORMATION_SCHEMA.SCHEMATA` (2026-11-07): `nexopyme_bootstrap_dev` usa `('utf8mb4', 'utf8mb4_unicode_ci')`, replicados en la configuración de pruebas. La prueba de settings no depende de `NAME` (que pytest-django muta) para ser independiente del orden. No se ejecutó pytest; la suite queda preparada con dos pruebas y resultado esperado `pytest` código 0.
+
+**Criterios de aceptación para la ejecución de T-10 (pendiente):** aprovisionar `nexopyme_test_user` y sus permisos; preflight read-only que confirme la tupla `127.0.0.1:3306`, que `CURRENT_USER=nexopyme_test_user@localhost`, que `SHOW GRANTS FOR 'nexopyme_test_user'@'localhost'` muestra exactamente `USAGE ON *.*` + los nueve privilegios sobre `nexopyme_bootstrap_test.*` y nada sobre `nexopyme_bootstrap_dev.*`, y que `nexopyme_bootstrap_test` no existe o su procedencia está registrada; ejecutar `.\.venv\Scripts\python.exe -m pytest` con `config.settings_test` y sin banderas, sin exportar otro `DJANGO_SETTINGS_MODULE`; confirmar `DATABASE()=nexopyme_bootstrap_test` y que la creación/uso/eliminación ocurre solo allí; verificar después que `nexopyme_bootstrap_dev` sigue intacta (10 tablas, 18 filas, `django_content_type=6`, `auth_permission=24`, grants sin cambios) y que la base de pruebas fue eliminada; ejecutar `.\.venv\Scripts\python.exe -m ruff check .`; registrar autorización (fecha/aprobador/tupla), comandos/salidas/códigos por separado; Reviewer APROBADO. No se ejecutó pytest, no se creó la base de pruebas, no se otorgaron permisos, no se ejecutaron migraciones y no se inició otra tarea.
+
+## Registro de ejecución — T-10 (2026-11-07; pytest 2/2; Reviewer APROBADO)
+
+**Autorización y aprovisionamiento:** el usuario del proyecto (vía Build) autorizó formalmente completar T-10 el 2026-11-07. Operaciones de ciclo de vida autorizadas: `CREATE DATABASE` de la base de pruebas, DDL de migraciones, DML de `post_migrate` y `DROP DATABASE` al finalizar. `nexopyme_test_user@localhost` fue creado y `SHOW GRANTS` confirmó los nueve privilegios limitados a `nexopyme_bootstrap_test.*`; `MYSQL_TEST_USER`/`MYSQL_TEST_PASSWORD` quedaron disponibles en el entorno local sin exponer secretos.
+
+**Preflight read-only como usuario de pruebas:** `VERSION=8.0.36`, `CURRENT_USER=nexopyme_test_user@localhost`, `TEST_USER_MATCH=True`, `TEST_USER_DIFFERS_FROM_DEV=True`; grants `USAGE ON *.*` + `SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER` sobre `nexopyme_bootstrap_test.*`; bases visibles `information_schema`, `performance_schema`; `TEST_DB_EXISTS=False`, `TEST_DB_TABLE_COUNT=0`; `DEV_DB_VISIBLE_TO_TEST_USER=False`; `READ_ONLY_TRANSACTION_COMPLETED=True`; `PREFLIGHT_EXIT=0`.
+
+**Guardas:** `config/settings_test.py` confirmó `SETTINGS_MODULE=config.settings_test`, `TEST.NAME=nexopyme_bootstrap_test`, `USER=nexopyme_test_user`, `MIRROR=None`, `MIGRATE=True`, `CHARSET=utf8mb4`, `COLLATION=utf8mb4_unicode_ci`; la importación con `MYSQL_TEST_USER=nexopyme_user` fue rechazada previamente con `ImproperlyConfigured`. La guarda `pytest_configure` de `conftest.py` se ejecutó dentro de pytest sin abortar, con `settings: config.settings_test (from ini)`.
+
+**Ejecución:** `.\.venv\Scripts\python.exe -m pytest` sin banderas → `collected 2 items`, `tests/test_db_guards.py ..`, `2 passed, 13 warnings in 65.95s (0:01:05)`, `PYTEST_EXIT=0`; `settings: config.settings_test (from ini)`. La prueba con `@pytest.mark.django_db` verificó `connection.settings_dict["NAME"]` y `SELECT DATABASE() == nexopyme_bootstrap_test`. **pytest accedió a MySQL** a través de ese test; no hubo otras conexiones de prueba. Las 13 warnings provienen de `langsmith` (`DeprecationWarning: asyncio.iscoroutinefunction`), sin relación con Django/MySQL y sin impacto en la aceptación.
+
+**Post-verificación read-only:** preflight como usuario de pruebas: grants sin cambios, `TEST_DB_EXISTS=False`, `TEST_DB_TABLE_COUNT=0`, `DEV_DB_VISIBLE_TO_TEST_USER=False`, `TEST_PREFLIGHT_EXIT=0`. Preflight de desarrollo: `VERSION=8.0.36`, `DATABASE=nexopyme_bootstrap_dev`, `CURRENT_USER=nexopyme_user@localhost`, `CONFIG_MATCH=True`, grants sin cambios, `TABLE_COUNT=10`, `DEV_PREFLIGHT_EXIT=0`; verificación: 18 migraciones, 10 tablas, 6 content types, 24 permisos, sin inesperados/faltantes, `DEV_VERIFY_EXIT=0`. `.\.venv\Scripts\python.exe -m ruff check .` → `All checks passed!`, `RUFF_EXIT=0`.
+
+**Límites respetados:** no se usó `manage.py test`; sin pruebas paralelas ni reutilización de bases (`--reuse-db`/`--create-db` bloqueadas); sin cambios de permisos MySQL; `nexopyme_bootstrap_dev` no se modificó; T-11 no iniciada; sin secretos. La base de pruebas fue creada y eliminada por pytest.
+
+**Riesgos heredados para T-11/T-13:** (a) `nexopyme_test_user` conserva los nueve privilegios sobre `nexopyme_bootstrap_test.*` aunque la base no exista; decidir si se mantienen para futuras ejecuciones o se revocan al cierre del bootstrap; (b) `nexopyme_user` conserva `CREATE`/`ALTER`/`INDEX`/`REFERENCES` sobre desarrollo; (c) `MEMORY.md` sigue desactualizado y debe corregirse en T-11/T-13.
+
+**Estado:** T-10 COMPLETADA; Reviewer emitió APROBADO y T-10 quedó `[x]`. No se inició T-11.
