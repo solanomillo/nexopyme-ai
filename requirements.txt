@@ -16,3 +16,5 @@ pydantic==2.14.3
 langchain==1.4.9
 langgraph==1.2.20
 langchain-deepseek==1.1.1
+# Etapa 001 (T-01, D-07): Unfold para el Admin. Pin exacto, sin rangos abiertos.
+django-unfold==0.110.1
