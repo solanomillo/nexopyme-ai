@@ -7,6 +7,7 @@
 # La existencia de este archivo no autoriza instalación (T-05).
 # Enmienda autorizada (T-07, 2026-11-07): Django 6.0.9 sustituye a 6.1.3
 # porque Django 6.1 exige MySQL 8.4+ y el destino autorizado es MySQL 8.0.36.
+# Etapa 001 (2026-11-09): añade django-unfold==0.110.1 y python-dotenv==1.2.4.
 Django==6.0.9
 mysqlclient==2.3.0
 pytest==9.2.0
@@ -18,3 +19,5 @@ langgraph==1.2.20
 langchain-deepseek==1.1.1
 # Etapa 001 (T-01, D-07): Unfold para el Admin. Pin exacto, sin rangos abiertos.
 django-unfold==0.110.1
+# Etapa 001 (regularización T-01): carga local de .env con override=False.
+python-dotenv==1.2.4
