@@ -1,4 +1,4 @@
-"""Configuración de Django para NexoPyme AI (bootstrap 000).
+"""Configuración de Django para NexoPyme AI (Etapa 001).
 
 Toda la configuración sensible se lee de variables de entorno del proceso.
 Este archivo no contiene credenciales, secretos ni valores reales.
@@ -8,8 +8,12 @@ import os
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Cargar .env sin sobrescribir variables ya definidas (override=False).
+load_dotenv(BASE_DIR / ".env", override=False)
 
 
 def _get_required_env(name: str) -> str:
