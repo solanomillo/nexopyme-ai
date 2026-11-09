@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}NexoPyme AI — Gestión empresarial para pequeñas empresas{% endblock %}
+
+{% block description %}NexoPyme AI es una plataforma de gestión empresarial para pequeñas empresas. Esta etapa establece la fundación técnica del proyecto; los módulos de negocio todavía no están disponibles.{% endblock %}
+
+{% block content %}
+<section class="home-hero" aria-labelledby="home-title">
+  <h1 class="home-hero__title" id="home-title">
+    <span class="home-hero__name">NexoPyme AI</span>
+    <span class="home-hero__claim">Gestión empresarial para pequeñas empresas</span>
+  </h1>
+
+  <p class="home-hero__lead">
+    Una plataforma para ordenar las operaciones diarias del negocio, con
+    inteligencia artificial como apoyo para quien la usa.
+  </p>
+
+  <div class="home-hero__actions">
+    <a class="button button--primary" href="/admin/">Abrir Administración</a>
+    <p class="home-hero__note">El acceso está reservado al personal administrativo.</p>
+  </div>
+</section>
+
+<div class="home-panels">
+  <section class="panel panel--stage" aria-labelledby="stage-title">
+    <h2 class="panel__title" id="stage-title">Etapa actual</h2>
+    <p class="panel__stage">Etapa 001 — Django Project Foundation</p>
+    <p class="panel__text">
+      Fundación técnica del proyecto: configuración de Django, panel de
+      administración y base visual. Todavía no hay módulos de negocio en
+      funcionamiento.
+    </p>
+  </section>
+
+  <section class="panel panel--next" aria-labelledby="next-steps-title">
+    <h2 class="panel__title" id="next-steps-title">Próximos pasos</h2>
+    <p class="panel__text">
+      Estos módulos están pendientes de especificación. Se describirán en etapas
+      posteriores y no están disponibles todavía.
+    </p>
+
+    <ul class="next-steps">
+      <li class="next-steps__item">
+        <span class="next-steps__name">Productos e inventario</span>
+        <span class="next-steps__status">Pendiente de especificación</span>
+      </li>
+      <li class="next-steps__item">
+        <span class="next-steps__name">Compras</span>
+        <span class="next-steps__status">Pendiente de especificación</span>
+      </li>
+      <li class="next-steps__item">
+        <span class="next-steps__name">Ventas y clientes</span>
+        <span class="next-steps__status">Pendiente de especificación</span>
+      </li>
+      <li class="next-steps__item">
+        <span class="next-steps__name">Finanzas básicas</span>
+        <span class="next-steps__status">Pendiente de especificación</span>
+      </li>
+      <li class="next-steps__item">
+        <span class="next-steps__name">Reportes</span>
+        <span class="next-steps__status">Pendiente de especificación</span>
+      </li>
+      <li class="next-steps__item">
+        <span class="next-steps__name">Asistente de IA</span>
+        <span class="next-steps__status">Pendiente de especificación</span>
+      </li>
+    </ul>
+  </section>
+</div>
+{% endblock %}
