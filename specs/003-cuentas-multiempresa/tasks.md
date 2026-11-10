@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-03 publicadas; T-04 en curso |
+| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-04 publicadas; T-05 en curso |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -53,7 +53,7 @@
 | T-02 | Catálogo de roles y capacidades | F1 | T-01 | G-1 | `[x]` |
 | T-03 | Modelos `Account`, `Company` y `Membership` | F1 | T-02 | G-1, G-2, G-3, G-4 | `[x]` |
 | T-04 | Auditoría: modelos y migración | F1 | T-03 | G-1, G-2, G-3, G-4 | `[x]` |
-| T-05 | Servicios de auditoría y eventos de seguridad | F1 | T-04 | G-1, G-4 | `[ ]` |
+| T-05 | Servicios de auditoría y eventos de seguridad | F1 | T-04 | G-1, G-4 | `[x]` |
 | T-06 | Servicios de empresa y membresía | F2 | T-03, T-05 | G-1, G-4 | `[ ]` |
 | T-07 | Invariantes y concurrencia | F2 | T-06 | G-1, G-4 | `[ ]` |
 | T-08 | Middleware de contexto y punto de bloqueo | F3 | T-03, T-07 | G-1, G-4 | `[ ]` |
@@ -168,6 +168,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** la auditoría se registra solo tras el commit; el evento sobrevive al rechazo; no hay datos sensibles.
 - **Evidencia:** pytest del archivo.
 - **Trazabilidad:** RF-38, RF-40; RN-14; RNF-04, RNF-05.
+- **Registro de ejecución (2026-11-10):** implementados `record_audit` (con `transaction.on_commit`) y `record_security` (inmediato, fuera del bloque de negocio), con saneamiento recursivo de claves sensibles y sin mutar los datos originales; 14 pruebas del archivo de auditoría en verde, incluidas captura de `on_commit`, diferimiento hasta el commit, saneamiento y supervivencia al rechazo con `TransactionTestCase`; `ruff check .` → All checks passed. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-06 — Servicios de empresa y membresía
 
@@ -558,7 +559,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-02: catálogo de roles y capacidades aprobado por el Reviewer (2026-11-10) y commiteado.
 - `[x]` T-03: modelos y migración aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-04: auditoría y eventos aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-05 a T-26: no iniciadas.
+- `[x]` T-05: servicios de auditoría aprobados por el Reviewer (2026-11-10) y commiteados.
+- `[ ]` T-06 a T-26: no iniciadas.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
 - G-0 aprobado y G-1 autorizado para T-02 a T-09; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.
