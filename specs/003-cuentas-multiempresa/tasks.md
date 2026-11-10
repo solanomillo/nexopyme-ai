@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-06 publicadas; T-07 en curso |
+| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-07 publicadas; T-08 en curso |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -56,7 +56,7 @@
 | T-05 | Servicios de auditoría y eventos de seguridad | F1 | T-04 | G-1, G-4 | `[x]` |
 | T-06 | Servicios de empresa y membresía | F2 | T-03, T-05 | G-1, G-4 | `[x]` |
 | T-07 | Invariantes y concurrencia | F2 | T-06 | G-1, G-4 | `[x]` |
-| T-08 | Middleware de contexto y punto de bloqueo | F3 | T-03, T-07 | G-1, G-4 | `[ ]` |
+| T-08 | Middleware de contexto y punto de bloqueo | F3 | T-03, T-07 | G-1, G-4 | `[x]` |
 | T-09 | Autorización en vistas y servicios | F3 | T-02, T-08 | G-1, G-4 | `[ ]` |
 | T-10 | Backends de autenticación | F4 | T-03, T-09 | G-1, G-4 | `[ ]` |
 | T-11 | Acceso, cierre de sesión y rutas protegidas | F4 | T-10 | G-1, G-4 | `[ ]` |
@@ -217,6 +217,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** una consulta de contexto por solicitud; Admin y home sin cambios; denegación correcta; anónimo redirigido; identificador coincidente aceptado; inyección rechazada con evento.
 - **Evidencia:** pytest del archivo.
 - **Trazabilidad:** RF-08, RF-09, RF-10; CA-08, CA-09, CA-10; RN-07, RN-10, RN-17; RNF-06.
+- **Registro de ejecución (2026-11-10):** `ActiveCompanyMiddleware` insertado tras `AuthenticationMiddleware`; resuelve membresía y empresa con una consulta `select_related`; expone `request.must_change_password` como punto único de evaluación para T-12; excluye `/`, `/health/`, `/favicon.ico`, `/static/`, `/admin/`, `/login/`, `/logout/` y `/password/`; deniega con 403 sin membresía o con empresa inactiva; detecta `company` inyectado distinto en GET o POST y responde 404 con evento de seguridad. **9 pruebas en verde** (contexto, anónimo, membresía inactiva, empresa inactiva, exclusiones, helper de exclusiones, inyección GET, inyección POST y coincidencia) y `ruff check .` → All checks passed.
 
 ### T-09 — Autorización en vistas y servicios
 
@@ -564,7 +565,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-05: servicios de auditoría aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-06: servicios de empresa y membresía aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-07: invariantes y concurrencia aprobadas por el Reviewer (2026-11-10) y commiteadas.
-- `[ ]` T-08 a T-26: no iniciadas.
+- `[x]` T-08: middleware de contexto aprobado por el Reviewer (2026-11-10) y commiteado.
+- `[ ]` T-09 a T-26: no iniciadas.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
 - G-0 aprobado y G-1 autorizado para T-02 a T-09; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.
