@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 en revisión |
+| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 publicada; T-02 en curso |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -50,7 +50,7 @@
 | ID | Tarea | Fase | Depende de | Gate | Estado |
 |---|---|---|---|---|---|
 | T-01 | Verificar estado de partida y guardas | F0 | — | — | `[x]` |
-| T-02 | Catálogo de roles y capacidades | F1 | T-01 | G-1 | `[ ]` |
+| T-02 | Catálogo de roles y capacidades | F1 | T-01 | G-1 | `[x]` |
 | T-03 | Modelos `Account`, `Company` y `Membership` | F1 | T-02 | G-1, G-2, G-3, G-4 | `[ ]` |
 | T-04 | Auditoría: modelos y migración | F1 | T-03 | G-1, G-2, G-3, G-4 | `[ ]` |
 | T-05 | Servicios de auditoría y eventos de seguridad | F1 | T-04 | G-1, G-4 | `[ ]` |
@@ -97,7 +97,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** igualdad de referencias; 20 pruebas en verde; Ruff sin errores; guardas intactas.
 - **Evidencia:** salidas de los comandos y `git status`.
 - **Trazabilidad:** RNF-09, RNF-12.
-- **Registro de ejecución (2026-11-10):** `HEAD` = `origin/main` = `bef5c58`, divergencia `0 0`. `python manage.py check` → sin problemas. 20 pruebas DB-free en verde (1,09 s). `ruff check .` → All checks passed (exit 0). `conftest.py`, `config/settings_test.py`, `pytest.ini` y `tests/test_db_guards.py` sin cambios. `config/settings.py` usa `django.db.backends.mysql`; sin SQLite operativo, sin migraciones, sin base de pruebas y sin dependencias nuevas. `git status`: sin cambios en archivos versionados; `specs/003-cuentas-multiempresa/` aún sin versionar (`spec.md`, `plan.md`, `tasks.md`); `.opencode/`, `opencode.jsonc` y `specs/002-productos-inventario/` permanecen fuera del control de versiones por decisión previa. Dictamen del Reviewer: APROBADO (2026-11-10).
+- **Registro de ejecución (2026-11-10):** `HEAD` = `origin/main` = `bef5c58`, divergencia `0 0`. `python manage.py check` → sin problemas. 20 pruebas DB-free en verde (1,09 s). `ruff check .` → All checks passed (exit 0). `conftest.py`, `config/settings_test.py`, `pytest.ini` y `tests/test_db_guards.py` sin cambios. `config/settings.py` usa `django.db.backends.mysql`; sin SQLite operativo, sin migraciones, sin base de pruebas y sin dependencias nuevas. `git status`: sin cambios en archivos versionados; `specs/003-cuentas-multiempresa/` aún sin versionar (`spec.md`, `plan.md`, `tasks.md`); `.opencode/`, `opencode.jsonc` y `specs/002-productos-inventario/` permanecen fuera del control de versiones por decisión previa. Dictamen del Reviewer: APROBADO (2026-11-10). Cierre: commit `4344c31` publicado; `spec.md` y `plan.md` versionados en `d907766`; corrección de estado de §17 en `a355248`.
 
 ### T-02 — Catálogo de roles y capacidades
 
@@ -113,6 +113,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** matriz idéntica a la especificación §4.3; `apps.core` al final; prueba de estructura en verde; guarda de que no existe otra definición de roles o capacidades fuera de `capabilities.py` (CA-20).
 - **Evidencia:** pytest de capacidades y estructura.
 - **Trazabilidad:** RF-14, RF-16, RF-20; CA-14, CA-16, CA-20; RN-05, RN-06.
+- **Registro de ejecución (2026-11-10):** `apps/accounts` creada con `AccountsConfig`; `Role`, `Capability`, `ROLE_CAPABILITIES` y `has_capability` en `capabilities.py`; `"apps.accounts"` insertado antes de `"apps.core"`; prueba de estructura actualizada; **14 pruebas en verde** (9 del catálogo + 5 de estructura), incluida la guarda CA-20; `ruff check .` → All checks passed. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-03 — Modelos `Account`, `Company` y `Membership`
 
@@ -541,22 +542,23 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | Gate | Alcance | Estado |
 |---|---|---|
 | G-0 | Aprobación de `plan.md` y `tasks.md` | APROBADO por el usuario el 2026-11-10 |
-| G-1 | Autorización de implementación | Autorizado para T-01 el 2026-11-10; las tareas siguientes requieren autorización del usuario |
+| G-1 | Autorización de implementación | Autorizado para T-01 y T-02 el 2026-11-10; el resto requiere autorización del usuario |
 | G-2 | Generación y aplicación de migraciones | Pendiente |
 | G-3 | Comandos y servidor sobre desarrollo | Pendiente |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Pendiente del APROBADO de T-01 |
+| G-5 | Commit y push por tarea | Operativo; T-01 publicado |
 
 ---
 
 ## 10. Estado de las tareas
 
 - `[x]` T-01: verificaciones de partida aprobadas por el Reviewer (2026-11-10) y commiteadas.
-- `[ ]` T-02 a T-26: no iniciadas.
-- Observaciones O-1, O-2, O-3 y O-4 del plan pendientes de confirmación del usuario.
+- `[x]` T-02: catálogo de roles y capacidades aprobado por el Reviewer (2026-11-10) y commiteado.
+- `[ ]` T-03 a T-26: no iniciadas.
+- O-2 aplicada en T-02; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
-- G-0 aprobado y G-1 autorizado solo para T-01; sin migraciones, comandos ni commits de implementación.
-- `specs/003-cuentas-multiempresa/` permanece sin versionar hasta que el usuario defina el commit de los artefactos de planificación.
+- G-0 aprobado y G-1 autorizado para T-01 y T-02; sin migraciones, comandos ni commits de implementación fuera de las tareas autorizadas.
+- `specs/003-cuentas-multiempresa/` versionado: `spec.md` y `plan.md` en `d907766`; `tasks.md` en `4344c31`.
 
 ---
 

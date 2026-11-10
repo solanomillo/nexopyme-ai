@@ -61,7 +61,7 @@ def test_no_business_apps_were_created() -> None:
     entries = {
         entry.name for entry in apps_dir.iterdir() if entry.name != "__pycache__"
     }
-    assert entries == {"__init__.py", "core"}
+    assert entries == {"__init__.py", "accounts", "core"}
 
 
 def test_own_templates_and_css_do_not_reference_unfold() -> None:
