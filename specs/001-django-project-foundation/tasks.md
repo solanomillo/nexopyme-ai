@@ -6,17 +6,17 @@
 |---|---|
 | Funcionalidad | 001 — Django Project Foundation |
 | Artefacto | `specs/001-django-project-foundation/tasks.md` |
-| Versión | 1.5 — RC-4 APROBADO; cierre de T-13, T-14, T-15 y T-16 |
-| Estado | **La v1.0 fue APROBADA en RC-1; la v1.1, v1.2 y v1.3 en revisión delta. RC-3 APROBADO para T-06–T-12. RC-4 APROBADO para T-13–T-16, incluida la corrección del favicon y CA-13 en PASS.** |
-| Historial | v1.0: APROBADO en RC-1. v1.1: APROBADO en revisión delta. v1.2: APROBADO en revisión delta. v1.3: APROBADO en revisión delta (i18n). v1.4 (2026-11-09): documentación T-15, versionado de `specs/001` y preparación de T-16; RC-4 pendiente. v1.5 (2026-11-10): RC-4 APROBADO; T-13–T-16 cerradas. |
+| Versión | 1.6 — T-17 APROBADO; correcciones documentales M-1 y M-2 |
+| Estado | **La v1.0 fue APROBADA en RC-1; la v1.1, v1.2 y v1.3 en revisión delta. RC-3 APROBADO para T-06–T-12. RC-4 APROBADO para T-13–T-16, incluida la corrección del favicon y CA-13 en PASS. T-17 APROBADO: revisión final de la etapa y correcciones documentales. Queda T-18.** |
+| Historial | v1.0: APROBADO en RC-1. v1.1: APROBADO en revisión delta. v1.2: APROBADO en revisión delta. v1.3: APROBADO en revisión delta (i18n). v1.4 (2026-11-09): documentación T-15, versionado de `specs/001` y preparación de T-16; RC-4 pendiente. v1.5 (2026-11-10): RC-4 APROBADO; T-13–T-16 cerradas. v1.6 (2026-11-10): T-17 APROBADO; leyenda de estados unificada y 375 px incorporado al plan. |
 | Especificación | `spec.md` v1.1 aprobada |
-| Plan | `plan.md` v1.5 (RC-4 APROBADO) |
+| Plan | `plan.md` v1.6 (T-17 APROBADO) |
 | Fecha | 2026-11-10 |
 | Responsable | Planner |
 
 ## 2. Convenciones
 
-- `[ ]` pendiente; `[x]` completada; `[~]` en curso; `[!]` bloqueada.
+- `[ ]` no iniciada; `[x]` completada y aprobada (commit bajo G-6 tras el APROBADO si hay archivos versionables); `[~]` implementada y pendiente de aprobación o commit; `[!]` bloqueada.
 - Cada tarea es pequeña, ordenada y verificable.
 - Ninguna tarea se ejecuta sin los gates del plan §12.
 - Las evidencias no contienen contraseñas, tokens ni datos personales.
@@ -55,7 +55,7 @@
 | T-14 | Ejecutar Ruff | 5 | T-01–T-13 | G-1 | `[x]` |
 | T-15 | Actualizar documentación | 6 | T-12, T-13, T-14, T-16 | G-1 | `[x]` |
 | T-16 | Validación visual y evidencias | 5 | T-09 (home), T-12 (Admin) | G-3 solo para Admin | `[x]` |
-| T-17 | Revisión final del Reviewer | 6 | T-01–T-16 | — | `[ ]` |
+| T-17 | Revisión final del Reviewer | 6 | T-01–T-16 | — | `[x]` |
 | T-18 | Cierre documental y verificación Git | 6 | T-17 APROBADO y commits/push de T-01–T-16 | G-6 | `[ ]` |
 
 `[x]` tarea completada y aprobada (el commit se ejecuta bajo G-6 después del APROBADO, cuando la tarea tiene archivos versionables); `[~]` implementada y pendiente de aprobación o commit; `[ ]` no iniciada.
@@ -372,6 +372,7 @@
 - **Verificación:** veredicto APROBADO y commits/push por tarea completos.
 - **Evidencia:** informe del Reviewer, hashes de commit por tarea y estado remoto.
 - **Trazabilidad:** todos los requisitos y criterios.
+- **Registro de ejecución (2026-11-10):** revisión final APROBADA. Se resolvieron las observaciones documentales M-1 (leyenda de estados unificada entre §2 y §4) y M-2 (375 px incorporado en `plan.md` §10.2). La limitación del `/favicon.ico` en Admin (Unfold), la suite completa `NO EJECUTADA` y la deuda de `ruff format --check .` permanecen documentadas. Commit de correcciones conforme al plan §12.
 
 ### T-18 — Cierre documental y verificación Git
 
@@ -463,11 +464,12 @@ T-09 + T-12 ── T-16 ── T-15 ── T-17 ── T-18
 - `[x]` T-14: `ruff check .` verde; deuda de formato preexistente documentada, sin cambios.
 - `[x]` T-15: documentación actualizada (`README.md`, `docs/README.md`, `.env.example`, `specs/001`); aprobada en RC-4 (2026-11-10); commit por tarea conforme al plan §12; `MEMORY.md` se commitea en T-18.
 - `[x]` T-16: validación visual y funcional aprobada explícitamente por el usuario el 2026-11-10; favicon SVG corregido; CA-13 en PASS; commit por tarea conforme al plan §12.
-- `[ ]` T-17–T-18: no iniciadas.
+- `[x]` T-17: revisión final APROBADA (2026-11-10); correcciones documentales M-1 y M-2; commit conforme al plan §12.
+- `[ ]` T-18: cierre documental de `MEMORY.md` y verificación Git pendientes.
 - P-01 y P-02 están completados.
 - RC-3 aprobado; la regularización i18n está aprobada y publicada (`dce246b`).
 
 ---
 
-**Fin de las tareas v1.5.** La v1.0 fue aprobada en RC-1; la v1.1, v1.2 y v1.3 en revisión delta. RC-3 está aprobado. RC-4 está aprobado para T-13–T-16, incluida la corrección del favicon y CA-13 en PASS. Quedan T-17 y T-18. G-0/G-1 ya fueron concedidas.
+**Fin de las tareas v1.6.** La v1.0 fue aprobada en RC-1; la v1.1, v1.2 y v1.3 en revisión delta. RC-3 está aprobado. RC-4 está aprobado para T-13–T-16, incluida la corrección del favicon y CA-13 en PASS. T-17 está aprobado con las correcciones documentales M-1 y M-2. Queda T-18. G-0/G-1 ya fueron concedidas.
 

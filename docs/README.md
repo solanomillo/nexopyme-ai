@@ -8,8 +8,8 @@ del proyecto. El Bootstrap 000 permanece cerrado y no se modifica.
 - `specs/000-project-bootstrap/spec.md`, `plan.md`, `tasks.md`: Bootstrap 000
   cerrado y versionado.
 - `specs/001-django-project-foundation/spec.md`: especificación v1.1 aprobada.
-- `specs/001-django-project-foundation/plan.md`: plan técnico v1.5.
-- `specs/001-django-project-foundation/tasks.md`: tareas v1.5 y trazabilidad.
+- `specs/001-django-project-foundation/plan.md`: plan técnico v1.6.
+- `specs/001-django-project-foundation/tasks.md`: tareas v1.6 y trazabilidad.
 - `specs/002-productos-inventario/spec.md`: especificación renumerada, no
   aprobada ni implementada.
 

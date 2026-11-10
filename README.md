@@ -12,7 +12,7 @@ DB-free. El MVP de negocio todavía no está implementado.
 ## Estado actual
 
 - Bootstrap 000: cerrado documentalmente; T-01–T-13 completadas.
-- Etapa 001: T-01–T-16 completadas; T-13–T-16 aprobadas en RC-4 (2026-11-10); T-17 y T-18 pendientes.
+- Etapa 001: T-01–T-17 completadas; T-13–T-16 aprobadas en RC-4 y T-17 aprobada en la revisión final (2026-11-10); T-18 pendiente.
 - Sin módulos de negocio, agentes de IA, checkpointer ni despliegue remoto.
 - V1 local, sin microservicios, Redis, RAG ni bases vectoriales.
 
@@ -257,7 +257,7 @@ suite completa `NO EJECUTADA`.
 - `specs/000-project-bootstrap/plan.md`: plan técnico y evidencias.
 - `specs/000-project-bootstrap/tasks.md`: tareas, trazabilidad y checklist.
 - `specs/001-django-project-foundation/spec.md`: especificación v1.1 aprobada.
-- `specs/001-django-project-foundation/plan.md`: plan técnico v1.5.
-- `specs/001-django-project-foundation/tasks.md`: tareas v1.5 y trazabilidad.
+- `specs/001-django-project-foundation/plan.md`: plan técnico v1.6.
+- `specs/001-django-project-foundation/tasks.md`: tareas v1.6 y trazabilidad.
 - `specs/002-productos-inventario/spec.md`: especificación renumerada, no
   aprobada ni implementada.

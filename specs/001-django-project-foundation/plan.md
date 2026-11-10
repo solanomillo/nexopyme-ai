@@ -6,14 +6,14 @@
 |---|---|
 | Funcionalidad | 001 — Django Project Foundation |
 | Artefacto | `specs/001-django-project-foundation/plan.md` |
-| Versión | 1.5 — RC-4 APROBADO; cierre de T-13 a T-16 |
-| Estado | **La v1.0 fue APROBADA en RC-1; la v1.1, v1.2 y v1.3 en revisión delta. RC-3 APROBADO para T-06–T-12. RC-4 APROBADO para T-13–T-16, incluida la corrección del favicon y CA-13 en PASS.** |
-| Historial | v1.0: APROBADO en RC-1. v1.1: APROBADO en revisión delta. v1.2: APROBADO en revisión delta. v1.3: APROBADO en revisión delta (i18n). v1.4 (2026-11-09): documentación T-15, versionado de `specs/001` y preparación de T-16; RC-4 pendiente. v1.5 (2026-11-10): RC-4 APROBADO; T-13–T-16 cerradas. |
+| Versión | 1.6 — T-17 APROBADO; correcciones documentales M-1 y M-2 |
+| Estado | **La v1.0 fue APROBADA en RC-1; la v1.1, v1.2 y v1.3 en revisión delta. RC-3 APROBADO para T-06–T-12. RC-4 APROBADO para T-13–T-16, incluida la corrección del favicon y CA-13 en PASS. T-17 APROBADO: revisión final de la etapa y correcciones documentales. Queda T-18.** |
+| Historial | v1.0: APROBADO en RC-1. v1.1: APROBADO en revisión delta. v1.2: APROBADO en revisión delta. v1.3: APROBADO en revisión delta (i18n). v1.4 (2026-11-09): documentación T-15, versionado de `specs/001` y preparación de T-16; RC-4 pendiente. v1.5 (2026-11-10): RC-4 APROBADO; T-13–T-16 cerradas. v1.6 (2026-11-10): T-17 APROBADO; leyenda de estados unificada y 375 px incorporado al plan. |
 | Especificación de referencia | `specs/001-django-project-foundation/spec.md` v1.1 aprobada |
-| Tareas | `specs/001-django-project-foundation/tasks.md` v1.5 |
+| Tareas | `specs/001-django-project-foundation/tasks.md` v1.6 |
 | Fecha | 2026-11-10 |
 | Responsable | Planner |
-| Fase SDD | 8: implementación de la Etapa 001 completada hasta T-16; T-17 y T-18 pendientes |
+| Fase SDD | 8: implementación de la Etapa 001 completada hasta T-17; T-18 pendiente |
 | Prelación normativa | `CONSTITUTION.md` → `AGENTS.md` → `spec.md` → este plan → `tasks.md` |
 
 Este plan no implementa, no instala dependencias, no accede a MySQL, no crea el superusuario, no ejecuta `runserver` y no realiza commits ni push. Su ejecución requiere la aprobación humana del plan y la autorización explícita de implementación.
@@ -369,7 +369,7 @@ Estas guardas no se modifican (D-08).
 
 ### 10.2 Visual
 
-- 320 px, 768 px, 1440 px y 1920 px sin desbordamiento horizontal.
+- 320 px, 375 px, 768 px, 1440 px y 1920 px sin desbordamiento horizontal.
 - Navegación por teclado y foco visible.
 - `lang="es"`, un `h1`, jerarquía coherente.
 - Contraste mínimo 4.5:1.
@@ -418,8 +418,9 @@ El silencio no constituye autorización. Si un gate no está resuelto, la tarea 
 - Implementer solo ejecuta el commit después de ejecutar las pruebas correspondientes, obtener Ruff sin errores y verificar que no existen cambios ajenos a la tarea.
 - Implementer ejecuta `git add` limitado exclusivamente a los archivos de la tarea y `git commit` con Conventional Commit en inglés.
 - Build vuelve a verificar el alcance del commit, que corresponde a su tarea, que el informe contiene pruebas y Ruff en verde y que existe APROBADO; después ejecuta `git push` a `main`. No se solicita autorización adicional por cada commit o push.
-- Las tareas sin archivos versionables (T-10, T-11, T-12, T-14, T-17) no generan commit; su evidencia es el informe. T-06 se commitea porque instala la skill en `.agents/skills/` y genera `skills-lock.json`.
+- Las tareas sin archivos versionables (T-10, T-11, T-12, T-14) no generan commit; su evidencia es el informe. T-06 se commitea porque instala la skill en `.agents/skills/` y genera `skills-lock.json`.
 - T-16 commitea `templates/base.html` y `static/img/favicon.svg`, correspondientes a la corrección del favicon aprobada en RC-4.
+- T-17 commitea las correcciones documentales aprobadas en su revisión final (`plan.md`, `tasks.md`, `README.md` y `docs/README.md`).
 - T-14 no tiene commit propio; si Ruff exige correcciones, se commitean bajo la tarea afectada con `fix:` tras el nuevo APROBADO.
 - T-15 commitea `README.md`, `docs/README.md`, `.env.example` y los artefactos de `specs/001-django-project-foundation/` (`spec.md`, `plan.md`, `tasks.md`). `MEMORY.md` se actualiza en T-15 pero se commitea únicamente en T-18. Los artefactos de `specs/000-project-bootstrap/` ya están versionados y no se modifican.
 - Las correcciones posteriores se revisan y aprueban en el checkpoint donde se detectan (RC-3, RC-4 o la re-revisión de T-17); ese nuevo APROBADO habilita un commit `fix:` bajo la tarea afectada. No se reutiliza el APROBADO original de la tarea y no se usa `amend`.
@@ -433,6 +434,7 @@ El silencio no constituye autorización. Si un gate no está resuelto, la tarea 
 | RC-2 | Tras T-01–T-05 | Instalación, estructura, configuración, Admin/Unfold | APROBADO / CAMBIOS NECESARIOS por tarea |
 | RC-3 | Tras T-06–T-12 | Skill, frontend, MySQL dev, Admin y servidor | APROBADO / CAMBIOS NECESARIOS por tarea |
 | RC-4 | Tras T-13–T-16 | Pruebas, Ruff, documentación y validación visual | APROBADO / CAMBIOS NECESARIOS por tarea |
+| T-17 | Tras RC-4 | Revisión final de la etapa completa | APROBADO / CAMBIOS NECESARIOS |
 
 En RC-2, RC-3 y RC-4 el Reviewer emite un veredicto individual por cada tarea incluida; solo las tareas con APROBADO pueden commitearse. T-17 revisa el conjunto completo.
 
@@ -514,5 +516,5 @@ Ninguno de estos comandos se ha ejecutado durante la elaboración de este plan.
 
 ---
 
-**Fin del plan técnico v1.5.** La v1.0 fue aprobada en RC-1; la v1.1, v1.2 y v1.3 en revisión delta. RC-3 está aprobado. RC-4 está aprobado para T-13–T-16, incluida la corrección del favicon y CA-13 en PASS. Quedan T-17 y T-18. G-0/G-1 ya fueron concedidas.
+**Fin del plan técnico v1.6.** La v1.0 fue aprobada en RC-1; la v1.1, v1.2 y v1.3 en revisión delta. RC-3 está aprobado. RC-4 está aprobado para T-13–T-16, incluida la corrección del favicon y CA-13 en PASS. T-17 está aprobado con las correcciones documentales M-1 y M-2. Queda T-18. G-0/G-1 ya fueron concedidas.
 
