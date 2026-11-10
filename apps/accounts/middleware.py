@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 
 from apps.audit.services import record_security
 
+from .decorators import MissingContextDenied
 from .models import Membership
 
 EXCLUDED_EXACT_PATHS = frozenset(
@@ -55,9 +55,9 @@ class ActiveCompanyMiddleware:
             .first()
         )
         if membership is None:
-            raise PermissionDenied("No tenés acceso al panel.")
+            raise MissingContextDenied("No tenés acceso al panel.")
         if not membership.company.is_active:
-            raise PermissionDenied("La empresa no está activa.")
+            raise MissingContextDenied("La empresa no está activa.")
 
         request.membership = membership
         request.company = membership.company

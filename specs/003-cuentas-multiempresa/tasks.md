@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-07 publicadas; T-08 en curso |
+| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-08 publicadas; T-09 en curso |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -57,7 +57,7 @@
 | T-06 | Servicios de empresa y membresía | F2 | T-03, T-05 | G-1, G-4 | `[x]` |
 | T-07 | Invariantes y concurrencia | F2 | T-06 | G-1, G-4 | `[x]` |
 | T-08 | Middleware de contexto y punto de bloqueo | F3 | T-03, T-07 | G-1, G-4 | `[x]` |
-| T-09 | Autorización en vistas y servicios | F3 | T-02, T-08 | G-1, G-4 | `[ ]` |
+| T-09 | Autorización en vistas y servicios | F3 | T-02, T-08 | G-1, G-4 | `[x]` |
 | T-10 | Backends de autenticación | F4 | T-03, T-09 | G-1, G-4 | `[ ]` |
 | T-11 | Acceso, cierre de sesión y rutas protegidas | F4 | T-10 | G-1, G-4 | `[ ]` |
 | T-12 | Cambio obligatorio y autogestión de contraseña | F4 | T-11 | G-1, G-4 | `[ ]` |
@@ -234,6 +234,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Evidencia:** pytest del archivo y revisión de templates.
 - **Trazabilidad:** RF-11 a RF-19, RF-29; CA-11 a CA-19, CA-29, CA-38; RN-08, RN-09, RN-15.
 - **Nota:** CA-14, CA-18 y CA-19 se verifican con evidencia equivalente en el panel; la literal corresponde a 002 (O-1).
+- **Registro de ejecución (2026-11-10):** `require_capability` delega en `has_capability`; los servicios ya delegaban desde T-06 y no requirieron cambios; `handler403` distingue acceso sin contexto (con opción de cerrar sesión) de permiso insuficiente y registra `permission.denied`; `handler404` uniforme para recurso ajeno, inexistente o empresa inyectada; orden aislamiento → capacidad verificado; **15 pruebas en verde** (6 de autorización + 9 de middleware, sin regresión) y `ruff check .` → All checks passed. El enlace de cierre de sesión apunta a `/logout/`, que implementa T-11; la validación con `DEBUG=False` queda para T-22/T-23.
 
 ### T-10 — Backends de autenticación
 
@@ -566,7 +567,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-06: servicios de empresa y membresía aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-07: invariantes y concurrencia aprobadas por el Reviewer (2026-11-10) y commiteadas.
 - `[x]` T-08: middleware de contexto aprobado por el Reviewer (2026-11-10) y commiteado.
-- `[ ]` T-09 a T-26: no iniciadas.
+- `[x]` T-09: autorización y handlers aprobados por el Reviewer (2026-11-10) y commiteados.
+- `[ ]` T-10 a T-26: no iniciadas.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
 - G-0 aprobado y G-1 autorizado para T-02 a T-09; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.

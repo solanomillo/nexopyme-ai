@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Acceso denegado — NexoPyme AI{% endblock %}
+{% block content %}
+<h1>Acceso denegado</h1>
+{% if reason == "context" %}
+<p>Tu cuenta no tiene acceso al panel. Podés cerrar sesión e ingresar con otra cuenta.</p>
+<form method="post" action="/logout/">
+  {% csrf_token %}
+  <button type="submit">Cerrar sesión</button>
+</form>
+{% else %}
+<p>No tenés permiso para realizar esta operación.</p>
+{% endif %}
+{% endblock %}
