@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-05 publicadas; T-06 en curso |
+| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-06 publicadas; T-07 en curso |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -55,7 +55,7 @@
 | T-04 | Auditoría: modelos y migración | F1 | T-03 | G-1, G-2, G-3, G-4 | `[x]` |
 | T-05 | Servicios de auditoría y eventos de seguridad | F1 | T-04 | G-1, G-4 | `[x]` |
 | T-06 | Servicios de empresa y membresía | F2 | T-03, T-05 | G-1, G-4 | `[x]` |
-| T-07 | Invariantes y concurrencia | F2 | T-06 | G-1, G-4 | `[ ]` |
+| T-07 | Invariantes y concurrencia | F2 | T-06 | G-1, G-4 | `[x]` |
 | T-08 | Middleware de contexto y punto de bloqueo | F3 | T-03, T-07 | G-1, G-4 | `[ ]` |
 | T-09 | Autorización en vistas y servicios | F3 | T-02, T-08 | G-1, G-4 | `[ ]` |
 | T-10 | Backends de autenticación | F4 | T-03, T-09 | G-1, G-4 | `[ ]` |
@@ -199,6 +199,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** no se puede crear un segundo dueño ni una segunda empresa activa; una cuenta no obtiene dos membresías.
 - **Evidencia:** pytest del archivo.
 - **Trazabilidad:** RF-28, RF-32; CA-28, CA-32; RN-02, RN-04, RN-11; RNF-01.
+- **Registro de ejecución (2026-11-10):** implementados `ensure_single_owner` y bloqueo `select_for_update()` sobre la empresa en inicialización, cambio de rol y desactivación; rechazo de empresa duplicada, de degradación del último dueño y de empresa con cero o dos dueños; **30 pruebas en verde** (8 de modelo + 22 de servicios) y `ruff check .` → All checks passed. No se añade prueba de carrera por limitación del entorno: el bloqueo se verifica por código y el riesgo residual de tabla vacía queda documentado. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-08 — Middleware de contexto y punto de bloqueo
 
@@ -562,7 +563,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-04: auditoría y eventos aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-05: servicios de auditoría aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-06: servicios de empresa y membresía aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-07 a T-26: no iniciadas.
+- `[x]` T-07: invariantes y concurrencia aprobadas por el Reviewer (2026-11-10) y commiteadas.
+- `[ ]` T-08 a T-26: no iniciadas.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
 - G-0 aprobado y G-1 autorizado para T-02 a T-09; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.

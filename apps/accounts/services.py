@@ -1,4 +1,4 @@
-"""Servicios de empresa, membresía y cuentas (T-06).
+"""Servicios de empresa, membresía y cuentas (T-06, T-07).
 
 Todas las mutaciones revalidan capacidad y empresa, y auditan el resultado.
 Ningún servicio acepta un identificador de empresa enviado por el cliente.
@@ -67,6 +67,34 @@ def _active_owner_count(company_id: int) -> int:
     ).count()
 
 
+def _lock_company(company_id: int) -> Company:
+    """Bloquea la fila de la empresa para serializar cambios de propiedad."""
+
+    return Company.objects.select_for_update().get(pk=company_id)
+
+
+def _would_leave_company_without_owner(membership: Membership) -> bool:
+    """Indica si mutar esta membresía dejaría la empresa sin dueño activo."""
+
+    return (
+        membership.role == Role.DUENO.value
+        and membership.is_active
+        and _active_owner_count(membership.company_id) <= 1
+    )
+
+
+def ensure_single_owner(company: Company) -> None:
+    """Verifica que la empresa conserve exactamente un dueño activo."""
+
+    owners = Membership.objects.filter(
+        company=company,
+        role=Role.DUENO.value,
+        is_active=True,
+    ).count()
+    if owners != 1:
+        raise LastOwnerError("La empresa debe conservar un dueño activo.")
+
+
 def _audit(
     *,
     actor_user: object,
@@ -102,10 +130,10 @@ def create_company_with_owner(
     clean_name = name.strip()
     if not clean_name:
         raise ServiceError("El nombre de la empresa es obligatorio.")
-    if Company.objects.filter(is_active=True).exists():
-        raise CompanyAlreadyInitialized("La empresa ya fue inicializada.")
 
     with transaction.atomic():
+        if Company.objects.select_for_update().filter(is_active=True).exists():
+            raise CompanyAlreadyInitialized("La empresa ya fue inicializada.")
         company = Company.objects.create(name=clean_name)
         user = get_user_model().objects.create_user(
             username=generate_username(),
@@ -200,11 +228,8 @@ def change_role(
         raise ServiceError("No se puede asignar el rol de dueño.")
 
     with transaction.atomic():
-        if (
-            membership.role == Role.DUENO.value
-            and membership.is_active
-            and _active_owner_count(membership.company_id) <= 1
-        ):
+        _lock_company(membership.company_id)
+        if _would_leave_company_without_owner(membership):
             raise LastOwnerError("La empresa debe conservar un dueño activo.")
         previous_role = membership.role
         membership.role = role_value.value
@@ -229,11 +254,8 @@ def deactivate_membership(*, actor: Membership, membership: Membership) -> None:
         raise ServiceError("La membresía ya está inactiva.")
 
     with transaction.atomic():
-        if (
-            membership.role == Role.DUENO.value
-            and membership.is_active
-            and _active_owner_count(membership.company_id) <= 1
-        ):
+        _lock_company(membership.company_id)
+        if _would_leave_company_without_owner(membership):
             raise LastOwnerError("La empresa debe conservar un dueño activo.")
         membership.is_active = False
         membership.save(update_fields=["is_active", "updated_at"])

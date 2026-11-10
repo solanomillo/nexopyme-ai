@@ -1,4 +1,4 @@
-"""Pruebas de los modelos y servicios de cuentas (T-03, T-06)."""
+"""Pruebas de los modelos y servicios de cuentas (T-03, T-06, T-07)."""
 
 from __future__ import annotations
 
@@ -26,6 +26,7 @@ from apps.accounts.services import (
     create_company_with_owner,
     create_employee,
     deactivate_membership,
+    ensure_single_owner,
     reactivate_membership,
     regenerate_temporary_password,
     update_company_name,
@@ -170,6 +171,8 @@ def test_second_company_initialization_is_rejected(
             display_name="Otra",
             password="Clave-Segura-2026",
         )
+    assert Company.objects.count() == 1
+    assert Account.objects.count() == 1
 
 
 @pytest.mark.django_db
@@ -429,3 +432,56 @@ def test_update_company_name_is_audited(
     event = AuditEvent.objects.get(action="company.name_updated")
     assert event.before == {"name": "Almacén Central"}
     assert event.after == {"name": "Nuevo nombre"}
+
+
+@pytest.mark.django_db
+def test_ensure_single_owner_accepts_the_active_owner(
+    company: Company,
+    owner_membership: Membership,
+) -> None:
+    ensure_single_owner(company)
+
+
+@pytest.mark.django_db
+def test_ensure_single_owner_rejects_a_company_without_owner(
+    company: Company,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(is_active=False)
+    with pytest.raises(LastOwnerError):
+        ensure_single_owner(company)
+
+
+@pytest.mark.django_db
+def test_ensure_single_owner_rejects_two_active_owners(
+    company: Company,
+    owner_membership: Membership,
+) -> None:
+    _create_membership(company, "segundo-dueno@example.com", Role.DUENO)
+    with pytest.raises(LastOwnerError):
+        ensure_single_owner(company)
+
+
+@pytest.mark.django_db
+def test_last_owner_demotion_leaves_the_role_unchanged(
+    owner_membership: Membership,
+) -> None:
+    with pytest.raises(LastOwnerError):
+        change_role(
+            actor=owner_membership,
+            membership=owner_membership,
+            role=Role.ENCARGADO.value,
+        )
+    owner_membership.refresh_from_db()
+    assert owner_membership.role == Role.DUENO.value
+
+
+@pytest.mark.django_db
+def test_employee_has_exactly_one_membership(owner_membership: Membership) -> None:
+    employee, _ = create_employee(
+        actor=owner_membership,
+        email="empleado@example.com",
+        display_name="Empleado",
+        role=Role.OPERADOR.value,
+    )
+    assert employee.account.memberships.count() == 1
