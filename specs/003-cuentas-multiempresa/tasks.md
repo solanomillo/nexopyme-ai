@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-04 publicadas; T-05 en curso |
+| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-05 publicadas; T-06 en curso |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -54,7 +54,7 @@
 | T-03 | Modelos `Account`, `Company` y `Membership` | F1 | T-02 | G-1, G-2, G-3, G-4 | `[x]` |
 | T-04 | Auditoría: modelos y migración | F1 | T-03 | G-1, G-2, G-3, G-4 | `[x]` |
 | T-05 | Servicios de auditoría y eventos de seguridad | F1 | T-04 | G-1, G-4 | `[x]` |
-| T-06 | Servicios de empresa y membresía | F2 | T-03, T-05 | G-1, G-4 | `[ ]` |
+| T-06 | Servicios de empresa y membresía | F2 | T-03, T-05 | G-1, G-4 | `[x]` |
 | T-07 | Invariantes y concurrencia | F2 | T-06 | G-1, G-4 | `[ ]` |
 | T-08 | Middleware de contexto y punto de bloqueo | F3 | T-03, T-07 | G-1, G-4 | `[ ]` |
 | T-09 | Autorización en vistas y servicios | F3 | T-02, T-08 | G-1, G-4 | `[ ]` |
@@ -184,6 +184,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** cada mutación queda auditada (con `django_capture_on_commit_callbacks(execute=True)`); los rechazos no persisten cambios; el correo duplicado no crea registros parciales.
 - **Evidencia:** pytest del archivo.
 - **Trazabilidad:** RF-21, RF-24 a RF-28, RF-30; CA-21, CA-24 a CA-28, CA-30, CA-37; RN-14; RNF-14.
+- **Registro de ejecución (2026-11-10):** implementados `create_company_with_owner`, `create_employee`, `change_role`, `deactivate_membership`, `reactivate_membership`, `regenerate_temporary_password` y `update_company_name`; revalidación de aislamiento y capacidad, rechazo de segundo dueño, de la degradación del último dueño y de la regeneración del dueño por panel, contraseñas temporales y auditoría con valores anterior y nuevo; **25 pruebas en verde** (8 de modelo + 17 de servicios) y `ruff check .` → All checks passed. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-07 — Invariantes y concurrencia
 
@@ -560,11 +561,12 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-03: modelos y migración aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-04: auditoría y eventos aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-05: servicios de auditoría aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-06 a T-26: no iniciadas.
+- `[x]` T-06: servicios de empresa y membresía aprobados por el Reviewer (2026-11-10) y commiteados.
+- `[ ]` T-07 a T-26: no iniciadas.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
 - G-0 aprobado y G-1 autorizado para T-02 a T-09; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.
-- `specs/003-cuentas-multiempresa/` versionado: `spec.md` y `plan.md` en `d907766`; `tasks.md` en `4344c31`.
+- `specs/003-cuentas-multiempresa/` versionado: `spec.md` y `plan.md` en `d907766`; `tasks.md` versionado desde `4344c31` y actualizado en cada commit de tarea.
 
 ---
 
