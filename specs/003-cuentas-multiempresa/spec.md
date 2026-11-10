@@ -506,7 +506,7 @@ La transferencia de propiedad del negocio está excluida de V1 de forma firme (�
 ## 17. Estado de la propuesta
 
 - **Estado:** **APROBADA** v1.0 (2026-11-10); revisión técnica y aprobación humana registradas.
-- **No aprobada:** ninguna parte de esta especificación está aprobada por el solo hecho de existir el documento.
-- **Sin plan ni tareas:** `plan.md` y `tasks.md` no se crean hasta la aprobación de esta especificación.
-- **Sin implementación:** no se crearon modelos, migraciones ni código; no se modificó MySQL ni se instalaron dependencias.
+- **Aprobación explícita:** la v1.0 fue aprobada por el usuario el 2026-11-10; la existencia del documento no sustituye esa aprobación.
+- **Plan y tareas:** `plan.md` v1.2 y `tasks.md` v1.2 aprobados el 2026-11-10; la implementación avanza por tarea con autorización explícita.
+- **Implementación:** T-01 completada; sin modelos, migraciones ni cambios en MySQL; G-2 pendiente de autorización, G-4 autorizado para la etapa y G-1 requerido para la tarea siguiente.
 - **Fuera de alcance de esta entrega:** `specs/002-productos-inventario/` permanece intacta; los módulos de negocio quedan para sus propias especificaciones.
