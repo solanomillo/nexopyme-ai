@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 a T-08 publicadas; T-09 en curso |
+| Estado | G-0 APROBADO — T-01 a T-09 publicadas; RC-5 APROBADO (2026-11-10); T-10 pendiente de autorización |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -217,7 +217,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** una consulta de contexto por solicitud; Admin y home sin cambios; denegación correcta; anónimo redirigido; identificador coincidente aceptado; inyección rechazada con evento.
 - **Evidencia:** pytest del archivo.
 - **Trazabilidad:** RF-08, RF-09, RF-10; CA-08, CA-09, CA-10; RN-07, RN-10, RN-17; RNF-06.
-- **Registro de ejecución (2026-11-10):** `ActiveCompanyMiddleware` insertado tras `AuthenticationMiddleware`; resuelve membresía y empresa con una consulta `select_related`; expone `request.must_change_password` como punto único de evaluación para T-12; excluye `/`, `/health/`, `/favicon.ico`, `/static/`, `/admin/`, `/login/`, `/logout/` y `/password/`; deniega con 403 sin membresía o con empresa inactiva; detecta `company` inyectado distinto en GET o POST y responde 404 con evento de seguridad. **9 pruebas en verde** (contexto, anónimo, membresía inactiva, empresa inactiva, exclusiones, helper de exclusiones, inyección GET, inyección POST y coincidencia) y `ruff check .` → All checks passed.
+- **Registro de ejecución (2026-11-10):** `ActiveCompanyMiddleware` insertado tras `AuthenticationMiddleware`; resuelve membresía y empresa con una consulta `select_related`; expone `request.must_change_password` como punto único de evaluación para T-12; excluye `/`, `/health/`, `/favicon.ico`, `/static/`, `/admin/`, `/login/`, `/logout/` y `/password/`; deniega con 403 sin membresía o con empresa inactiva; detecta `company` inyectado distinto en GET o POST y responde 404 con evento de seguridad. **9 pruebas en verde** (contexto, anónimo, membresía inactiva, empresa inactiva, exclusiones, helper de exclusiones, inyección GET, inyección POST y coincidencia) y `ruff check .` → All checks passed. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-09 — Autorización en vistas y servicios
 
@@ -234,7 +234,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Evidencia:** pytest del archivo y revisión de templates.
 - **Trazabilidad:** RF-11 a RF-19, RF-29; CA-11 a CA-19, CA-29, CA-38; RN-08, RN-09, RN-15.
 - **Nota:** CA-14, CA-18 y CA-19 se verifican con evidencia equivalente en el panel; la literal corresponde a 002 (O-1).
-- **Registro de ejecución (2026-11-10):** `require_capability` delega en `has_capability`; los servicios ya delegaban desde T-06 y no requirieron cambios; `handler403` distingue acceso sin contexto (con opción de cerrar sesión) de permiso insuficiente y registra `permission.denied`; `handler404` uniforme para recurso ajeno, inexistente o empresa inyectada; orden aislamiento → capacidad verificado; **15 pruebas en verde** (6 de autorización + 9 de middleware, sin regresión) y `ruff check .` → All checks passed. El enlace de cierre de sesión apunta a `/logout/`, que implementa T-11; la validación con `DEBUG=False` queda para T-22/T-23.
+- **Registro de ejecución (2026-11-10):** `require_capability` delega en `has_capability`; los servicios ya delegaban desde T-06 y no requirieron cambios; `handler403` distingue acceso sin contexto (con opción de cerrar sesión) de permiso insuficiente y registra `permission.denied`; `handler404` uniforme para recurso ajeno, inexistente o empresa inyectada; orden aislamiento → capacidad verificado; **15 pruebas en verde** (6 de autorización + 9 de middleware, sin regresión) y `ruff check .` → All checks passed. El enlace de cierre de sesión apunta a `/logout/`, que implementa T-11; la validación con `DEBUG=False` queda para T-22/T-23. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-10 — Backends de autenticación
 
@@ -568,7 +568,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-07: invariantes y concurrencia aprobadas por el Reviewer (2026-11-10) y commiteadas.
 - `[x]` T-08: middleware de contexto aprobado por el Reviewer (2026-11-10) y commiteado.
 - `[x]` T-09: autorización y handlers aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-10 a T-26: no iniciadas.
+- `[ ]` T-10 a T-26: no iniciadas; requieren autorización del usuario.
+- **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
 - G-0 aprobado y G-1 autorizado para T-02 a T-09; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.
