@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 publicada; T-02 en curso |
+| Estado | G-0 APROBADO (2026-11-10) — implementación en curso; T-01 y T-02 publicadas; T-03 en curso |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -51,7 +51,7 @@
 |---|---|---|---|---|---|
 | T-01 | Verificar estado de partida y guardas | F0 | — | — | `[x]` |
 | T-02 | Catálogo de roles y capacidades | F1 | T-01 | G-1 | `[x]` |
-| T-03 | Modelos `Account`, `Company` y `Membership` | F1 | T-02 | G-1, G-2, G-3, G-4 | `[ ]` |
+| T-03 | Modelos `Account`, `Company` y `Membership` | F1 | T-02 | G-1, G-2, G-3, G-4 | `[x]` |
 | T-04 | Auditoría: modelos y migración | F1 | T-03 | G-1, G-2, G-3, G-4 | `[ ]` |
 | T-05 | Servicios de auditoría y eventos de seguridad | F1 | T-04 | G-1, G-4 | `[ ]` |
 | T-06 | Servicios de empresa y membresía | F2 | T-03, T-05 | G-1, G-4 | `[ ]` |
@@ -131,6 +131,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** migración aplicada; correo único en base; `username` opaco; pruebas de modelo en verde.
 - **Evidencia:** salidas de migración y pytest.
 - **Trazabilidad:** RF-08, RF-21 a RF-28, RF-30, RF-32; RN-01, RN-02, RN-03, RN-04; RNF-01.
+- **Registro de ejecución (2026-11-10):** migración `accounts.0001_initial` generada y aplicada en `nexopyme_bootstrap_dev` (`showmigrations` → `[X]`); `manage.py check` sin problemas; 8 pruebas de modelo en verde (incluye unicidad de correo, correo de 254 caracteres, unicidad de membresía y `username` opaco); `ruff check .` → All checks passed. Dictamen del Reviewer: APROBADO (2026-11-10). Sin avance a servicios ni middleware.
 - **Prohibido:** modelos de rol o permiso; registrar en Admin; alterar `auth`; modificar el `conftest.py` raíz.
 
 ### T-04 — Auditoría: modelos y migración
@@ -542,9 +543,9 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | Gate | Alcance | Estado |
 |---|---|---|
 | G-0 | Aprobación de `plan.md` y `tasks.md` | APROBADO por el usuario el 2026-11-10 |
-| G-1 | Autorización de implementación | Autorizado para T-01 y T-02 el 2026-11-10; el resto requiere autorización del usuario |
-| G-2 | Generación y aplicación de migraciones | Pendiente |
-| G-3 | Comandos y servidor sobre desarrollo | Pendiente |
+| G-1 | Autorización de implementación | T-01 publicada; T-02 a T-09 autorizadas el 2026-11-10 |
+| G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
+| G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-09 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
 | G-5 | Commit y push por tarea | Operativo; T-01 publicado |
 
@@ -554,10 +555,11 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 
 - `[x]` T-01: verificaciones de partida aprobadas por el Reviewer (2026-11-10) y commiteadas.
 - `[x]` T-02: catálogo de roles y capacidades aprobado por el Reviewer (2026-11-10) y commiteado.
-- `[ ]` T-03 a T-26: no iniciadas.
+- `[x]` T-03: modelos y migración aprobados por el Reviewer (2026-11-10) y commiteados.
+- `[ ]` T-04 a T-26: no iniciadas.
 - O-2 aplicada en T-02; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
-- G-0 aprobado y G-1 autorizado para T-01 y T-02; sin migraciones, comandos ni commits de implementación fuera de las tareas autorizadas.
+- G-0 aprobado y G-1 autorizado para T-02 a T-09; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.
 - `specs/003-cuentas-multiempresa/` versionado: `spec.md` y `plan.md` en `d907766`; `tasks.md` en `4344c31`.
 
 ---
