@@ -6,15 +6,15 @@
 |---|---|
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
-| Versión | 1.3 |
-| Estado | G-0 APROBADO — T-01 a T-11 publicadas; RC-5 APROBADO (2026-11-10); T-12 pendiente |
+| Versión | 1.4 |
+| Estado | G-0 APROBADO — T-01 a T-12 publicadas; RC-5 APROBADO (2026-11-10); T-13 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
-| Plan | `plan.md` v1.3 (v1.2 aprobado; v1.3 registra `/panel/` y `panel.html` de T-11) |
+| Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
 | Responsable | Planner |
 | Tareas | 26 (T-01 a T-26) |
 
-**Historial:** v1.0 inicial; v1.1 correcciones del primer dictamen; v1.2 correcciones del segundo dictamen y renumeración secuencial (capacidades → modelos → auditoría → servicios); v1.3 registro de la corrección documental de T-11 (`/panel/`, `panel.html`, validación visual y estilos diferidos a T-22/T-23).
+**Historial:** v1.0 inicial; v1.1 correcciones del primer dictamen; v1.2 correcciones del segundo dictamen y renumeración secuencial (capacidades → modelos → auditoría → servicios); v1.3 registro de la corrección documental de T-11 (`/panel/`, `panel.html`, validación visual y estilos diferidos a T-22/T-23); v1.4 sincroniza con `plan.md` v1.4 y registra las correcciones de T-12 (consulta de perfil filtrada por empresa, pruebas adicionales).
 
 ---
 
@@ -60,7 +60,7 @@
 | T-09 | Autorización en vistas y servicios | F3 | T-02, T-08 | G-1, G-4 | `[x]` |
 | T-10 | Backends de autenticación | F4 | T-03, T-09 | G-1, G-4 | `[x]` |
 | T-11 | Acceso, cierre de sesión y rutas protegidas | F4 | T-10 | G-1, G-4 | `[x]` |
-| T-12 | Cambio obligatorio y autogestión de contraseña | F4 | T-11 | G-1, G-4 | `[ ]` |
+| T-12 | Cambio obligatorio y autogestión de contraseña | F4 | T-11 | G-1, G-4 | `[x]` |
 | T-13 | Comandos de inicialización y recuperación | F5 | T-07, T-12 | G-1, G-3, G-4 | `[ ]` |
 | T-14 | Listado de usuarios del panel | F5 | T-09, T-12 | G-1, G-4 | `[ ]` |
 | T-15 | Alta de empleado con contraseña temporal | F5 | T-14 | G-1, G-4 | `[ ]` |
@@ -281,6 +281,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** ninguna ruta del panel queda sin bloqueo ni atrapada; el cambio exige la actual; la auditoría no registra valores.
 - **Evidencia:** pytest y capturas de estados.
 - **Trazabilidad:** RF-05, RF-06, RF-07; CA-05, CA-06, CA-07; RN-12; RNF-03.
+- **Registro de ejecución (2026-11-10):** el middleware ya no excluye `/password/`; resuelve `request.account` con `select_related("account", "company")` y redirige cualquier ruta del panel a `/password/` cuando `must_change_password` está activo, salvo `/logout/`, `/password/` y `/static/`. `PanelPasswordChangeForm` exige la contraseña actual, aplica los validadores, asocia errores con `aria-invalid`/`aria-describedby`, limpia el indicador, actualiza el hash de sesión y audita `password.changed` sin valores (`before`/`after` nulos). `/profile/` redirige al perfil propio; `/profile/<int:pk>/` consulta la membresía filtrando por `company=request.company` y `account_id=pk`, responde 200 para la cuenta propia, 403 sin datos para otra cuenta de la misma empresa y 404 uniforme para otra empresa o cuenta inexistente. Plantillas `password_change.html` y `profile.html` con estados de error, carga y éxito; el enlace de perfil de `base_panel.html` usa `{% url %}`. **61 pruebas en `test_accounts_auth.py`** (18 de T-10 + 26 de T-11 + 17 de T-12; 5 DB-free y 56 con base), **9 en `test_accounts_middleware.py`** y **77 en verde** junto con `test_home_view.py` y `test_urls.py`; `ruff check .` → All checks passed; `manage.py check` sin problemas. Se actualizó la prueba de exclusiones de T-08 para reflejar que `/password/` ya no está excluida. La validación visual formal y los estilos se abordan en T-22/T-23. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-13 — Comandos de inicialización y recuperación
 
@@ -555,7 +556,7 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
 | G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-11 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-12 publicadas |
 
 ---
 
@@ -572,7 +573,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-09: autorización y handlers aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-10: backends de autenticación aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-11: acceso, cierre de sesión y rutas protegidas aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-12 a T-26: no iniciadas.
+- `[x]` T-12: cambio obligatorio, autogestión de contraseña y perfil aprobados por el Reviewer (2026-11-10) y commiteados.
+- `[ ]` T-13 a T-26: no iniciadas.
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.

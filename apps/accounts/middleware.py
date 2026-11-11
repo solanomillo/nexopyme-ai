@@ -1,13 +1,18 @@
-"""Contexto de empresa y membresía por solicitud (T-08)."""
+"""Contexto de empresa y membresía por solicitud (T-08, T-12)."""
 
 from __future__ import annotations
 
 from django.http import Http404, HttpRequest, HttpResponse
+from django.shortcuts import redirect
 
 from apps.audit.services import record_security
 
 from .decorators import MissingContextDenied
 from .models import Membership
+
+PASSWORD_CHANGE_PATH = "/password/"
+MUST_CHANGE_EXEMPT_PATHS = frozenset({"/logout/", PASSWORD_CHANGE_PATH})
+MUST_CHANGE_EXEMPT_PREFIXES = ("/static/",)
 
 EXCLUDED_EXACT_PATHS = frozenset(
     {
@@ -16,7 +21,6 @@ EXCLUDED_EXACT_PATHS = frozenset(
         "/favicon.ico",
         "/login/",
         "/logout/",
-        "/password/",
     }
 )
 EXCLUDED_PREFIXES = ("/static/", "/admin/")
@@ -40,6 +44,7 @@ class ActiveCompanyMiddleware:
     def __call__(self, request: HttpRequest) -> HttpResponse:
         request.membership = None
         request.company = None
+        request.account = None
         request.must_change_password = False
 
         if _is_excluded(request.path):
@@ -50,7 +55,7 @@ class ActiveCompanyMiddleware:
             return self.get_response(request)
 
         membership = (
-            Membership.objects.select_related("company")
+            Membership.objects.select_related("company", "account")
             .filter(account__user=user, is_active=True)
             .first()
         )
@@ -61,8 +66,8 @@ class ActiveCompanyMiddleware:
 
         request.membership = membership
         request.company = membership.company
+        request.account = membership.account
         # Punto único de evaluación de must_change_password.
-        # T-12 añade aquí la redirección a /password/ con sus excepciones.
         request.must_change_password = membership.must_change_password
 
         injected_company = request.POST.get("company") or request.GET.get("company")
@@ -80,5 +85,12 @@ class ActiveCompanyMiddleware:
                 attempted_company_id=attempted_id,
             )
             raise Http404("Recurso no encontrado.")
+
+        if (
+            request.must_change_password
+            and request.path not in MUST_CHANGE_EXEMPT_PATHS
+            and not request.path.startswith(MUST_CHANGE_EXEMPT_PREFIXES)
+        ):
+            return redirect("accounts:password_change")
 
         return self.get_response(request)

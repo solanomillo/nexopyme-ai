@@ -6,16 +6,16 @@
 |---|---|
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/plan.md` |
-| Versión | 1.3 |
-| Estado | APROBADO — v1.2 aprobado por el usuario el 2026-11-10; v1.3 registra `/panel/` y `panel.html` de T-11 |
+| Versión | 1.4 |
+| Estado | APROBADO — v1.2 aprobado por el usuario el 2026-11-10; v1.3 registra `/panel/` y `panel.html` de T-11; v1.4 ajusta §7.6 al middleware de T-12 |
 | Especificación de referencia | `specs/003-cuentas-multiempresa/spec.md` v1.0 aprobada el 2026-11-10 |
-| Tareas | `specs/003-cuentas-multiempresa/tasks.md` v1.2 |
+| Tareas | `specs/003-cuentas-multiempresa/tasks.md` v1.4 |
 | Fecha | 2026-11-10 |
 | Responsable | Planner |
 | Fase SDD | 5 a 7: plan técnico y descomposición en tareas |
 | Base de partida | `HEAD` = `origin/main` = `bef5c58`; Etapa 001 cerrada |
 
-**Historial:** v1.0: plan inicial. v1.1: correcciones del primer dictamen (backends, catálogo primero, `Account`, regresión de pruebas, sesión y logging, concurrencia, Git). v1.2: correcciones del segundo dictamen — auditoría después de `Company`, renumeración secuencial de tareas, aprobaciones A-09/A-10/A-13 registradas, `username` opaco, aplicación única de `must_change_password`, dos variantes de 403, pruebas de `on_commit`, 404 con `DEBUG=False`, variables opcionales y trazabilidad completa de RN. v1.3: se registran `/panel/` y `templates/accounts/panel.html` como shell protegido y landing del panel de T-11.
+**Historial:** v1.0: plan inicial. v1.1: correcciones del primer dictamen (backends, catálogo primero, `Account`, regresión de pruebas, sesión y logging, concurrencia, Git). v1.2: correcciones del segundo dictamen — auditoría después de `Company`, renumeración secuencial de tareas, aprobaciones A-09/A-10/A-13 registradas, `username` opaco, aplicación única de `must_change_password`, dos variantes de 403, pruebas de `on_commit`, 404 con `DEBUG=False`, variables opcionales y trazabilidad completa de RN. v1.3: se registran `/panel/` y `templates/accounts/panel.html` como shell protegido y landing del panel de T-11. v1.4: §7.6 se ajusta a T-12 —`/password/` deja de estar excluida para resolver el contexto, se expone `request.account` y se documentan las excepciones de la redirección por `must_change_password`.
 
 ---
 
@@ -226,8 +226,8 @@ Invariantes: una empresa activa, una sola membresía por cuenta, un dueño activ
 ### 7.6 Middleware y bloqueo de contraseña temporal (T-08)
 
 - `ActiveCompanyMiddleware` después de `AuthenticationMiddleware`.
-- Resuelve `request.membership` y `request.company` en una consulta.
-- Exclusiones exactas: `/`, `/health/`, `/favicon.ico`, `/static/`, `/admin/`, `/login/`, `/logout/`, `/password/`.
+- Resuelve `request.membership`, `request.company` y `request.account` en una consulta con `select_related("account", "company")`.
+- Exclusiones exactas: `/`, `/health/`, `/favicon.ico`, `/login/`, `/logout/`; prefijos `/static/` y `/admin/`. `/password/` no se excluye (T-12) para resolver el contexto del cambio obligatorio.
 - Deniega si la membresía o la empresa están inactivas, mediante `PermissionDenied` para usar el handler 403.
 - Un visitante no autenticado no recibe contexto ni denegación: la protección la aporta `login_required`.
 - Si la solicitud trae un identificador de empresa distinto de `request.company.pk`, responde 404 uniforme y registra el evento de seguridad; si coincide o falta, el alcance sigue siendo el de la sesión.

@@ -1,0 +1,32 @@
+{% extends "base_panel.html" %}
+
+{% block title %}Perfil — NexoPyme AI{% endblock %}
+
+{% block content %}
+<section class="panel panel--stage" aria-labelledby="profile-title">
+  <h1 class="panel__title" id="profile-title">Mi perfil</h1>
+
+  {% if messages %}
+  <div role="status">
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <dl>
+    <dt>Nombre</dt>
+    <dd>{{ profile_account.display_name }}</dd>
+    <dt>Correo</dt>
+    <dd>{{ profile_account.email }}</dd>
+    <dt>Rol</dt>
+    <dd>{{ profile_membership.get_role_display }}</dd>
+    <dt>Empresa</dt>
+    <dd>{{ profile_membership.company.name }}</dd>
+  </dl>
+
+  <p>
+    <a class="button button--primary" href="{% url 'accounts:password_change' %}">Cambiar contraseña</a>
+  </p>
+</section>
+{% endblock %}

@@ -26,7 +26,7 @@
               <a class="site-nav__link" href="{% url 'accounts:panel' %}"{% if request.resolver_match.url_name == "panel" %} aria-current="page"{% endif %}>Panel</a>
             </li>
             <li class="site-nav__item">
-              <a class="site-nav__link" href="/profile/">Perfil</a>
+              <a class="site-nav__link" href="{% url 'accounts:profile' %}">Perfil</a>
             </li>
             <li class="site-nav__item">
               <a class="site-nav__link" href="/users/">Usuarios</a>

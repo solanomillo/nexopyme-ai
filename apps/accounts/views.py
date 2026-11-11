@@ -1,4 +1,4 @@
-"""Vistas del panel comercial de NexoPyme AI (T-11)."""
+"""Vistas del panel comercial de NexoPyme AI (T-11, T-12)."""
 
 from __future__ import annotations
 
@@ -8,11 +8,20 @@ from typing import ClassVar
 
 from django import forms
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.views import LoginView, LogoutView
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
+from django.http import Http404, HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
+
+from apps.audit.services import record_audit
+
+from .models import Membership
 
 
 class EmailAuthenticationForm(AuthenticationForm):
@@ -41,6 +50,36 @@ class EmailAuthenticationForm(AuthenticationForm):
         if not self.is_bound:
             return
         for name in ("username", "password"):
+            field = self[name]
+            if field.errors:
+                self.fields[name].widget.attrs.update(
+                    {
+                        "aria-invalid": "true",
+                        "aria-describedby": f"{field.auto_id}-errors",
+                    }
+                )
+
+
+class PanelPasswordChangeForm(PasswordChangeForm):
+    """Cambio de contraseña con contraseña actual y política vigente."""
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["old_password"].label = "Contraseña actual"
+        self.fields["old_password"].widget.attrs.update(
+            {"autocomplete": "current-password", "autofocus": True}
+        )
+        self.fields["new_password1"].label = "Nueva contraseña"
+        self.fields["new_password1"].widget.attrs.update(
+            {"autocomplete": "new-password"}
+        )
+        self.fields["new_password2"].label = "Confirmar nueva contraseña"
+        self.fields["new_password2"].widget.attrs.update(
+            {"autocomplete": "new-password"}
+        )
+        if not self.is_bound:
+            return
+        for name in ("old_password", "new_password1", "new_password2"):
             field = self[name]
             if field.errors:
                 self.fields[name].widget.attrs.update(
@@ -88,3 +127,67 @@ def panel_home(request: HttpRequest) -> HttpResponse:
     """Muestra el panel comercial de la empresa activa."""
 
     return render(request, "accounts/panel.html")
+
+
+@no_store
+@login_required
+@require_http_methods(["GET", "POST"])
+def password_change(request: HttpRequest) -> HttpResponse:
+    """Cambia la contraseña propia y limpia el cambio obligatorio."""
+
+    form = PanelPasswordChangeForm(
+        user=request.user,
+        data=request.POST if request.method == "POST" else None,
+    )
+    if request.method == "POST" and form.is_valid():
+        with transaction.atomic():
+            user = form.save()
+            membership = request.membership
+            membership.must_change_password = False
+            membership.save(
+                update_fields=["must_change_password", "updated_at"]
+            )
+            record_audit(
+                actor=user,
+                company=request.company,
+                entity="account",
+                entity_id=request.account.pk,
+                action="password.changed",
+                result="success",
+            )
+        update_session_auth_hash(request, user)
+        messages.success(request, "Contraseña actualizada.")
+        return redirect("accounts:profile")
+    return render(request, "accounts/password_change.html", {"form": form})
+
+
+@no_store
+@login_required
+def profile_redirect(request: HttpRequest) -> HttpResponse:
+    """Redirige al perfil de la cuenta autenticada."""
+
+    return redirect("accounts:profile_detail", pk=request.account.pk)
+
+
+@no_store
+@login_required
+def profile_detail(request: HttpRequest, pk: int) -> HttpResponse:
+    """Muestra el perfil propio y aísla las cuentas ajenas."""
+
+    membership = (
+        Membership.objects.select_related("account")
+        .filter(company=request.company, account_id=pk)
+        .first()
+    )
+    if membership is None:
+        raise Http404("Recurso no encontrado.")
+    if membership.account_id != request.account.pk:
+        raise PermissionDenied("No tenés permiso para ver este perfil.")
+    return render(
+        request,
+        "accounts/profile.html",
+        {
+            "profile_account": membership.account,
+            "profile_membership": membership,
+        },
+    )

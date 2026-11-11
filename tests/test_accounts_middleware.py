@@ -86,7 +86,7 @@ def test_excluded_paths_are_not_affected(
 
 
 def test_excluded_paths_helper_covers_every_declared_route() -> None:
-    from apps.accounts.middleware import _is_excluded
+    from apps.accounts.middleware import MUST_CHANGE_EXEMPT_PATHS, _is_excluded
 
     excluded = (
         "/",
@@ -94,13 +94,15 @@ def test_excluded_paths_helper_covers_every_declared_route() -> None:
         "/favicon.ico",
         "/login/",
         "/logout/",
-        "/password/",
         "/static/css/main.css",
         "/admin/",
     )
     for route in excluded:
         assert _is_excluded(route), route
     assert not _is_excluded("/panel/")
+    assert not _is_excluded("/password/")
+    assert "/password/" in MUST_CHANGE_EXEMPT_PATHS
+    assert "/logout/" in MUST_CHANGE_EXEMPT_PATHS
 
 
 @override_settings(ROOT_URLCONF=__name__)

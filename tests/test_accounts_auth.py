@@ -16,10 +16,12 @@ from apps.accounts.backends import (
     EmailBackend,
     TechnicalAdminBackend,
 )
+from apps.accounts.capabilities import Role
 from apps.accounts.models import Account, Company, Membership, generate_username
-from apps.audit.models import SecurityEvent
+from apps.audit.models import AuditEvent, SecurityEvent
 
 TEST_PASSWORD = "Clave-Segura-2026"
+NEW_PASSWORD = "Nueva-Clave-2026!"
 
 
 def _create_staff(username: str = "tecnico") -> object:
@@ -27,6 +29,27 @@ def _create_staff(username: str = "tecnico") -> object:
         username=username,
         password=TEST_PASSWORD,
         is_staff=True,
+    )
+
+
+def _create_membership(
+    company: Company,
+    email: str,
+    role: str = Role.OPERADOR,
+) -> Membership:
+    user = get_user_model().objects.create_user(
+        username=generate_username(),
+        password=TEST_PASSWORD,
+    )
+    account = Account.objects.create(
+        user=user,
+        email=email,
+        display_name="Empleado",
+    )
+    return Membership.objects.create(
+        account=account,
+        company=company,
+        role=role,
     )
 
 
@@ -237,6 +260,9 @@ def test_panel_routes_are_registered() -> None:
     assert reverse("accounts:login") == "/login/"
     assert reverse("accounts:logout") == "/logout/"
     assert reverse("accounts:panel") == "/panel/"
+    assert reverse("accounts:password_change") == "/password/"
+    assert reverse("accounts:profile") == "/profile/"
+    assert reverse("accounts:profile_detail", args=[1]) == "/profile/1/"
 
 
 def test_base_template_stays_free_of_panel_context() -> None:
@@ -555,3 +581,339 @@ def test_logout_reads_the_redirect_at_request_time(
     response = client.post("/logout/")
     assert response.status_code == 302
     assert response.url == "/salir/"
+
+
+@pytest.mark.django_db
+def test_must_change_password_redirects_panel_routes(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    for path in (
+        "/panel/",
+        "/profile/",
+        f"/profile/{owner_account.pk}/",
+    ):
+        response = client.get(path)
+        assert response.status_code == 302, path
+        assert response.url == "/password/", path
+
+
+@pytest.mark.django_db
+def test_must_change_password_allows_the_password_page(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    response = client.get("/password/")
+    assert response.status_code == 200
+    assert "accounts/password_change.html" in [
+        template.name for template in response.templates
+    ]
+    assert "contraseña es temporal" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_must_change_password_allows_logout(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    response = client.post("/logout/")
+    assert response.status_code == 302
+    assert response.url == settings.LOGOUT_REDIRECT_URL
+    assert "_auth_user_id" not in client.session
+
+
+@pytest.mark.django_db
+def test_password_change_requires_the_current_password(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    response = client.post(
+        "/password/",
+        {
+            "old_password": "incorrecta",
+            "new_password1": NEW_PASSWORD,
+            "new_password2": NEW_PASSWORD,
+        },
+    )
+    assert response.status_code == 200
+    assert "old_password" in response.context["form"].errors
+    owner_account.user.refresh_from_db()
+    owner_membership.refresh_from_db()
+    assert owner_account.user.check_password(TEST_PASSWORD)
+    assert owner_membership.must_change_password is True
+    assert not AuditEvent.objects.filter(action="password.changed").exists()
+
+
+@pytest.mark.django_db
+def test_password_change_applies_the_password_policy(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    response = client.post(
+        "/password/",
+        {
+            "old_password": TEST_PASSWORD,
+            "new_password1": "123",
+            "new_password2": "123",
+        },
+    )
+    assert response.status_code == 200
+    assert "new_password2" in response.context["form"].errors
+    owner_account.user.refresh_from_db()
+    owner_membership.refresh_from_db()
+    assert owner_account.user.check_password(TEST_PASSWORD)
+    assert owner_membership.must_change_password is True
+
+
+@pytest.mark.django_db
+def test_password_change_updates_password_and_clears_the_flag(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+    django_capture_on_commit_callbacks: object,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    with django_capture_on_commit_callbacks(execute=True):
+        response = client.post(
+            "/password/",
+            {
+                "old_password": TEST_PASSWORD,
+                "new_password1": NEW_PASSWORD,
+                "new_password2": NEW_PASSWORD,
+            },
+        )
+    assert response.status_code == 302
+    assert response.url == "/profile/"
+    owner_account.user.refresh_from_db()
+    owner_membership.refresh_from_db()
+    assert owner_account.user.check_password(NEW_PASSWORD)
+    assert not owner_account.user.check_password(TEST_PASSWORD)
+    assert owner_membership.must_change_password is False
+    assert "_auth_user_id" in client.session
+
+    event = AuditEvent.objects.get(action="password.changed")
+    assert event.actor == owner_account.user
+    assert event.company == owner_membership.company
+    assert event.entity == "account"
+    assert event.entity_id == str(owner_account.pk)
+    assert event.before is None
+    assert event.after is None
+    assert NEW_PASSWORD not in str(event.before)
+    assert NEW_PASSWORD not in str(event.after)
+
+
+@pytest.mark.django_db
+def test_password_change_requires_login(client: object) -> None:
+    response = client.get("/password/")
+    assert response.status_code == 302
+    assert response.url == "/login/?next=/password/"
+
+
+@pytest.mark.django_db
+def test_profile_redirects_to_the_own_profile(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    client.force_login(owner_account.user)
+    response = client.get("/profile/")
+    assert response.status_code == 302
+    assert response.url == f"/profile/{owner_account.pk}/"
+
+
+@pytest.mark.django_db
+def test_profile_shows_only_the_own_account_and_membership(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+    company: Company,
+) -> None:
+    client.force_login(owner_account.user)
+    response = client.get(f"/profile/{owner_account.pk}/")
+    assert response.status_code == 200
+    assert "accounts/profile.html" in [
+        template.name for template in response.templates
+    ]
+    content = response.content.decode()
+    assert owner_account.email in content
+    assert owner_account.display_name in content
+    assert company.name in content
+    assert "Dueño" in content
+    assert response["Cache-Control"] == "no-store"
+
+
+@pytest.mark.django_db
+def test_profile_of_another_account_in_the_company_returns_403(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+    company: Company,
+) -> None:
+    other = _create_membership(company, "otro@example.com")
+    client.force_login(owner_account.user)
+    response = client.get(f"/profile/{other.account.pk}/")
+    assert response.status_code == 403
+    content = response.content.decode()
+    assert other.account.email not in content
+    assert other.account.display_name not in content
+    assert SecurityEvent.objects.filter(action="permission.denied").exists()
+
+
+@pytest.mark.django_db
+def test_profile_of_another_company_returns_uniform_404(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    other_company = Company.objects.create(name="Otra empresa", is_active=False)
+    other = _create_membership(other_company, "ajeno@example.com")
+    client.force_login(owner_account.user)
+    foreign = client.get(f"/profile/{other.account.pk}/")
+    missing = client.get("/profile/999999/")
+    assert foreign.status_code == 404
+    assert missing.status_code == 404
+    assert foreign.content == missing.content
+    assert other.account.email not in foreign.content.decode()
+
+
+@pytest.mark.django_db
+def test_profile_requires_login(client: object) -> None:
+    response = client.get("/profile/")
+    assert response.status_code == 302
+    assert response.url == "/login/?next=/profile/"
+
+
+@pytest.mark.django_db
+def test_panel_is_reachable_after_the_forced_change(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    assert client.get("/panel/").status_code == 302
+    client.post(
+        "/password/",
+        {
+            "old_password": TEST_PASSWORD,
+            "new_password1": NEW_PASSWORD,
+            "new_password2": NEW_PASSWORD,
+        },
+    )
+    assert client.get("/panel/").status_code == 200
+
+
+@pytest.mark.django_db
+def test_password_change_reports_success_in_the_profile(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    response = client.post(
+        "/password/",
+        {
+            "old_password": TEST_PASSWORD,
+            "new_password1": NEW_PASSWORD,
+            "new_password2": NEW_PASSWORD,
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assert response.redirect_chain[-1][0] == f"/profile/{owner_account.pk}/"
+    content = response.content.decode()
+    assert "Contraseña actualizada." in content
+    assert 'role="status"' in content
+    assert NEW_PASSWORD not in content
+
+
+@pytest.mark.django_db
+def test_password_change_keeps_the_session_valid(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    Membership.objects.filter(pk=owner_membership.pk).update(
+        must_change_password=True
+    )
+    client.force_login(owner_account.user)
+    client.post(
+        "/password/",
+        {
+            "old_password": TEST_PASSWORD,
+            "new_password1": NEW_PASSWORD,
+            "new_password2": NEW_PASSWORD,
+        },
+    )
+    assert client.session["_auth_user_id"] == str(owner_account.user.pk)
+    assert "_auth_user_hash" in client.session
+
+
+@pytest.mark.django_db
+def test_password_page_denies_user_without_membership(client: object) -> None:
+    user = get_user_model().objects.create_user(
+        username=generate_username(),
+        password=TEST_PASSWORD,
+    )
+    client.force_login(user)
+    response = client.get("/password/")
+    assert response.status_code == 403
+    content = response.content.decode()
+    assert "Cerrar sesión" in content
+    assert "Contraseña actual" not in content
+
+
+@pytest.mark.django_db
+def test_profile_denial_event_identifies_actor_and_company_only(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+    company: Company,
+) -> None:
+    other = _create_membership(company, "otro@example.com")
+    client.force_login(owner_account.user)
+    response = client.get(f"/profile/{other.account.pk}/")
+    assert response.status_code == 403
+
+    event = SecurityEvent.objects.get(action="permission.denied")
+    assert event.actor == owner_account.user
+    assert event.company == company
+    assert event.result == "denied"
+    assert event.attempted_company_id is None
+    serialized = f"{event} {event.action} {event.result}"
+    assert other.account.email not in serialized
+    assert other.account.display_name not in serialized
+    assert str(other.account.pk) not in serialized
