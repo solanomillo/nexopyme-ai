@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.4 |
-| Estado | G-0 APROBADO — T-01 a T-12 publicadas; RC-5 APROBADO (2026-11-10); T-13 pendiente |
+| Estado | G-0 APROBADO — T-01 a T-13 publicadas; RC-5 APROBADO (2026-11-10); T-14 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
@@ -61,7 +61,7 @@
 | T-10 | Backends de autenticación | F4 | T-03, T-09 | G-1, G-4 | `[x]` |
 | T-11 | Acceso, cierre de sesión y rutas protegidas | F4 | T-10 | G-1, G-4 | `[x]` |
 | T-12 | Cambio obligatorio y autogestión de contraseña | F4 | T-11 | G-1, G-4 | `[x]` |
-| T-13 | Comandos de inicialización y recuperación | F5 | T-07, T-12 | G-1, G-3, G-4 | `[ ]` |
+| T-13 | Comandos de inicialización y recuperación | F5 | T-07, T-12 | G-1, G-3, G-4 | `[x]` |
 | T-14 | Listado de usuarios del panel | F5 | T-09, T-12 | G-1, G-4 | `[ ]` |
 | T-15 | Alta de empleado con contraseña temporal | F5 | T-14 | G-1, G-4 | `[ ]` |
 | T-16 | Rol, desactivación, reactivación y regeneración | F5 | T-15 | G-1, G-4 | `[ ]` |
@@ -297,6 +297,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** dos ejecuciones dejan una empresa y un dueño; la contraseña no se registra; el cambio obligatorio queda activo; la auditoría se comprueba con `django_capture_on_commit_callbacks(execute=True)`.
 - **Evidencia:** pytest y salida de comandos sin secretos.
 - **Trazabilidad:** RF-30, RF-41; CA-30, CA-41; RN-14; DA-04, DA-06.
+- **Registro de ejecución (2026-11-10):** `init_company` recibe `--name`, `--email` y `--display-name` opcional, solicita la contraseña por `getpass` con confirmación y la valida con los validadores vigentes; no acepta `--password`. Es idempotente: si existe una empresa activa con un único dueño y el correo coincide, informa y no modifica nada; con más de una empresa activa, sin dueño único o con otro correo termina con `CommandError` explícito. La creación delega en `create_company_with_owner`, que audita `company.initialized` sin valores. `reset_owner_password` localiza al dueño activo por correo normalizado, genera una contraseña temporal con `generate_temporary_password`, la muestra una sola vez por `stdout`, activa `must_change_password` y audita `membership.owner_password_reset` con actor nulo y sin valores. Ninguna contraseña se acepta como argumento ni se escribe en logs o auditoría. **12 pruebas en `test_accounts_commands.py`** (creación, idempotencia, empresa sin dueño, dueño distinto, varias empresas activas, contraseña como argumento, política, confirmación, recuperación, correo inexistente, no dueño y ausencia de contraseña en logs) y **89 en verde** junto con auth, middleware, home y urls; `ruff check .` → All checks passed; `manage.py check` sin problemas. Los comandos no se ejecutaron sobre la base de desarrollo; la verificación se realizó con pytest sobre la base de pruebas autorizada. Limitaciones registradas: el evento `membership.owner_password_reset` usa `actor=None` y, por RF-39/CA-39, no se mostrará en la consulta de T-18 (se revisará en T-18/T-24); el endurecimiento de `--display-name` vacío o excesivo, la traducción de `IntegrityError` por correo existente y las pruebas adicionales (correo inválido, `--display-name`, dueño o empresa inactivos, contraseña ausente en logs de `init_company`) quedan para T-22. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-14 — Listado de usuarios del panel
 
@@ -556,7 +557,7 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
 | G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-12 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-13 publicadas |
 
 ---
 
@@ -574,7 +575,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-10: backends de autenticación aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-11: acceso, cierre de sesión y rutas protegidas aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-12: cambio obligatorio, autogestión de contraseña y perfil aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-13 a T-26: no iniciadas.
+- `[x]` T-13: comandos de inicialización y recuperación aprobados por el Reviewer (2026-11-10) y commiteados.
+- `[ ]` T-14 a T-26: no iniciadas.
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
