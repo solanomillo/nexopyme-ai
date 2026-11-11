@@ -21,13 +21,14 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
 from apps.audit.models import AuditEvent, SecurityEvent
-from apps.audit.services import record_audit
+from apps.audit.services import record_audit, record_security
 
 from .capabilities import Capability, Role
 from .decorators import require_capability
 from .forms import CompanyNameForm, EmployeeCreateForm
 from .models import Membership
 from .services import (
+    CapabilityDenied,
     DuplicateEmailError,
     ServiceError,
     change_role,
@@ -168,6 +169,7 @@ def user_list(request: HttpRequest) -> HttpResponse:
             "role_choices": [
                 (role.value, role.label) for role in Role if role != Role.DUENO
             ],
+            "owner_role": Role.DUENO.value,
         },
     )
 
@@ -216,16 +218,31 @@ def user_create(request: HttpRequest) -> HttpResponse:
 
 
 def _membership_of_company(request: HttpRequest, pk: int) -> Membership:
-    """Devuelve la membresía de la empresa activa o responde 404 uniforme."""
+    """Devuelve la membresía de la empresa activa o responde 404 uniforme.
+
+    El aislamiento se evalúa antes que la capacidad: una membresía de otra
+    empresa responde 404 y registra un evento de seguridad sin exponer datos.
+    """
 
     membership = (
         Membership.objects.select_related("account__user")
         .filter(company=request.company, pk=pk)
         .first()
     )
-    if membership is None:
-        raise Http404("Recurso no encontrado.")
-    return membership
+    if membership is not None:
+        return membership
+    if (
+        Membership.objects.filter(pk=pk)
+        .exclude(company=request.company)
+        .exists()
+    ):
+        record_security(
+            action="company.scope.foreign",
+            result="denied",
+            actor=request.user,
+            company=request.company,
+        )
+    raise Http404("Recurso no encontrado.")
 
 
 def _confirm(
@@ -255,7 +272,6 @@ def _confirm(
 
 @no_store
 @login_required
-@require_capability(Capability.USUARIOS_GESTIONAR)
 @require_http_methods(["POST"])
 def user_change_role(request: HttpRequest, pk: int) -> HttpResponse:
     """Cambia el rol de un empleado y audita los valores anterior y nuevo."""
@@ -267,6 +283,8 @@ def user_change_role(request: HttpRequest, pk: int) -> HttpResponse:
             membership=membership,
             role=request.POST.get("role", ""),
         )
+    except CapabilityDenied as exc:
+        raise PermissionDenied(str(exc)) from exc
     except ServiceError as exc:
         return _confirm(
             request,
@@ -289,7 +307,6 @@ def user_change_role(request: HttpRequest, pk: int) -> HttpResponse:
 
 @no_store
 @login_required
-@require_capability(Capability.USUARIOS_GESTIONAR)
 @require_http_methods(["POST"])
 def user_deactivate(request: HttpRequest, pk: int) -> HttpResponse:
     """Desactiva un empleado y retira su acceso en la siguiente solicitud."""
@@ -297,6 +314,8 @@ def user_deactivate(request: HttpRequest, pk: int) -> HttpResponse:
     membership = _membership_of_company(request, pk)
     try:
         deactivate_membership(actor=request.membership, membership=membership)
+    except CapabilityDenied as exc:
+        raise PermissionDenied(str(exc)) from exc
     except ServiceError as exc:
         return _confirm(
             request,
@@ -318,7 +337,6 @@ def user_deactivate(request: HttpRequest, pk: int) -> HttpResponse:
 
 @no_store
 @login_required
-@require_capability(Capability.USUARIOS_GESTIONAR)
 @require_http_methods(["POST"])
 def user_reactivate(request: HttpRequest, pk: int) -> HttpResponse:
     """Reactiva un empleado con una contraseña temporal nueva."""
@@ -329,6 +347,8 @@ def user_reactivate(request: HttpRequest, pk: int) -> HttpResponse:
             actor=request.membership,
             membership=membership,
         )
+    except CapabilityDenied as exc:
+        raise PermissionDenied(str(exc)) from exc
     except ServiceError as exc:
         return _confirm(
             request,
@@ -351,7 +371,6 @@ def user_reactivate(request: HttpRequest, pk: int) -> HttpResponse:
 
 @no_store
 @login_required
-@require_capability(Capability.USUARIOS_GESTIONAR)
 @require_http_methods(["POST"])
 def user_regenerate_password(request: HttpRequest, pk: int) -> HttpResponse:
     """Regenera la contraseña temporal de un empleado activo."""
@@ -362,6 +381,8 @@ def user_regenerate_password(request: HttpRequest, pk: int) -> HttpResponse:
             actor=request.membership,
             membership=membership,
         )
+    except CapabilityDenied as exc:
+        raise PermissionDenied(str(exc)) from exc
     except ServiceError as exc:
         return _confirm(
             request,
@@ -533,6 +554,17 @@ def profile_detail(request: HttpRequest, pk: int) -> HttpResponse:
         .first()
     )
     if membership is None:
+        if (
+            Membership.objects.filter(account_id=pk)
+            .exclude(company=request.company)
+            .exists()
+        ):
+            record_security(
+                action="company.scope.foreign",
+                result="denied",
+                actor=request.user,
+                company=request.company,
+            )
         raise Http404("Recurso no encontrado.")
     if membership.account_id != request.account.pk:
         raise PermissionDenied("No tenés permiso para ver este perfil.")

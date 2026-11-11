@@ -802,6 +802,10 @@ def test_profile_of_another_company_returns_uniform_404(
     assert missing.status_code == 404
     assert foreign.content == missing.content
     assert other.account.email not in foreign.content.decode()
+    assert SecurityEvent.objects.filter(action="company.scope.foreign").exists()
+    assert SecurityEvent.objects.filter(
+        action="company.scope.foreign"
+    ).count() == 1
 
 
 @pytest.mark.django_db

@@ -38,7 +38,7 @@
           {% endif %}
         </td>
         <td>
-          {% if membership.role == "dueno" %}
+          {% if membership.role == owner_role %}
           <span class="panel__text">Cuenta del dueño</span>
           {% else %}
           <form method="post" action="{% url 'accounts:user_change_role' membership.pk %}">

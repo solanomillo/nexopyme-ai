@@ -334,6 +334,11 @@ def test_cross_company_mutations_are_rejected(
             actor=owner_membership,
             membership=other_membership,
         )
+    events = SecurityEvent.objects.filter(action="company.scope.foreign")
+    assert events.count() == 3
+    assert all(event.attempted_company_id is None for event in events)
+    assert all(event.actor == owner_membership.account.user for event in events)
+    assert all(event.company == owner_membership.company for event in events)
 
 
 @pytest.mark.django_db

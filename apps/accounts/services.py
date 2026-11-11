@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.utils.crypto import get_random_string
 
-from apps.audit.services import record_audit
+from apps.audit.services import record_audit, record_security
 
 from .capabilities import Capability, Role, has_capability
 from .emails import clean_email
@@ -56,6 +56,12 @@ def _require_capability(actor: Membership, capability: Capability) -> None:
 
 def _require_same_company(actor: Membership, membership: Membership) -> None:
     if actor.company_id != membership.company_id:
+        record_security(
+            action="company.scope.foreign",
+            result="denied",
+            actor=actor.account.user,
+            company=actor.company,
+        )
         raise CrossCompanyError("El recurso no pertenece a tu empresa.")
 
 

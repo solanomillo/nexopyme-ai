@@ -6,7 +6,7 @@
 <section class="panel panel--stage" aria-labelledby="panel-title">
   <h1 class="panel__title" id="panel-title">Panel de {{ request.company.name }}</h1>
   <p class="panel__text">
-    Sesión iniciada como {{ request.user.account.display_name }}
+    Sesión iniciada como {{ request.account.display_name }}
     ({{ request.membership.get_role_display }}).
   </p>
   <p class="panel__text">

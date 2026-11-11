@@ -857,6 +857,46 @@ def test_user_management_returns_uniform_404_for_another_company(
     foreign.refresh_from_db()
     assert foreign.is_active is False
     assert foreign.role == Role.OPERADOR.value
+    assert SecurityEvent.objects.filter(action="company.scope.foreign").exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("path", "payload"),
+    [
+        ("/users/{pk}/role/", {"role": Role.CONSULTA.value}),
+        ("/users/{pk}/deactivate/", {}),
+        ("/users/{pk}/reactivate/", {}),
+        ("/users/{pk}/password/", {}),
+    ],
+)
+def test_foreign_membership_returns_404_before_capability(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+    path: str,
+    payload: dict[str, str],
+) -> None:
+    consulta = _create_membership(
+        company,
+        "consulta@example.com",
+        role=Role.CONSULTA.value,
+    )
+    other_company = Company.objects.create(name="Otra empresa", is_active=False)
+    foreign = _create_membership(
+        other_company,
+        "ajeno@example.com",
+        is_active=False,
+    )
+    client.force_login(consulta.account.user)
+    response = client.post(path.format(pk=foreign.pk), payload)
+
+    assert response.status_code == 404
+    foreign.refresh_from_db()
+    assert foreign.is_active is False
+    assert foreign.role == Role.OPERADOR.value
+    assert SecurityEvent.objects.filter(action="company.scope.foreign").exists()
 
 
 @pytest.mark.django_db
