@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.2 |
-| Estado | G-0 APROBADO — T-01 a T-09 publicadas; RC-5 APROBADO (2026-11-10); T-10 pendiente de autorización |
+| Estado | G-0 APROBADO — T-01 a T-10 publicadas; RC-5 APROBADO (2026-11-10); T-11 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
 | Fecha | 2026-11-10 |
@@ -58,7 +58,7 @@
 | T-07 | Invariantes y concurrencia | F2 | T-06 | G-1, G-4 | `[x]` |
 | T-08 | Middleware de contexto y punto de bloqueo | F3 | T-03, T-07 | G-1, G-4 | `[x]` |
 | T-09 | Autorización en vistas y servicios | F3 | T-02, T-08 | G-1, G-4 | `[x]` |
-| T-10 | Backends de autenticación | F4 | T-03, T-09 | G-1, G-4 | `[ ]` |
+| T-10 | Backends de autenticación | F4 | T-03, T-09 | G-1, G-4 | `[x]` |
 | T-11 | Acceso, cierre de sesión y rutas protegidas | F4 | T-10 | G-1, G-4 | `[ ]` |
 | T-12 | Cambio obligatorio y autogestión de contraseña | F4 | T-11 | G-1, G-4 | `[ ]` |
 | T-13 | Comandos de inicialización y recuperación | F5 | T-07, T-12 | G-1, G-3, G-4 | `[ ]` |
@@ -249,6 +249,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** ninguna cuenta comercial se autentica sin membresía activa; el personal entra solo por Admin.
 - **Evidencia:** pytest del archivo.
 - **Trazabilidad:** RF-01, RF-02; CA-01, CA-02, CA-38; RN-13, RN-16; RNF-03.
+- **Registro de ejecución (2026-11-10):** `EmailBackend` autentica solo cuentas comerciales con cuenta, membresía y empresa activas, normaliza el correo y rechaza personal y superusuarios; `TechnicalAdminBackend` autentica solo `is_staff` sin cuenta comercial; ambos caminos registran el fallo sin correo ni contraseña y ambos `get_user` descartan usuarios inactivos. Configurados `AUTHENTICATION_BACKENDS`, `LOGIN_URL`, `LOGIN_REDIRECT_URL` y `LOGOUT_REDIRECT_URL`. **18 pruebas en verde** (1 DB-free de configuración + 17 con base) y `ruff check .` → All checks passed; `manage.py check` sin problemas. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-11 — Acceso, cierre de sesión y rutas protegidas
 
@@ -549,11 +550,11 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | Gate | Alcance | Estado |
 |---|---|---|
 | G-0 | Aprobación de `plan.md` y `tasks.md` | APROBADO por el usuario el 2026-11-10 |
-| G-1 | Autorización de implementación | T-01 publicada; T-02 a T-09 autorizadas el 2026-11-10 |
+| G-1 | Autorización de implementación | T-01 publicada; T-02 a T-19 autorizadas el 2026-11-10 |
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
-| G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-09 |
+| G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 publicado |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-10 publicadas |
 
 ---
 
@@ -568,11 +569,12 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-07: invariantes y concurrencia aprobadas por el Reviewer (2026-11-10) y commiteadas.
 - `[x]` T-08: middleware de contexto aprobado por el Reviewer (2026-11-10) y commiteado.
 - `[x]` T-09: autorización y handlers aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-10 a T-26: no iniciadas; requieren autorización del usuario.
+- `[x]` T-10: backends de autenticación aprobados por el Reviewer (2026-11-10) y commiteados.
+- `[ ]` T-11 a T-26: no iniciadas.
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
-- G-0 aprobado y G-1 autorizado para T-02 a T-09; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.
+- G-0 aprobado y G-1 autorizado para T-02 a T-19; G-2 y G-3 autorizados para las migraciones de `accounts` y `audit`; G-4 autorizado para las pruebas de la etapa.
 - `specs/003-cuentas-multiempresa/` versionado: `spec.md` y `plan.md` en `d907766`; `tasks.md` versionado desde `4344c31` y actualizado en cada commit de tarea.
 
 ---

@@ -115,6 +115,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "apps.accounts.backends.EmailBackend",
+    "apps.accounts.backends.TechnicalAdminBackend",
+]
+
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/profile/"
+LOGOUT_REDIRECT_URL = "/login/"
+
 LANGUAGE_CODE = "es-ar"
 TIME_ZONE = "America/Argentina/Buenos_Aires"
 USE_I18N = True
