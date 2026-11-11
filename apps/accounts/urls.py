@@ -1,4 +1,4 @@
-"""Rutas del panel comercial de NexoPyme AI (T-11, T-12)."""
+"""Rutas del panel comercial de NexoPyme AI (T-11 a T-15)."""
 
 from django.urls import path
 
@@ -9,6 +9,7 @@ from .views import (
     password_change,
     profile_detail,
     profile_redirect,
+    user_create,
     user_list,
 )
 
@@ -22,4 +23,5 @@ urlpatterns = [
     path("profile/", profile_redirect, name="profile"),
     path("profile/<int:pk>/", profile_detail, name="profile_detail"),
     path("users/", user_list, name="user_list"),
+    path("users/new/", user_create, name="user_create"),
 ]

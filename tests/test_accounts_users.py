@@ -1,7 +1,8 @@
-"""Pruebas del listado de usuarios del panel (T-14)."""
+"""Pruebas del listado de usuarios del panel (T-14, T-15)."""
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
 
 import pytest
@@ -14,6 +15,7 @@ from django.utils import timezone
 
 from apps.accounts.capabilities import Role
 from apps.accounts.models import Account, Company, Membership, generate_username
+from apps.audit.models import AuditEvent, SecurityEvent
 
 TEST_PASSWORD = "Clave-Segura-2026"
 
@@ -214,3 +216,197 @@ def test_user_list_handles_an_invalid_page_number(
     response = client.get("/users/?page=no-es-un-numero")
     assert response.status_code == 200
     assert owner_account.email in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_user_create_requires_login(client: object) -> None:
+    response = client.get("/users/new/")
+    assert response.status_code == 302
+    assert response.url == "/login/?next=/users/new/"
+
+
+@pytest.mark.django_db
+def test_user_create_requires_the_management_capability(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    consulta = _create_membership(
+        company,
+        "consulta@example.com",
+        role=Role.CONSULTA.value,
+    )
+    client.force_login(consulta.account.user)
+    response = client.post(
+        "/users/new/",
+        {
+            "email": "nuevo@example.com",
+            "display_name": "Nuevo",
+            "role": Role.OPERADOR.value,
+        },
+    )
+    assert response.status_code == 403
+    assert not Account.objects.filter(email="nuevo@example.com").exists()
+
+
+@pytest.mark.django_db
+def test_user_create_renders_the_form_without_the_owner_role(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    client.force_login(owner_account.user)
+    response = client.get("/users/new/")
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "accounts/user_form.html" in [
+        template.name for template in response.templates
+    ]
+    assert response["Cache-Control"] == "no-store"
+    choices = [value for value, _ in response.context["form"].fields["role"].choices]
+    assert Role.DUENO.value not in choices
+    assert 'value="dueno"' not in content
+    assert content.count("<h1") == 1
+
+
+@pytest.mark.django_db
+def test_user_create_creates_the_employee_and_shows_the_password_once(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+    django_capture_on_commit_callbacks: object,
+) -> None:
+    client.force_login(owner_account.user)
+    with django_capture_on_commit_callbacks(execute=True):
+        response = client.post(
+            "/users/new/",
+            {
+                "email": "nuevo@example.com",
+                "display_name": "Nueva Persona",
+                "role": Role.ENCARGADO.value,
+            },
+        )
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    match = re.search(r"<code>([^<]+)</code>", content)
+    assert match is not None
+    temporary_password = match.group(1)
+    assert content.count(temporary_password) == 1
+    assert "Nueva Persona" in content
+
+    membership = Membership.objects.select_related("account__user").get(
+        account__email="nuevo@example.com"
+    )
+    assert membership.company == company
+    assert membership.role == Role.ENCARGADO.value
+    assert membership.is_active is True
+    assert membership.must_change_password is True
+    assert membership.account.user.check_password(temporary_password)
+
+    event = AuditEvent.objects.get(action="membership.created")
+    assert event.company == company
+    assert event.actor == owner_account.user
+    assert temporary_password not in str(event.before)
+    assert temporary_password not in str(event.after)
+
+    later = client.get("/users/new/").content.decode()
+    assert temporary_password not in later
+
+
+@pytest.mark.django_db
+def test_user_create_rejects_a_duplicate_email(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+    django_capture_on_commit_callbacks: object,
+) -> None:
+    _create_membership(company, "repetido@example.com")
+    client.force_login(owner_account.user)
+    with django_capture_on_commit_callbacks(execute=True):
+        response = client.post(
+            "/users/new/",
+            {
+                "email": "  Repetido@Example.COM ",
+                "display_name": "Duplicado",
+                "role": Role.OPERADOR.value,
+            },
+        )
+
+    assert response.status_code == 400
+    assert "email" in response.context["form"].errors
+    content = response.content.decode()
+    assert "El correo ya está registrado." in content
+    assert 'aria-invalid="true"' in content
+    assert 'aria-describedby="id_email-errors"' in content
+    assert Account.objects.filter(email="repetido@example.com").count() == 1
+    assert Membership.objects.filter(company=company).count() == 2
+    assert AuditEvent.objects.filter(action="membership.created").count() == 0
+    assert get_user_model().objects.count() == 2
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("role", [Role.DUENO.value, "administrador"])
+def test_user_create_rejects_an_invalid_role(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+    role: str,
+) -> None:
+    client.force_login(owner_account.user)
+    response = client.post(
+        "/users/new/",
+        {
+            "email": "nuevo@example.com",
+            "display_name": "Nuevo",
+            "role": role,
+        },
+    )
+    assert response.status_code == 400
+    assert "role" in response.context["form"].errors
+    assert not Account.objects.filter(email="nuevo@example.com").exists()
+
+
+@pytest.mark.django_db
+def test_user_create_normalizes_the_email(
+    client: object,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    client.force_login(owner_account.user)
+    response = client.post(
+        "/users/new/",
+        {
+            "email": "  Nueva.Persona@Example.COM ",
+            "display_name": "Nueva Persona",
+            "role": Role.OPERADOR.value,
+        },
+    )
+    assert response.status_code == 200
+    assert Account.objects.filter(email="nueva.persona@example.com").exists()
+
+
+@pytest.mark.django_db
+def test_user_create_rejects_an_injected_company(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    other_company = Company.objects.create(name="Otra empresa", is_active=False)
+    client.force_login(owner_account.user)
+    response = client.post(
+        "/users/new/",
+        {
+            "email": "nuevo@example.com",
+            "display_name": "Nuevo",
+            "role": Role.OPERADOR.value,
+            "company": str(other_company.pk),
+        },
+    )
+    assert response.status_code == 404
+    assert not Account.objects.filter(email="nuevo@example.com").exists()
+    assert SecurityEvent.objects.filter(action="company.scope.injected").exists()

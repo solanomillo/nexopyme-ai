@@ -6,6 +6,10 @@
 <section class="panel panel--stage" aria-labelledby="users-title">
   <h1 class="panel__title" id="users-title">Usuarios de {{ request.company.name }}</h1>
 
+  <p>
+    <a class="button button--primary" href="{% url 'accounts:user_create' %}">Crear usuario</a>
+  </p>
+
   {% if page_obj.object_list %}
   <table>
     <caption>Cuentas de la empresa</caption>

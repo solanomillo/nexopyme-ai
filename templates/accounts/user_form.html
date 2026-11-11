@@ -1,0 +1,76 @@
+{% extends "base_panel.html" %}
+
+{% block title %}Nuevo usuario — NexoPyme AI{% endblock %}
+
+{% block content %}
+<section class="panel panel--stage" aria-labelledby="user-form-title">
+  <h1 class="panel__title" id="user-form-title">Nuevo usuario</h1>
+
+  {% if temporary_password %}
+  <div role="status">
+    <p>Usuario creado. La contraseña temporal se muestra una sola vez:</p>
+    <p><code>{{ temporary_password }}</code></p>
+    <p>
+      Entregala a {{ created_membership.account.display_name }} y pedile que la
+      cambie en el primer acceso.
+    </p>
+  </div>
+  <p>
+    <a class="button button--primary" href="{% url 'accounts:user_list' %}">Volver al listado</a>
+  </p>
+  {% else %}
+  <p class="panel__text">
+    La cuenta se crea activa, con una contraseña temporal de un solo uso.
+  </p>
+
+  {% if form.non_field_errors %}
+  <div class="form-errors" role="alert">
+    {% for error in form.non_field_errors %}
+    <p>{{ error }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {% for field in form %}
+    <div class="form-field">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}
+      <ul class="form-field__errors" id="{{ field.id_for_label }}-errors" role="alert">
+        {% for error in field.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    <button class="button button--primary" type="submit" data-loading-label="Creando…">Crear usuario</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% if not temporary_password %}
+<script>
+  (function () {
+    var form = document.querySelector(".panel form");
+    if (!form) {
+      return;
+    }
+    form.addEventListener("submit", function () {
+      form.setAttribute("aria-busy", "true");
+      var button = form.querySelector('button[type="submit"]');
+      if (button) {
+        button.disabled = true;
+        button.textContent = button.getAttribute("data-loading-label");
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}

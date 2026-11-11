@@ -1,4 +1,4 @@
-"""Vistas del panel comercial de NexoPyme AI (T-11, T-12)."""
+"""Vistas del panel comercial de NexoPyme AI (T-11 a T-15)."""
 
 from __future__ import annotations
 
@@ -24,7 +24,9 @@ from apps.audit.services import record_audit
 
 from .capabilities import Capability
 from .decorators import require_capability
+from .forms import EmployeeCreateForm
 from .models import Membership
+from .services import DuplicateEmailError, ServiceError, create_employee
 
 USERS_PER_PAGE = 20
 
@@ -151,6 +153,49 @@ def user_list(request: HttpRequest) -> HttpResponse:
         request,
         "accounts/user_list.html",
         {"page_obj": page_obj},
+    )
+
+
+@no_store
+@login_required
+@require_capability(Capability.USUARIOS_GESTIONAR)
+@require_http_methods(["GET", "POST"])
+def user_create(request: HttpRequest) -> HttpResponse:
+    """Crea un empleado y muestra su contraseña temporal una sola vez."""
+
+    form = EmployeeCreateForm(
+        data=request.POST if request.method == "POST" else None,
+    )
+    if request.method == "POST" and form.is_valid():
+        try:
+            membership, temporary_password = create_employee(
+                actor=request.membership,
+                email=form.cleaned_data["email"],
+                display_name=form.cleaned_data["display_name"],
+                role=form.cleaned_data["role"],
+            )
+        except DuplicateEmailError:
+            form.add_error("email", "El correo ya está registrado.")
+            form.apply_error_attributes()
+        except ServiceError as exc:
+            form.add_error(None, str(exc))
+            form.apply_error_attributes()
+        else:
+            return render(
+                request,
+                "accounts/user_form.html",
+                {
+                    "created_membership": membership,
+                    "temporary_password": temporary_password,
+                },
+            )
+
+    status = 400 if request.method == "POST" else 200
+    return render(
+        request,
+        "accounts/user_form.html",
+        {"form": form},
+        status=status,
     )
 
 

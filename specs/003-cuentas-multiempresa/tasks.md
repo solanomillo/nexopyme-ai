@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.4 |
-| Estado | G-0 APROBADO — T-01 a T-14 publicadas; RC-5 APROBADO (2026-11-10); T-15 pendiente |
+| Estado | G-0 APROBADO — T-01 a T-15 publicadas; RC-5 APROBADO (2026-11-10); T-16 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
@@ -63,7 +63,7 @@
 | T-12 | Cambio obligatorio y autogestión de contraseña | F4 | T-11 | G-1, G-4 | `[x]` |
 | T-13 | Comandos de inicialización y recuperación | F5 | T-07, T-12 | G-1, G-3, G-4 | `[x]` |
 | T-14 | Listado de usuarios del panel | F5 | T-09, T-12 | G-1, G-4 | `[x]` |
-| T-15 | Alta de empleado con contraseña temporal | F5 | T-14 | G-1, G-4 | `[ ]` |
+| T-15 | Alta de empleado con contraseña temporal | F5 | T-14 | G-1, G-4 | `[x]` |
 | T-16 | Rol, desactivación, reactivación y regeneración | F5 | T-15 | G-1, G-4 | `[ ]` |
 | T-17 | Configuración de la empresa | F6 | T-06, T-16 | G-1, G-4 | `[ ]` |
 | T-18 | Consulta de auditoría y eventos | F6 | T-05, T-09 | G-1, G-4 | `[ ]` |
@@ -329,6 +329,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** cuenta y membresía se crean juntas; el duplicado devuelve 400 sin registros parciales; el alta queda auditada con `django_capture_on_commit_callbacks(execute=True)`.
 - **Evidencia:** pytest y captura con contraseña enmascarada.
 - **Trazabilidad:** RF-21, RF-22; CA-21, CA-22, CA-37; RN-13.
+- **Registro de ejecución (2026-11-10):** `EmployeeCreateForm` en `apps/accounts/forms.py` con correo, nombre y rol; las opciones excluyen `dueno`; el correo se normaliza con `clean_email`; los campos inválidos reciben `aria-invalid` y `aria-describedby`. `user_create` en `/users/new/` exige sesión y `usuarios.gestionar`, delega en `create_employee` (servicio de T-07) y reutiliza su auditoría `membership.created` sin valores. En el POST exitoso devuelve 200 con la contraseña temporal en un bloque `role="status"` y no la repite en la siguiente petición; el duplicado responde 400 con error en el campo y sin registros parciales; el rol inválido responde 400; un `company` ajeno responde 404 uniforme y registra `company.scope.injected`. `user_list.html` incorpora el enlace «Crear usuario»; `user_form.html` incluye estados de error, envío con `aria-busy` y confirmación. Los errores agregados por el servicio (`DuplicateEmailError`) reaplican `aria-invalid`/`aria-describedby` mediante `EmployeeCreateForm.apply_error_attributes`. **7 pruebas DB-free en `test_accounts_forms.py`** y **8 pruebas de alta en `test_accounts_users.py`** (login, capacidad, formulario sin `dueno`, alta con contraseña mostrada una vez, duplicado con asociación accesible y sin usuario huérfano, rol inválido parametrizado, normalización y empresa inyectada); **113 en verde** junto con auth, middleware, comandos, home y urls; `ruff check .` → All checks passed; `manage.py check` sin problemas. La validación visual formal y los estilos se abordan en T-22/T-23. Limitaciones registradas: recargar el POST exitoso reenvía el formulario y responde 400 por duplicado (la contraseña solo se recupera con la regeneración de T-16), sin patrón PRG para no guardar el secreto en sesión; la verificación de extremo a extremo de CA-21 (acceso con la contraseña temporal y cambio obligatorio) se consolida en T-21; la captura con contraseña enmascarada queda diferida a T-22/T-23. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-16 — Rol, desactivación, reactivación y regeneración
 
@@ -558,7 +559,7 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
 | G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-14 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-15 publicadas |
 
 ---
 
@@ -578,7 +579,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-12: cambio obligatorio, autogestión de contraseña y perfil aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-13: comandos de inicialización y recuperación aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-14: listado de usuarios aprobado por el Reviewer (2026-11-10) y commiteado.
-- `[ ]` T-15 a T-26: no iniciadas.
+- `[x]` T-15: alta de empleado con contraseña temporal aprobada por el Reviewer (2026-11-10) y commiteada.
+- `[ ]` T-16 a T-26: no iniciadas.
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
