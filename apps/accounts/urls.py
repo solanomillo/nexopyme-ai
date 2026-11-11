@@ -1,10 +1,11 @@
-"""Rutas del panel comercial de NexoPyme AI (T-11 a T-16)."""
+"""Rutas del panel comercial de NexoPyme AI (T-11 a T-17)."""
 
 from django.urls import path
 
 from .views import (
     PanelLoginView,
     PanelLogoutView,
+    company_edit,
     panel_home,
     password_change,
     profile_detail,
@@ -36,4 +37,5 @@ urlpatterns = [
         user_regenerate_password,
         name="user_regenerate_password",
     ),
+    path("company/", company_edit, name="company_edit"),
 ]

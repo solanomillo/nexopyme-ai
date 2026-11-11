@@ -1,4 +1,4 @@
-"""Vistas del panel comercial de NexoPyme AI (T-11 a T-16)."""
+"""Vistas del panel comercial de NexoPyme AI (T-11 a T-17)."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from apps.audit.services import record_audit
 
 from .capabilities import Capability, Role
 from .decorators import require_capability
-from .forms import EmployeeCreateForm
+from .forms import CompanyNameForm, EmployeeCreateForm
 from .models import Membership
 from .services import (
     DuplicateEmailError,
@@ -34,6 +34,7 @@ from .services import (
     deactivate_membership,
     reactivate_membership,
     regenerate_temporary_password,
+    update_company_name,
 )
 
 USERS_PER_PAGE = 20
@@ -376,6 +377,38 @@ def user_regenerate_password(request: HttpRequest, pk: int) -> HttpResponse:
         ),
         membership=membership,
         temporary_password=temporary_password,
+    )
+
+
+@no_store
+@login_required
+@require_capability(Capability.EMPRESA_CONFIGURAR)
+@require_http_methods(["GET", "POST"])
+def company_edit(request: HttpRequest) -> HttpResponse:
+    """Actualiza el nombre del negocio de la empresa activa."""
+
+    form = CompanyNameForm(
+        data=request.POST if request.method == "POST" else None,
+        initial={"name": request.company.name},
+    )
+    if request.method == "POST" and form.is_valid():
+        try:
+            update_company_name(
+                actor=request.membership,
+                name=form.cleaned_data["name"],
+            )
+        except ServiceError as exc:
+            form.add_error(None, str(exc))
+        else:
+            messages.success(request, "Nombre de la empresa actualizado.")
+            return redirect("accounts:company_edit")
+
+    status = 400 if request.method == "POST" else 200
+    return render(
+        request,
+        "accounts/company_form.html",
+        {"form": form},
+        status=status,
     )
 
 

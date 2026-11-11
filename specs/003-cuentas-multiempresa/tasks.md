@@ -7,14 +7,14 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.4 |
-| Estado | G-0 APROBADO — T-01 a T-16 publicadas; RC-5 APROBADO (2026-11-10); T-17 pendiente |
+| Estado | G-0 APROBADO — T-01 a T-17 publicadas; RC-5 APROBADO (2026-11-10); T-18 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
 | Responsable | Planner |
 | Tareas | 26 (T-01 a T-26) |
 
-**Historial:** v1.0 inicial; v1.1 correcciones del primer dictamen; v1.2 correcciones del segundo dictamen y renumeración secuencial (capacidades → modelos → auditoría → servicios); v1.3 registro de la corrección documental de T-11 (`/panel/`, `panel.html`, validación visual y estilos diferidos a T-22/T-23); v1.4 sincroniza con `plan.md` v1.4 y registra las correcciones de T-12 (consulta de perfil filtrada por empresa, pruebas adicionales).
+**Historial:** v1.0 inicial; v1.1 correcciones del primer dictamen; v1.2 correcciones del segundo dictamen y renumeración secuencial (capacidades → modelos → auditoría → servicios); v1.3 registro de la corrección documental de T-11 (`/panel/`, `panel.html`, validación visual y estilos diferidos a T-22/T-23); v1.4 sincroniza con `plan.md` v1.4, registra las correcciones de T-12 (consulta de perfil filtrada por empresa, pruebas adicionales) y los ajustes de T-17 (formulario y vista de empresa, accesibilidad de errores y límite de 150 caracteres).
 
 ---
 
@@ -65,7 +65,7 @@
 | T-14 | Listado de usuarios del panel | F5 | T-09, T-12 | G-1, G-4 | `[x]` |
 | T-15 | Alta de empleado con contraseña temporal | F5 | T-14 | G-1, G-4 | `[x]` |
 | T-16 | Rol, desactivación, reactivación y regeneración | F5 | T-15 | G-1, G-4 | `[x]` |
-| T-17 | Configuración de la empresa | F6 | T-06, T-16 | G-1, G-4 | `[ ]` |
+| T-17 | Configuración de la empresa | F6 | T-06, T-16 | G-1, G-4 | `[x]` |
 | T-18 | Consulta de auditoría y eventos | F6 | T-05, T-09 | G-1, G-4 | `[ ]` |
 | T-19 | Separación Django Admin / panel comercial | F7 | T-10 | G-1, G-4 | `[ ]` |
 | T-20 | Seguridad de sesión y logging técnico | F7 | T-11, T-19 | G-1, G-4 | `[ ]` |
@@ -359,6 +359,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** solo el dueño actualiza; el cambio queda auditado con `django_capture_on_commit_callbacks(execute=True)`; sin campos adicionales.
 - **Evidencia:** pytest y validación visual.
 - **Trazabilidad:** RF-31; CA-31, CA-37; RN-14; RNF-14.
+- **Registro de ejecución (2026-11-10):** `CompanyNameForm` en `apps/accounts/forms.py` con un único campo `name` (máximo 150, recortado). `company_edit` en `/company/` exige sesión y `empresa.configurar`, carga el nombre actual como valor inicial y en POST válido delega en `update_company_name` (servicio de T-06/T-07), que revalida la capacidad y audita `company.name_updated` con valor anterior y nuevo; luego redirige a `/company/` con un mensaje de éxito. Nombre vacío, solo espacios o de más de 150 caracteres responden 400 sin cambios ni auditoría; un `company` ajeno responde 404 uniforme y registra `company.scope.injected`. `company_form.html` muestra el estado de éxito en `role="status"`, errores en `role="alert"` con `aria-invalid`/`aria-describedby` aplicados por `CompanyNameForm.apply_error_attributes`, un solo `h1` y envío con `aria-busy`. **10 pruebas nuevas en `test_accounts_company.py`** (ruta, login, capacidad sin auditoría, render del nombre, actualización con auditoría y mensaje, tres variantes inválidas con asociación accesible, límite exacto de 150 caracteres y empresa inyectada); **40 en el archivo** y **186 en verde** junto con usuarios, formularios, auth, middleware, comandos, home y urls; `ruff check .` → All checks passed; `manage.py check` sin problemas. Se usa PRG con `messages` porque el formulario no muestra secretos, igual que el cambio de contraseña de T-12. Deuda registrada: `base_panel.html` mezcla `{% url %}` con rutas literales (`/users/`, `/company/`, `/audit/`), a migrar en T-18/T-22. La validación visual formal y los estilos se abordan en T-22/T-23.
 
 ### T-18 — Consulta de auditoría y eventos
 
@@ -560,7 +561,7 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
 | G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-16 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-17 publicadas |
 
 ---
 
@@ -582,7 +583,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-14: listado de usuarios aprobado por el Reviewer (2026-11-10) y commiteado.
 - `[x]` T-15: alta de empleado con contraseña temporal aprobada por el Reviewer (2026-11-10) y commiteada.
 - `[x]` T-16: rol, desactivación, reactivación y regeneración aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-17 a T-26: no iniciadas.
+- `[x]` T-17: configuración de la empresa aprobada por el Reviewer (2026-11-10) y commiteada.
+- `[ ]` T-18 a T-26: no iniciadas.
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
@@ -591,4 +593,4 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 
 ---
 
-**Fin de las tareas v1.3.** La especificación 003 v1.0 y la planificación v1.3 están aprobadas (G-0). La implementación avanza por tarea con autorización explícita.
+**Fin de las tareas v1.4.** La especificación 003 v1.0 y la planificación v1.4 están aprobadas (G-0). La implementación avanza por tarea con autorización explícita.

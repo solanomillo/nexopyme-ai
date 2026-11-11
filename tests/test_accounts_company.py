@@ -1,4 +1,4 @@
-"""Pruebas de los modelos y servicios de cuentas (T-03, T-06, T-07)."""
+"""Pruebas de los modelos, servicios y vista de empresa de cuentas (T-03, T-06, T-07, T-17)."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
+from django.urls import reverse
 
 from apps.accounts.capabilities import Role
 from apps.accounts.emails import clean_email, normalize_email
@@ -31,7 +32,7 @@ from apps.accounts.services import (
     regenerate_temporary_password,
     update_company_name,
 )
-from apps.audit.models import AuditEvent
+from apps.audit.models import AuditEvent, SecurityEvent
 
 
 def _create_account(email: str) -> Account:
@@ -485,3 +486,143 @@ def test_employee_has_exactly_one_membership(owner_membership: Membership) -> No
         role=Role.OPERADOR.value,
     )
     assert employee.account.memberships.count() == 1
+
+
+def test_company_edit_route_is_registered() -> None:
+    """La ruta de configuración se resuelve con el namespace accounts (DB-free)."""
+
+    assert reverse("accounts:company_edit") == "/company/"
+
+
+@pytest.mark.django_db
+def test_company_edit_requires_login(client: object) -> None:
+    response = client.get("/company/")
+    assert response.status_code == 302
+    assert response.url == "/login/?next=/company/"
+
+
+@pytest.mark.django_db
+def test_company_edit_requires_the_configuration_capability(
+    client: object,
+    company: Company,
+    owner_membership: Membership,
+) -> None:
+    encargado = _create_membership(company, "encargado@example.com", Role.ENCARGADO)
+    client.force_login(encargado.account.user)
+
+    get_response = client.get("/company/")
+    post_response = client.post("/company/", {"name": "Nombre ajeno"})
+
+    assert get_response.status_code == 403
+    assert post_response.status_code == 403
+    company.refresh_from_db()
+    assert company.name == "Almacén Central"
+    assert not AuditEvent.objects.filter(action="company.name_updated").exists()
+
+
+@pytest.mark.django_db
+def test_company_edit_renders_the_current_name(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    client.force_login(owner_account.user)
+    response = client.get("/company/")
+
+    assert response.status_code == 200
+    assert response["Cache-Control"] == "no-store"
+    content = response.content.decode()
+    assert "accounts/company_form.html" in [
+        template.name for template in response.templates
+    ]
+    assert 'value="Almacén Central"' in content
+    assert content.count("<h1") == 1
+
+
+@pytest.mark.django_db
+def test_company_edit_updates_the_name_and_audits_both_values(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+    django_capture_on_commit_callbacks: object,
+) -> None:
+    client.force_login(owner_account.user)
+    with django_capture_on_commit_callbacks(execute=True):
+        response = client.post("/company/", {"name": "  Nuevo nombre  "})
+
+    assert response.status_code == 302
+    assert response.url == "/company/"
+
+    company.refresh_from_db()
+    assert company.name == "Nuevo nombre"
+    event = AuditEvent.objects.get(action="company.name_updated")
+    assert event.actor == owner_account.user
+    assert event.company == company
+    assert event.before == {"name": "Almacén Central"}
+    assert event.after == {"name": "Nuevo nombre"}
+
+    followed = client.get("/company/")
+    assert "Nombre de la empresa actualizado." in followed.content.decode()
+    assert followed.status_code == 200
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("name", ["", "   ", "x" * 151])
+def test_company_edit_rejects_an_invalid_name(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+    name: str,
+) -> None:
+    client.force_login(owner_account.user)
+    response = client.post("/company/", {"name": name})
+
+    assert response.status_code == 400
+    assert "name" in response.context["form"].errors
+    content = response.content.decode()
+    assert 'aria-invalid="true"' in content
+    assert 'aria-describedby="id_name-errors"' in content
+    company.refresh_from_db()
+    assert company.name == "Almacén Central"
+    assert not AuditEvent.objects.filter(action="company.name_updated").exists()
+
+
+@pytest.mark.django_db
+def test_company_edit_accepts_a_150_character_name(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    name = "x" * 150
+    client.force_login(owner_account.user)
+    response = client.post("/company/", {"name": name})
+
+    assert response.status_code == 302
+    company.refresh_from_db()
+    assert company.name == name
+
+
+@pytest.mark.django_db
+def test_company_edit_rejects_an_injected_company(
+    client: object,
+    company: Company,
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    other_company = Company.objects.create(name="Otra empresa", is_active=False)
+    client.force_login(owner_account.user)
+    response = client.post(
+        "/company/",
+        {"name": "Nombre ajeno", "company": str(other_company.pk)},
+    )
+
+    assert response.status_code == 404
+    company.refresh_from_db()
+    other_company.refresh_from_db()
+    assert company.name == "Almacén Central"
+    assert other_company.name == "Otra empresa"
+    assert SecurityEvent.objects.filter(action="company.scope.injected").exists()

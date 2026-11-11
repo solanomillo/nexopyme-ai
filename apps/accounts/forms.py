@@ -1,4 +1,4 @@
-"""Formularios del panel comercial (T-15)."""
+"""Formularios del panel comercial (T-15, T-17)."""
 
 from __future__ import annotations
 
@@ -49,3 +49,29 @@ class EmployeeCreateForm(forms.Form):
 
     def clean_email(self) -> str:
         return clean_email(self.cleaned_data["email"])
+
+
+class CompanyNameForm(forms.Form):
+    """Actualización del nombre visible del negocio (T-17)."""
+
+    name = forms.CharField(
+        label="Nombre del negocio",
+        max_length=150,
+        widget=forms.TextInput(attrs={"autocomplete": "organization"}),
+    )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.apply_error_attributes()
+
+    def apply_error_attributes(self) -> None:
+        """Asocia el error del nombre con su control para lectores de pantalla."""
+
+        field = self["name"]
+        if field.errors:
+            self.fields["name"].widget.attrs.update(
+                {
+                    "aria-invalid": "true",
+                    "aria-describedby": f"{field.auto_id}-errors",
+                }
+            )
