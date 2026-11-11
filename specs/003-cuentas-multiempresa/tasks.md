@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.4 |
-| Estado | G-0 APROBADO — T-01 a T-18 publicadas; RC-5 APROBADO (2026-11-10); T-19 pendiente |
+| Estado | G-0 APROBADO — T-01 a T-19 publicadas; RC-5 APROBADO (2026-11-10); RC-6 en verificación |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
@@ -67,7 +67,7 @@
 | T-16 | Rol, desactivación, reactivación y regeneración | F5 | T-15 | G-1, G-4 | `[x]` |
 | T-17 | Configuración de la empresa | F6 | T-06, T-16 | G-1, G-4 | `[x]` |
 | T-18 | Consulta de auditoría y eventos | F6 | T-05, T-09 | G-1, G-4 | `[x]` |
-| T-19 | Separación Django Admin / panel comercial | F7 | T-10 | G-1, G-4 | `[ ]` |
+| T-19 | Separación Django Admin / panel comercial | F7 | T-10 | G-1, G-4 | `[x]` |
 | T-20 | Seguridad de sesión y logging técnico | F7 | T-11, T-19 | G-1, G-4 | `[ ]` |
 | T-21 | Pruebas de aislamiento entre empresas | F8 | T-02 a T-20 | G-4 | `[ ]` |
 | T-22 | Integración, regresión y calidad | F8 | T-21 | G-4 | `[ ]` |
@@ -391,6 +391,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** cuenta comercial sin acceso; superusuario con acceso; modelos de negocio no editables.
 - **Evidencia:** pytest de separación y Unfold en verde.
 - **Trazabilidad:** RF-33 a RF-36; CA-33 a CA-36; RN-16; RNF-02, RNF-13, RNF-14.
+- **Registro de ejecución (2026-11-10):** `apps/core/admin.py` envuelve `UserAdmin` y `GroupAdmin` en `ReadOnlyAdminMixin`, que devuelve `False` en `has_add_permission`, `has_change_permission` y `has_delete_permission`; `readonly_fields` cubre todos los campos concretos de `User` y `Group`. Se retiraron los formularios específicos de Unfold del `UserAdmin` porque su `UserChangeForm` falla al renderizar la vista de solo lectura (`KeyError: 'password'`); el formulario estándar de Django sí soporta ese modo. Además, `fieldsets` y `readonly_fields` excluyen `password`, porque la vista de solo lectura llegaba a imprimir el hash completo; la prueba verifica que ni el hash ni `pbkdf2` aparecen en el HTML. `apps/accounts/admin.py` documenta que `Account`, `Company`, `Membership`, `AuditEvent` y `SecurityEvent` no se registran. La cuenta comercial conserva la sesión del panel pero el Admin la redirige a `/admin/login/?next=...` por no ser `is_staff`; el superusuario técnico sin membresía inicia sesión por `TechnicalAdminBackend` y accede al índice, pero recibe 403 en alta, cambio y borrado, y no puede modificar usuarios. **12 pruebas nuevas en `test_accounts_admin_separation.py`** (solo lectura de ambos admin, modelos no registrados, comercial sin `is_staff`/`is_superuser` y redirigida, acceso técnico sin membresía, vista de cambio en modo lectura sin botón de guardado, y 403 en alta/cambio/borrado de usuarios y en alta/cambio/borrado de grupos) y **14 en verde** junto con `test_admin_unfold.py`; **225 en verde** en la suite ampliada; `ruff check .` → All checks passed; `manage.py check` sin problemas. Sin cambios de modelos ni migraciones. Limitaciones registradas: `readonly_fields` cubre campos concretos pero no las relaciones M2M (`groups`, `user_permissions`, `permissions`); la defensa efectiva es `has_*_permission=False`, y el registro de modelos es la prueba concluyente de CA-36 (la ausencia de «Cuentas» en el índice es solo un humo). Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-20 — Seguridad de sesión y logging técnico
 
@@ -562,7 +563,7 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
 | G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-18 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-19 publicadas |
 
 ---
 
@@ -586,7 +587,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-16: rol, desactivación, reactivación y regeneración aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-17: configuración de la empresa aprobada por el Reviewer (2026-11-10) y commiteada.
 - `[x]` T-18: consulta de auditoría y eventos aprobada por el Reviewer (2026-11-10) y commiteada.
-- `[ ]` T-19 a T-26: no iniciadas.
+- `[x]` T-19: separación Admin/panel aprobada por el Reviewer (2026-11-10) y commiteada.
+- `[ ]` T-20 a T-26: no iniciadas; requieren autorización tras RC-6.
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
