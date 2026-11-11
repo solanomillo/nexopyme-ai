@@ -6,15 +6,15 @@
 |---|---|
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
-| Versión | 1.2 |
-| Estado | G-0 APROBADO — T-01 a T-10 publicadas; RC-5 APROBADO (2026-11-10); T-11 pendiente |
+| Versión | 1.3 |
+| Estado | G-0 APROBADO — T-01 a T-11 publicadas; RC-5 APROBADO (2026-11-10); T-12 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
-| Plan | `plan.md` v1.2 aprobado el 2026-11-10 |
+| Plan | `plan.md` v1.3 (v1.2 aprobado; v1.3 registra `/panel/` y `panel.html` de T-11) |
 | Fecha | 2026-11-10 |
 | Responsable | Planner |
 | Tareas | 26 (T-01 a T-26) |
 
-**Historial:** v1.0 inicial; v1.1 correcciones del primer dictamen; v1.2 correcciones del segundo dictamen y renumeración secuencial (capacidades → modelos → auditoría → servicios).
+**Historial:** v1.0 inicial; v1.1 correcciones del primer dictamen; v1.2 correcciones del segundo dictamen y renumeración secuencial (capacidades → modelos → auditoría → servicios); v1.3 registro de la corrección documental de T-11 (`/panel/`, `panel.html`, validación visual y estilos diferidos a T-22/T-23).
 
 ---
 
@@ -59,7 +59,7 @@
 | T-08 | Middleware de contexto y punto de bloqueo | F3 | T-03, T-07 | G-1, G-4 | `[x]` |
 | T-09 | Autorización en vistas y servicios | F3 | T-02, T-08 | G-1, G-4 | `[x]` |
 | T-10 | Backends de autenticación | F4 | T-03, T-09 | G-1, G-4 | `[x]` |
-| T-11 | Acceso, cierre de sesión y rutas protegidas | F4 | T-10 | G-1, G-4 | `[ ]` |
+| T-11 | Acceso, cierre de sesión y rutas protegidas | F4 | T-10 | G-1, G-4 | `[x]` |
 | T-12 | Cambio obligatorio y autogestión de contraseña | F4 | T-11 | G-1, G-4 | `[ ]` |
 | T-13 | Comandos de inicialización y recuperación | F5 | T-07, T-12 | G-1, G-3, G-4 | `[ ]` |
 | T-14 | Listado de usuarios del panel | F5 | T-09, T-12 | G-1, G-4 | `[ ]` |
@@ -263,8 +263,9 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
   4. Implementar estados de error y carga.
   5. Probar redirección, cierre, destino seguro, ausencia de cambios en `base.html` y cabeceras de no almacenamiento.
 - **Verificación:** sin sesión se redirige; el cierre invalida la sesión; la prueba de la home sigue en verde.
-- **Evidencia:** pytest y validación visual del formulario.
+- **Evidencia:** pytest y verificación estructural de estados; la validación visual formal y los ajustes de estilo se abordan en T-22/T-23 (plan §10).
 - **Trazabilidad:** RF-03, RF-04; CA-03, CA-04; RNF-03.
+- **Registro de ejecución (2026-11-10):** `PanelLoginView` usa `EmailAuthenticationForm` con mensaje genérico y `redirect_authenticated_user`; los errores de campo se asocian con `aria-invalid` y `aria-describedby`; `PanelLogoutView` exige POST y vuelve a `/login/`; `panel_home` en `/panel/` está protegido por `login_required` y decorado con `no_store` (`Cache-Control: no-store`). `base_panel.html` es una plantilla independiente con navegación, contexto de empresa/membresía y cierre de sesión por POST, sin modificar `base.html` (D-12); `accounts/panel.html` la extiende como landing del panel. `login.html` extiende `base.html` e incluye estados de error (`role="alert"`) y carga (`aria-busy` + botón deshabilitado). Rutas incluidas en `config/urls.py` con namespace `accounts`; `/panel/` y `panel.html` quedan registrados en `plan.md` v1.3. **44 pruebas en `test_accounts_auth.py`** (18 de T-10 + 26 de T-11; 5 DB-free y 39 con base) y **51 en verde** junto con `test_home_view.py` y `test_urls.py`; `ruff check .` → All checks passed; `manage.py check` sin problemas. Limitaciones registradas: la validación visual formal y los estilos del formulario se abordan en T-22/T-23, fuera del alcance de T-11; los enlaces a `/profile/`, `/users/`, `/company/` y `/audit/` quedan transitoriamente en 404 hasta T-12/T-14/T-17/T-18; el 403 del middleware no lleva `no-store` y se evaluará en T-20; `base_panel.html` accede a `request.user.account.display_name` y añade una consulta por render, que se revisará en T-21 (RNF-06) sin modificar el middleware de T-08. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-12 — Cambio obligatorio y autogestión de contraseña
 
@@ -554,7 +555,7 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
 | G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-10 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-11 publicadas |
 
 ---
 
@@ -570,7 +571,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-08: middleware de contexto aprobado por el Reviewer (2026-11-10) y commiteado.
 - `[x]` T-09: autorización y handlers aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-10: backends de autenticación aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-11 a T-26: no iniciadas.
+- `[x]` T-11: acceso, cierre de sesión y rutas protegidas aprobados por el Reviewer (2026-11-10) y commiteados.
+- `[ ]` T-12 a T-26: no iniciadas.
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.
@@ -579,4 +581,4 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 
 ---
 
-**Fin de las tareas v1.2.** La especificación 003 v1.0 y la planificación v1.2 están aprobadas (G-0). La implementación avanza por tarea con autorización explícita.
+**Fin de las tareas v1.3.** La especificación 003 v1.0 y la planificación v1.3 están aprobadas (G-0). La implementación avanza por tarea con autorización explícita.

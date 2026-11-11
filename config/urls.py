@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from django.urls import path
+from django.urls import include, path
 
 from apps.accounts.decorators import MissingContextDenied
 from apps.audit.services import record_security
@@ -35,6 +35,7 @@ def handler404(request: HttpRequest, exception: Exception | None = None) -> Http
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", include("apps.accounts.urls")),
     path("", home, name="home"),
     path("health/", health, name="health"),
 ]

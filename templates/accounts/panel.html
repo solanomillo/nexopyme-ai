@@ -1,0 +1,16 @@
+{% extends "base_panel.html" %}
+
+{% block title %}Panel de {{ request.company.name }} — NexoPyme AI{% endblock %}
+
+{% block content %}
+<section class="panel panel--stage" aria-labelledby="panel-title">
+  <h1 class="panel__title" id="panel-title">Panel de {{ request.company.name }}</h1>
+  <p class="panel__text">
+    Sesión iniciada como {{ request.user.account.display_name }}
+    ({{ request.membership.get_role_display }}).
+  </p>
+  <p class="panel__text">
+    Las funciones de gestión de la etapa se incorporan en las próximas tareas.
+  </p>
+</section>
+{% endblock %}

@@ -6,8 +6,8 @@
 |---|---|
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/plan.md` |
-| Versión | 1.2 |
-| Estado | APROBADO — v1.2 aprobado por el usuario el 2026-11-10 |
+| Versión | 1.3 |
+| Estado | APROBADO — v1.2 aprobado por el usuario el 2026-11-10; v1.3 registra `/panel/` y `panel.html` de T-11 |
 | Especificación de referencia | `specs/003-cuentas-multiempresa/spec.md` v1.0 aprobada el 2026-11-10 |
 | Tareas | `specs/003-cuentas-multiempresa/tasks.md` v1.2 |
 | Fecha | 2026-11-10 |
@@ -15,7 +15,7 @@
 | Fase SDD | 5 a 7: plan técnico y descomposición en tareas |
 | Base de partida | `HEAD` = `origin/main` = `bef5c58`; Etapa 001 cerrada |
 
-**Historial:** v1.0: plan inicial. v1.1: correcciones del primer dictamen (backends, catálogo primero, `Account`, regresión de pruebas, sesión y logging, concurrencia, Git). v1.2: correcciones del segundo dictamen — auditoría después de `Company`, renumeración secuencial de tareas, aprobaciones A-09/A-10/A-13 registradas, `username` opaco, aplicación única de `must_change_password`, dos variantes de 403, pruebas de `on_commit`, 404 con `DEBUG=False`, variables opcionales y trazabilidad completa de RN.
+**Historial:** v1.0: plan inicial. v1.1: correcciones del primer dictamen (backends, catálogo primero, `Account`, regresión de pruebas, sesión y logging, concurrencia, Git). v1.2: correcciones del segundo dictamen — auditoría después de `Company`, renumeración secuencial de tareas, aprobaciones A-09/A-10/A-13 registradas, `username` opaco, aplicación única de `must_change_password`, dos variantes de 403, pruebas de `on_commit`, 404 con `DEBUG=False`, variables opcionales y trazabilidad completa de RN. v1.3: se registran `/panel/` y `templates/accounts/panel.html` como shell protegido y landing del panel de T-11.
 
 ---
 
@@ -179,7 +179,7 @@ apps/
 └── core/            # solo cambia admin.py en T-19
 templates/
 ├── base_panel.html
-├── accounts/{login,profile,password_change,user_list,user_form,user_confirm,company_form,audit_list}.html
+├── accounts/{panel,login,profile,password_change,user_list,user_form,user_confirm,company_form,audit_list}.html
 └── errors/403.html, errors/404.html
 tests/
 ├── conftest.py
@@ -254,7 +254,7 @@ Invariantes: una empresa activa, una sola membresía por cuenta, un dueño activ
 - Vistas propias de acceso, salida, perfil y cambio de contraseña.
 - El cambio exige la contraseña actual, aplica los validadores y audita sin valores.
 - `base_panel.html` aporta navegación y contexto sin tocar `base.html`.
-- URLs: `/login/`, `/logout/`, `/profile/`, `/profile/<int:pk>/`, `/password/`, `/users/`, `/company/`, `/audit/`.
+- URLs: `/login/`, `/logout/`, `/panel/`, `/profile/`, `/profile/<int:pk>/`, `/password/`, `/users/`, `/company/`, `/audit/`.
 - `/profile/<int:pk>/`: propio → 200; otra cuenta de la misma empresa → 403; otra empresa → 404 uniforme.
 - Respuestas autenticadas con `Cache-Control: no-store` para que el botón atrás no recupere datos.
 - Estados vacío, error, carga, confirmación y éxito; accesibilidad RNF-07.
