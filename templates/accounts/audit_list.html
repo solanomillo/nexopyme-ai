@@ -1,0 +1,109 @@
+{% extends "base_panel.html" %}
+
+{% block title %}Auditoría — NexoPyme AI{% endblock %}
+
+{% block content %}
+<section class="panel panel--stage" aria-labelledby="audit-title">
+  <h1 class="panel__title" id="audit-title">Auditoría de {{ request.company.name }}</h1>
+  <p class="panel__text">
+    Registro de solo lectura. No se muestran eventos sin actor ni datos de otra
+    empresa.
+  </p>
+
+  <section aria-labelledby="audit-events-title">
+    <h2 class="panel__subtitle" id="audit-events-title">Operaciones de negocio</h2>
+
+    {% if audit_rows %}
+    <table>
+      <caption>Operaciones auditadas de la empresa</caption>
+      <thead>
+        <tr>
+          <th scope="col">Fecha</th>
+          <th scope="col">Actor</th>
+          <th scope="col">Entidad</th>
+          <th scope="col">Acción</th>
+          <th scope="col">Resultado</th>
+          <th scope="col">Valores</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in audit_rows %}
+        <tr>
+          <td>{{ row.created_at|date:"d/m/Y H:i" }}</td>
+          <td>{{ row.actor }}</td>
+          <td>{{ row.entity }} #{{ row.entity_id }}</td>
+          <td>{{ row.action }}</td>
+          <td>{{ row.result }}</td>
+          <td>
+            {% if row.before %}<code>{{ row.before }}</code>{% else %}—{% endif %}
+            →
+            {% if row.after %}<code>{{ row.after }}</code>{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="panel__text">No hay operaciones auditadas.</p>
+    {% endif %}
+
+    {% if audit_page.has_other_pages %}
+    <nav aria-label="Paginación de auditoría">
+      <ul class="pagination">
+        {% if audit_page.has_previous %}
+        <li><a href="?audit_page={{ audit_page.previous_page_number }}{% if security_page.number > 1 %}&amp;security_page={{ security_page.number }}{% endif %}" rel="prev">Anterior</a></li>
+        {% endif %}
+        <li>Página {{ audit_page.number }} de {{ audit_page.paginator.num_pages }}</li>
+        {% if audit_page.has_next %}
+        <li><a href="?audit_page={{ audit_page.next_page_number }}{% if security_page.number > 1 %}&amp;security_page={{ security_page.number }}{% endif %}" rel="next">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </section>
+
+  <section aria-labelledby="security-events-title">
+    <h2 class="panel__subtitle" id="security-events-title">Eventos de seguridad</h2>
+
+    {% if security_rows %}
+    <table>
+      <caption>Rechazos de seguridad de la empresa</caption>
+      <thead>
+        <tr>
+          <th scope="col">Fecha</th>
+          <th scope="col">Actor</th>
+          <th scope="col">Acción</th>
+          <th scope="col">Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in security_rows %}
+        <tr>
+          <td>{{ row.created_at|date:"d/m/Y H:i" }}</td>
+          <td>{{ row.actor }}</td>
+          <td>{{ row.action }}</td>
+          <td>{{ row.result }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="panel__text">No hay eventos de seguridad.</p>
+    {% endif %}
+
+    {% if security_page.has_other_pages %}
+    <nav aria-label="Paginación de eventos de seguridad">
+      <ul class="pagination">
+        {% if security_page.has_previous %}
+        <li><a href="?security_page={{ security_page.previous_page_number }}{% if audit_page.number > 1 %}&amp;audit_page={{ audit_page.number }}{% endif %}" rel="prev">Anterior</a></li>
+        {% endif %}
+        <li>Página {{ security_page.number }} de {{ security_page.paginator.num_pages }}</li>
+        {% if security_page.has_next %}
+        <li><a href="?security_page={{ security_page.next_page_number }}{% if audit_page.number > 1 %}&amp;audit_page={{ audit_page.number }}{% endif %}" rel="next">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

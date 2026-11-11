@@ -1,4 +1,4 @@
-"""Vistas del panel comercial de NexoPyme AI (T-11 a T-17)."""
+"""Vistas del panel comercial de NexoPyme AI (T-11 a T-18)."""
 
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
+from apps.audit.models import AuditEvent, SecurityEvent
 from apps.audit.services import record_audit
 
 from .capabilities import Capability, Role
@@ -38,6 +39,7 @@ from .services import (
 )
 
 USERS_PER_PAGE = 20
+AUDIT_PER_PAGE = 20
 
 
 class EmailAuthenticationForm(AuthenticationForm):
@@ -409,6 +411,74 @@ def company_edit(request: HttpRequest) -> HttpResponse:
         "accounts/company_form.html",
         {"form": form},
         status=status,
+    )
+
+
+def _actor_label(event: object) -> str:
+    """Nombre visible del actor; etiqueta genérica si no tiene cuenta."""
+
+    account = getattr(event.actor, "account", None)
+    return account.display_name if account is not None else "Personal técnico"
+
+
+def _audit_row(event: AuditEvent) -> dict[str, object]:
+    return {
+        "created_at": event.created_at,
+        "actor": _actor_label(event),
+        "entity": event.entity,
+        "entity_id": event.entity_id,
+        "action": event.action,
+        "result": event.result,
+        "before": event.before,
+        "after": event.after,
+    }
+
+
+def _security_row(event: SecurityEvent) -> dict[str, object]:
+    """Fila de seguridad sin el identificador de empresa intentada."""
+
+    return {
+        "created_at": event.created_at,
+        "actor": _actor_label(event),
+        "action": event.action,
+        "result": event.result,
+    }
+
+
+@no_store
+@login_required
+@require_capability(Capability.AUDITORIA_CONSULTAR)
+@require_http_methods(["GET"])
+def audit_list(request: HttpRequest) -> HttpResponse:
+    """Lista la auditoría y los eventos de seguridad de la empresa activa."""
+
+    audit_events = (
+        AuditEvent.objects.select_related("actor__account")
+        .filter(company=request.company, actor__isnull=False)
+        .order_by("-created_at", "-pk")
+    )
+    security_events = (
+        SecurityEvent.objects.select_related("actor__account")
+        .filter(company=request.company, actor__isnull=False)
+        .order_by("-created_at", "-pk")
+    )
+    audit_page = Paginator(audit_events, AUDIT_PER_PAGE).get_page(
+        request.GET.get("audit_page")
+    )
+    security_page = Paginator(security_events, AUDIT_PER_PAGE).get_page(
+        request.GET.get("security_page")
+    )
+    return render(
+        request,
+        "accounts/audit_list.html",
+        {
+            "audit_rows": [_audit_row(event) for event in audit_page.object_list],
+            "audit_page": audit_page,
+            "security_rows": [
+                _security_row(event) for event in security_page.object_list
+            ],
+            "security_page": security_page,
+        },
     )
 
 
