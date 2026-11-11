@@ -275,6 +275,10 @@ def reactivate_membership(*, actor: Membership, membership: Membership) -> str:
 
     _require_same_company(actor, membership)
     _require_capability(actor, Capability.USUARIOS_GESTIONAR)
+    if membership.role == Role.DUENO.value:
+        raise ServiceError(
+            "La recuperación del dueño se realiza por comando técnico."
+        )
     if membership.is_active:
         raise ServiceError("La membresía ya está activa.")
 

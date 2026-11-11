@@ -20,6 +20,7 @@
         <th scope="col">Rol</th>
         <th scope="col">Estado</th>
         <th scope="col">Último acceso</th>
+        <th scope="col">Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -34,6 +35,37 @@
           {{ membership.account.user.last_login|date:"d/m/Y H:i" }}
           {% else %}
           Nunca
+          {% endif %}
+        </td>
+        <td>
+          {% if membership.role == "dueno" %}
+          <span class="panel__text">Cuenta del dueño</span>
+          {% else %}
+          <form method="post" action="{% url 'accounts:user_change_role' membership.pk %}">
+            {% csrf_token %}
+            <label for="role-{{ membership.pk }}">Rol de {{ membership.account.display_name }}</label>
+            <select id="role-{{ membership.pk }}" name="role">
+              {% for value, label in role_choices %}
+              <option value="{{ value }}"{% if membership.role == value %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit">Cambiar rol</button>
+          </form>
+          {% if membership.is_active %}
+          <form method="post" action="{% url 'accounts:user_regenerate_password' membership.pk %}">
+            {% csrf_token %}
+            <button type="submit">Regenerar contraseña</button>
+          </form>
+          <form method="post" action="{% url 'accounts:user_deactivate' membership.pk %}">
+            {% csrf_token %}
+            <button type="submit">Desactivar</button>
+          </form>
+          {% else %}
+          <form method="post" action="{% url 'accounts:user_reactivate' membership.pk %}">
+            {% csrf_token %}
+            <button type="submit">Reactivar</button>
+          </form>
+          {% endif %}
           {% endif %}
         </td>
       </tr>

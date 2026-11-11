@@ -1,4 +1,4 @@
-"""Vistas del panel comercial de NexoPyme AI (T-11 a T-15)."""
+"""Vistas del panel comercial de NexoPyme AI (T-11 a T-16)."""
 
 from __future__ import annotations
 
@@ -22,11 +22,19 @@ from django.views.decorators.http import require_http_methods
 
 from apps.audit.services import record_audit
 
-from .capabilities import Capability
+from .capabilities import Capability, Role
 from .decorators import require_capability
 from .forms import EmployeeCreateForm
 from .models import Membership
-from .services import DuplicateEmailError, ServiceError, create_employee
+from .services import (
+    DuplicateEmailError,
+    ServiceError,
+    change_role,
+    create_employee,
+    deactivate_membership,
+    reactivate_membership,
+    regenerate_temporary_password,
+)
 
 USERS_PER_PAGE = 20
 
@@ -152,7 +160,12 @@ def user_list(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "accounts/user_list.html",
-        {"page_obj": page_obj},
+        {
+            "page_obj": page_obj,
+            "role_choices": [
+                (role.value, role.label) for role in Role if role != Role.DUENO
+            ],
+        },
     )
 
 
@@ -196,6 +209,173 @@ def user_create(request: HttpRequest) -> HttpResponse:
         "accounts/user_form.html",
         {"form": form},
         status=status,
+    )
+
+
+def _membership_of_company(request: HttpRequest, pk: int) -> Membership:
+    """Devuelve la membresía de la empresa activa o responde 404 uniforme."""
+
+    membership = (
+        Membership.objects.select_related("account__user")
+        .filter(company=request.company, pk=pk)
+        .first()
+    )
+    if membership is None:
+        raise Http404("Recurso no encontrado.")
+    return membership
+
+
+def _confirm(
+    request: HttpRequest,
+    *,
+    title: str,
+    message: str,
+    membership: Membership,
+    temporary_password: str | None = None,
+    error: str | None = None,
+) -> HttpResponse:
+    """Renderiza la confirmación de una operación sobre una membresía."""
+
+    return render(
+        request,
+        "accounts/user_confirm.html",
+        {
+            "title": title,
+            "message": message,
+            "target": membership,
+            "temporary_password": temporary_password,
+            "error": error,
+        },
+        status=400 if error else 200,
+    )
+
+
+@no_store
+@login_required
+@require_capability(Capability.USUARIOS_GESTIONAR)
+@require_http_methods(["POST"])
+def user_change_role(request: HttpRequest, pk: int) -> HttpResponse:
+    """Cambia el rol de un empleado y audita los valores anterior y nuevo."""
+
+    membership = _membership_of_company(request, pk)
+    try:
+        change_role(
+            actor=request.membership,
+            membership=membership,
+            role=request.POST.get("role", ""),
+        )
+    except ServiceError as exc:
+        return _confirm(
+            request,
+            title="No se pudo cambiar el rol",
+            message="",
+            membership=membership,
+            error=str(exc),
+        )
+    return _confirm(
+        request,
+        title="Rol actualizado",
+        message=(
+            f"{membership.account.display_name} ahora tiene el rol "
+            f"{membership.get_role_display()}. El cambio rige en su próxima "
+            "solicitud."
+        ),
+        membership=membership,
+    )
+
+
+@no_store
+@login_required
+@require_capability(Capability.USUARIOS_GESTIONAR)
+@require_http_methods(["POST"])
+def user_deactivate(request: HttpRequest, pk: int) -> HttpResponse:
+    """Desactiva un empleado y retira su acceso en la siguiente solicitud."""
+
+    membership = _membership_of_company(request, pk)
+    try:
+        deactivate_membership(actor=request.membership, membership=membership)
+    except ServiceError as exc:
+        return _confirm(
+            request,
+            title="No se pudo desactivar",
+            message="",
+            membership=membership,
+            error=str(exc),
+        )
+    return _confirm(
+        request,
+        title="Usuario desactivado",
+        message=(
+            f"{membership.account.display_name} ya no puede acceder al panel. "
+            "Su historial y su auditoría se conservan."
+        ),
+        membership=membership,
+    )
+
+
+@no_store
+@login_required
+@require_capability(Capability.USUARIOS_GESTIONAR)
+@require_http_methods(["POST"])
+def user_reactivate(request: HttpRequest, pk: int) -> HttpResponse:
+    """Reactiva un empleado con una contraseña temporal nueva."""
+
+    membership = _membership_of_company(request, pk)
+    try:
+        temporary_password = reactivate_membership(
+            actor=request.membership,
+            membership=membership,
+        )
+    except ServiceError as exc:
+        return _confirm(
+            request,
+            title="No se pudo reactivar",
+            message="",
+            membership=membership,
+            error=str(exc),
+        )
+    return _confirm(
+        request,
+        title="Usuario reactivado",
+        message=(
+            f"{membership.account.display_name} puede volver a acceder con la "
+            "contraseña temporal. Debe cambiarla en el primer acceso."
+        ),
+        membership=membership,
+        temporary_password=temporary_password,
+    )
+
+
+@no_store
+@login_required
+@require_capability(Capability.USUARIOS_GESTIONAR)
+@require_http_methods(["POST"])
+def user_regenerate_password(request: HttpRequest, pk: int) -> HttpResponse:
+    """Regenera la contraseña temporal de un empleado activo."""
+
+    membership = _membership_of_company(request, pk)
+    try:
+        temporary_password = regenerate_temporary_password(
+            actor=request.membership,
+            membership=membership,
+        )
+    except ServiceError as exc:
+        return _confirm(
+            request,
+            title="No se pudo regenerar la contraseña",
+            message="",
+            membership=membership,
+            error=str(exc),
+        )
+    return _confirm(
+        request,
+        title="Contraseña temporal regenerada",
+        message=(
+            f"La contraseña anterior de {membership.account.display_name} quedó "
+            "invalidada. La nueva se muestra una sola vez."
+        ),
+        membership=membership,
+        temporary_password=temporary_password,
     )
 
 

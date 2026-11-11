@@ -1,0 +1,28 @@
+{% extends "base_panel.html" %}
+
+{% block title %}{{ title }} — NexoPyme AI{% endblock %}
+
+{% block content %}
+<section class="panel panel--stage" aria-labelledby="user-confirm-title">
+  <h1 class="panel__title" id="user-confirm-title">{{ title }}</h1>
+
+  {% if error %}
+  <div class="form-errors" role="alert">
+    <p>{{ error }}</p>
+  </div>
+  {% else %}
+  <div role="status">
+    <p>{{ message }}</p>
+    {% if temporary_password %}
+    <p>Contraseña temporal (se muestra una sola vez):</p>
+    <p><code>{{ temporary_password }}</code></p>
+    <p>Entregala a {{ target.account.display_name }} por un canal seguro.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <p>
+    <a class="button button--primary" href="{% url 'accounts:user_list' %}">Volver al listado</a>
+  </p>
+</section>
+{% endblock %}
