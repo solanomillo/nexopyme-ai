@@ -1,0 +1,57 @@
+{% extends "base_panel.html" %}
+
+{% block title %}Usuarios — NexoPyme AI{% endblock %}
+
+{% block content %}
+<section class="panel panel--stage" aria-labelledby="users-title">
+  <h1 class="panel__title" id="users-title">Usuarios de {{ request.company.name }}</h1>
+
+  {% if page_obj.object_list %}
+  <table>
+    <caption>Cuentas de la empresa</caption>
+    <thead>
+      <tr>
+        <th scope="col">Nombre</th>
+        <th scope="col">Correo</th>
+        <th scope="col">Rol</th>
+        <th scope="col">Estado</th>
+        <th scope="col">Último acceso</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for membership in page_obj %}
+      <tr>
+        <th scope="row">{{ membership.account.display_name }}</th>
+        <td>{{ membership.account.email }}</td>
+        <td>{{ membership.get_role_display }}</td>
+        <td>{% if membership.is_active %}Activa{% else %}Inactiva{% endif %}</td>
+        <td>
+          {% if membership.account.user.last_login %}
+          {{ membership.account.user.last_login|date:"d/m/Y H:i" }}
+          {% else %}
+          Nunca
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="panel__text">No hay usuarios registrados en la empresa.</p>
+  {% endif %}
+
+  {% if page_obj.has_other_pages %}
+  <nav aria-label="Paginación de usuarios">
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li><a href="?page={{ page_obj.previous_page_number }}" rel="prev">Anterior</a></li>
+      {% endif %}
+      <li>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</li>
+      {% if page_obj.has_next %}
+      <li><a href="?page={{ page_obj.next_page_number }}" rel="next">Siguiente</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</section>
+{% endblock %}

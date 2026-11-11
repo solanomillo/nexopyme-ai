@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.4 |
-| Estado | G-0 APROBADO — T-01 a T-13 publicadas; RC-5 APROBADO (2026-11-10); T-14 pendiente |
+| Estado | G-0 APROBADO — T-01 a T-14 publicadas; RC-5 APROBADO (2026-11-10); T-15 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
@@ -62,7 +62,7 @@
 | T-11 | Acceso, cierre de sesión y rutas protegidas | F4 | T-10 | G-1, G-4 | `[x]` |
 | T-12 | Cambio obligatorio y autogestión de contraseña | F4 | T-11 | G-1, G-4 | `[x]` |
 | T-13 | Comandos de inicialización y recuperación | F5 | T-07, T-12 | G-1, G-3, G-4 | `[x]` |
-| T-14 | Listado de usuarios del panel | F5 | T-09, T-12 | G-1, G-4 | `[ ]` |
+| T-14 | Listado de usuarios del panel | F5 | T-09, T-12 | G-1, G-4 | `[x]` |
 | T-15 | Alta de empleado con contraseña temporal | F5 | T-14 | G-1, G-4 | `[ ]` |
 | T-16 | Rol, desactivación, reactivación y regeneración | F5 | T-15 | G-1, G-4 | `[ ]` |
 | T-17 | Configuración de la empresa | F6 | T-06, T-16 | G-1, G-4 | `[ ]` |
@@ -313,6 +313,7 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
 - **Verificación:** solo se ven membresías de la empresa; sin capacidad se responde 403.
 - **Evidencia:** pytest y validación visual.
 - **Trazabilidad:** RF-23; CA-23; RN-07; RNF-01.
+- **Registro de ejecución (2026-11-10):** `user_list` en `/users/` exige sesión y `usuarios.gestionar`, filtra `Membership.objects.select_related("account__user").filter(company=request.company)` y pagina 20 membresías por página con `Paginator.get_page`, tolerando páginas inválidas. `user_list.html` extiende `base_panel.html`, muestra correo, nombre, rol, estado y último acceso (o «Nunca»), un solo `h1`, tabla con `caption` y `scope`, estado vacío y navegación de paginación con `aria-label` y `rel`. No muestra credenciales ni datos de otra empresa. **8 pruebas en `test_accounts_users.py`** (ruta, login, capacidad, aislamiento entre empresas, estado y último acceso, estado vacío, paginación de 21 empleados y página inválida) y **97 en verde** junto con auth, middleware, comandos, home y urls; `ruff check .` → All checks passed; `manage.py check` sin problemas. La validación visual formal y los estilos se abordan en T-22/T-23. Limitaciones registradas: el enlace «Usuarios» de `base_panel.html` sigue siendo literal y visible para roles sin capacidad (se corrige en T-22/T-23); los docstrings de `views.py`/`urls.py` se actualizarán en la próxima tarea que los modifique; las pruebas de `page=0`, `page=999` y del parámetro `company` ajeno sobre `/users/` se consolidan en T-21. Dictamen del Reviewer: APROBADO (2026-11-10).
 
 ### T-15 — Alta de empleado con contraseña temporal
 
@@ -557,7 +558,7 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
 | G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-13 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-14 publicadas |
 
 ---
 
@@ -576,7 +577,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-11: acceso, cierre de sesión y rutas protegidas aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-12: cambio obligatorio, autogestión de contraseña y perfil aprobados por el Reviewer (2026-11-10) y commiteados.
 - `[x]` T-13: comandos de inicialización y recuperación aprobados por el Reviewer (2026-11-10) y commiteados.
-- `[ ]` T-14 a T-26: no iniciadas.
+- `[x]` T-14: listado de usuarios aprobado por el Reviewer (2026-11-10) y commiteado.
+- `[ ]` T-15 a T-26: no iniciadas.
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.
 - A-09, A-10 y A-13 aprobadas el 2026-11-10; no requieren nueva confirmación.

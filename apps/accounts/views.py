@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -21,7 +22,11 @@ from django.views.decorators.http import require_http_methods
 
 from apps.audit.services import record_audit
 
+from .capabilities import Capability
+from .decorators import require_capability
 from .models import Membership
+
+USERS_PER_PAGE = 20
 
 
 class EmailAuthenticationForm(AuthenticationForm):
@@ -127,6 +132,26 @@ def panel_home(request: HttpRequest) -> HttpResponse:
     """Muestra el panel comercial de la empresa activa."""
 
     return render(request, "accounts/panel.html")
+
+
+@no_store
+@login_required
+@require_capability(Capability.USUARIOS_GESTIONAR)
+def user_list(request: HttpRequest) -> HttpResponse:
+    """Lista las membresías de la empresa activa con paginación."""
+
+    memberships = (
+        Membership.objects.select_related("account__user")
+        .filter(company=request.company)
+        .order_by("account__display_name", "pk")
+    )
+    paginator = Paginator(memberships, USERS_PER_PAGE)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    return render(
+        request,
+        "accounts/user_list.html",
+        {"page_obj": page_obj},
+    )
 
 
 @no_store

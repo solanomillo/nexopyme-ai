@@ -9,6 +9,7 @@ from .views import (
     password_change,
     profile_detail,
     profile_redirect,
+    user_list,
 )
 
 app_name = "accounts"
@@ -20,4 +21,5 @@ urlpatterns = [
     path("password/", password_change, name="password_change"),
     path("profile/", profile_redirect, name="profile"),
     path("profile/<int:pk>/", profile_detail, name="profile_detail"),
+    path("users/", user_list, name="user_list"),
 ]
