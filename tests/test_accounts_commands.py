@@ -197,6 +197,89 @@ def test_init_company_rejects_more_than_one_active_company(
 
 
 @pytest.mark.django_db
+def test_init_company_rejects_an_inactive_company(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    Company.objects.create(name="Inactiva", is_active=False)
+    _fail_prompt(monkeypatch)
+
+    with pytest.raises(CommandError, match="inactiva"):
+        call_command(
+            "init_company",
+            "--name",
+            "Otra",
+            "--email",
+            "dueno@example.com",
+            stdout=StringIO(),
+        )
+
+    assert Company.objects.count() == 1
+    assert Account.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("display_name", ["   ", "x" * 151])
+def test_init_company_rejects_an_invalid_display_name(
+    monkeypatch: pytest.MonkeyPatch,
+    display_name: str,
+) -> None:
+    _prompt_with(monkeypatch, INITIAL_PASSWORD)
+
+    with pytest.raises(CommandError, match="nombre visible"):
+        call_command(
+            "init_company",
+            "--name",
+            "Almacén Central",
+            "--email",
+            "dueno@example.com",
+            "--display-name",
+            display_name,
+            stdout=StringIO(),
+        )
+
+    assert Company.objects.count() == 0
+    assert Account.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_init_company_rejects_an_invalid_email(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _fail_prompt(monkeypatch)
+
+    with pytest.raises(CommandError):
+        call_command(
+            "init_company",
+            "--name",
+            "Almacén Central",
+            "--email",
+            "sin-arroba",
+            stdout=StringIO(),
+        )
+
+    assert Company.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_init_company_does_not_log_the_password(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level(logging.DEBUG)
+    _prompt_with(monkeypatch, INITIAL_PASSWORD)
+    call_command(
+        "init_company",
+        "--name",
+        "Almacén Central",
+        "--email",
+        "dueno@example.com",
+        stdout=StringIO(),
+    )
+
+    assert INITIAL_PASSWORD not in caplog.text
+
+
+@pytest.mark.django_db
 def test_init_company_does_not_accept_the_password_as_argument() -> None:
     with pytest.raises(CommandError):
         call_command(
@@ -307,6 +390,23 @@ def test_reset_owner_password_rejects_a_non_owner(
             "reset_owner_password",
             "--email",
             "empleado@example.com",
+            stdout=StringIO(),
+        )
+
+
+@pytest.mark.django_db
+def test_reset_owner_password_rejects_an_inactive_user(
+    owner_account: Account,
+    owner_membership: Membership,
+) -> None:
+    owner_account.user.is_active = False
+    owner_account.user.save(update_fields=["is_active"])
+
+    with pytest.raises(CommandError, match="dueño activo"):
+        call_command(
+            "reset_owner_password",
+            "--email",
+            "dueno@example.com",
             stdout=StringIO(),
         )
 

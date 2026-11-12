@@ -1,4 +1,4 @@
-"""Inicialización idempotente de la empresa y su dueño (T-13)."""
+"""Inicialización idempotente de la empresa y su dueño (T-13, T-22)."""
 
 from __future__ import annotations
 
@@ -37,8 +37,8 @@ class Command(BaseCommand):
             "--display-name",
             default=None,
             help=(
-                "Nombre visible del dueño; por defecto, la parte local del "
-                "correo."
+                "Nombre visible del dueño; si se omite o está vacío, se usa "
+                "la parte local del correo."
             ),
         )
 
@@ -85,6 +85,10 @@ class Command(BaseCommand):
         active_companies = Company.objects.filter(is_active=True)
         count = active_companies.count()
         if count == 0:
+            if Company.objects.exists():
+                raise CommandError(
+                    "Estado inconsistente: la empresa registrada está inactiva."
+                )
             return None
         if count > 1:
             raise CommandError(

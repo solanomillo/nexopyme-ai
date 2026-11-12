@@ -177,6 +177,36 @@ def test_second_company_initialization_is_rejected(
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize("display_name", ["", "   ", "x" * 151])
+def test_create_company_with_owner_rejects_an_invalid_display_name(
+    display_name: str,
+) -> None:
+    with pytest.raises(ServiceError, match="nombre visible"):
+        create_company_with_owner(
+            name="Almacén Central",
+            email="duena@example.com",
+            display_name=display_name,
+            password="Clave-Segura-2026",
+        )
+
+    assert Company.objects.count() == 0
+    assert Account.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_create_company_with_owner_rejects_an_oversized_name() -> None:
+    with pytest.raises(ServiceError, match="nombre de la empresa"):
+        create_company_with_owner(
+            name="x" * 151,
+            email="duena@example.com",
+            display_name="Dueña",
+            password="Clave-Segura-2026",
+        )
+
+    assert Company.objects.count() == 0
+
+
+@pytest.mark.django_db
 def test_create_employee_returns_a_temporary_password(
     owner_membership: Membership,
     django_capture_on_commit_callbacks: object,
@@ -192,6 +222,27 @@ def test_create_employee_returns_a_temporary_password(
     assert membership.must_change_password is True
     assert membership.account.user.check_password(temporary_password)
     assert AuditEvent.objects.filter(action="membership.created").exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("display_name", ["", "   ", "x" * 151])
+def test_create_employee_rejects_an_invalid_display_name(
+    owner_membership: Membership,
+    display_name: str,
+) -> None:
+    accounts_before = Account.objects.count()
+    memberships_before = Membership.objects.count()
+
+    with pytest.raises(ServiceError, match="nombre visible"):
+        create_employee(
+            actor=owner_membership,
+            email="empleado@example.com",
+            display_name=display_name,
+            role=Role.OPERADOR.value,
+        )
+
+    assert Account.objects.count() == accounts_before
+    assert Membership.objects.count() == memberships_before
 
 
 @pytest.mark.django_db
@@ -609,6 +660,19 @@ def test_company_edit_accepts_a_150_character_name(
     assert response.status_code == 302
     company.refresh_from_db()
     assert company.name == name
+
+
+@pytest.mark.django_db
+def test_update_company_name_rejects_an_oversized_name(
+    company: Company,
+    owner_membership: Membership,
+) -> None:
+    with pytest.raises(ServiceError, match="nombre de la empresa"):
+        update_company_name(actor=owner_membership, name="x" * 151)
+
+    company.refresh_from_db()
+    assert company.name == "Almacén Central"
+    assert not AuditEvent.objects.filter(action="company.name_updated").exists()
 
 
 @pytest.mark.django_db

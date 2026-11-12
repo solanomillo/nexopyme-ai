@@ -1,4 +1,4 @@
-"""Recuperación técnica del dueño mediante contraseña temporal (T-13)."""
+"""Recuperación técnica del dueño mediante contraseña temporal (T-13, T-22)."""
 
 from __future__ import annotations
 
@@ -38,6 +38,7 @@ class Command(BaseCommand):
             Membership.objects.select_related("account__user", "company")
             .filter(
                 account__email=email,
+                account__user__is_active=True,
                 role=Role.DUENO.value,
                 is_active=True,
                 company__is_active=True,

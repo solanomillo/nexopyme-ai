@@ -1,4 +1,4 @@
-"""Servicios de empresa, membresía y cuentas (T-06, T-07).
+"""Servicios de empresa, membresía y cuentas (T-06, T-07, T-22).
 
 Todas las mutaciones revalidan capacidad y empresa, y auditan el resultado.
 Ningún servicio acepta un identificador de empresa enviado por el cliente.
@@ -17,6 +17,7 @@ from .emails import clean_email
 from .models import Account, Company, Membership, generate_username
 
 TEMPORARY_PASSWORD_LENGTH = 20
+MAX_TEXT_LENGTH = 150
 
 
 class ServiceError(Exception):
@@ -47,6 +48,19 @@ def generate_temporary_password() -> str:
     """Genera una contraseña temporal de un solo uso."""
 
     return get_random_string(TEMPORARY_PASSWORD_LENGTH)
+
+
+def _clean_text(value: str, label: str) -> str:
+    """Normaliza un texto obligatorio y valida su longitud máxima."""
+
+    clean = value.strip()
+    if not clean:
+        raise ServiceError(f"{label} es obligatorio.")
+    if len(clean) > MAX_TEXT_LENGTH:
+        raise ServiceError(
+            f"{label} no puede superar los {MAX_TEXT_LENGTH} caracteres."
+        )
+    return clean
 
 
 def _require_capability(actor: Membership, capability: Capability) -> None:
@@ -133,9 +147,8 @@ def create_company_with_owner(
     """Inicializa la instalación con una empresa activa y su dueño."""
 
     normalized_email = clean_email(email)
-    clean_name = name.strip()
-    if not clean_name:
-        raise ServiceError("El nombre de la empresa es obligatorio.")
+    clean_name = _clean_text(name, "El nombre de la empresa")
+    clean_display_name = _clean_text(display_name, "El nombre visible")
 
     with transaction.atomic():
         if Company.objects.select_for_update().filter(is_active=True).exists():
@@ -148,7 +161,7 @@ def create_company_with_owner(
         account = Account.objects.create(
             user=user,
             email=normalized_email,
-            display_name=display_name.strip(),
+            display_name=clean_display_name,
         )
         membership = Membership.objects.create(
             account=account,
@@ -185,6 +198,7 @@ def create_employee(
         raise ServiceError("No se puede crear otro dueño.")
 
     normalized_email = clean_email(email)
+    clean_display_name = _clean_text(display_name, "El nombre visible")
     temporary_password = generate_temporary_password()
     try:
         with transaction.atomic():
@@ -195,7 +209,7 @@ def create_employee(
             account = Account.objects.create(
                 user=user,
                 email=normalized_email,
-                display_name=display_name.strip(),
+                display_name=clean_display_name,
             )
             membership = Membership.objects.create(
                 account=account,
@@ -349,9 +363,7 @@ def update_company_name(*, actor: Membership, name: str) -> None:
     """Actualiza el nombre de la empresa del actor."""
 
     _require_capability(actor, Capability.EMPRESA_CONFIGURAR)
-    clean_name = name.strip()
-    if not clean_name:
-        raise ServiceError("El nombre de la empresa es obligatorio.")
+    clean_name = _clean_text(name, "El nombre de la empresa")
 
     company = actor.company
     with transaction.atomic():
