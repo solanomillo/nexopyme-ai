@@ -3,93 +3,116 @@
 {% block title %}Usuarios — NexoPyme AI{% endblock %}
 
 {% block content %}
-<section class="panel panel--stage" aria-labelledby="users-title">
-  <h1 class="panel__title" id="users-title">Usuarios de {{ request.company.name }}</h1>
-
-  <p>
+<section class="sheet sheet--accent" aria-labelledby="users-title">
+  <header class="sheet__header">
+    <div>
+      <h1 class="sheet__title" id="users-title">Usuarios de {{ request.company.name }}</h1>
+      <p class="muted">Cuentas con acceso a la empresa.</p>
+    </div>
     <a class="button button--primary" href="{% url 'accounts:user_create' %}">Crear usuario</a>
-  </p>
+  </header>
 
-  {% if page_obj.object_list %}
-  <div class="table-scroll" tabindex="0" role="region" aria-label="Cuentas de la empresa">
-  <table>
-    <caption>Cuentas de la empresa</caption>
-    <thead>
-      <tr>
-        <th scope="col">Nombre</th>
-        <th scope="col">Correo</th>
-        <th scope="col">Rol</th>
-        <th scope="col">Estado</th>
-        <th scope="col">Último acceso</th>
-        <th scope="col">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for membership in page_obj %}
-      <tr>
-        <th scope="row">{{ membership.account.display_name }}</th>
-        <td>{{ membership.account.email }}</td>
-        <td>{{ membership.get_role_display }}</td>
-        <td>{% if membership.is_active %}Activa{% else %}Inactiva{% endif %}</td>
-        <td>
-          {% if membership.account.user.last_login %}
-          {{ membership.account.user.last_login|date:"d/m/Y H:i" }}
-          {% else %}
-          Nunca
-          {% endif %}
-        </td>
-        <td>
-          {% if membership.role == owner_role %}
-          <span class="panel__text">Cuenta del dueño</span>
-          {% else %}
-          <form method="post" action="{% url 'accounts:user_change_role' membership.pk %}">
-            {% csrf_token %}
-            <label for="role-{{ membership.pk }}">Rol de {{ membership.account.display_name }}</label>
-            <select id="role-{{ membership.pk }}" name="role">
-              {% for value, label in role_choices %}
-              <option value="{{ value }}"{% if membership.role == value %} selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit">Cambiar rol</button>
-          </form>
-          {% if membership.is_active %}
-          <form method="post" action="{% url 'accounts:user_regenerate_password' membership.pk %}">
-            {% csrf_token %}
-            <button type="submit">Regenerar contraseña</button>
-          </form>
-          <form method="post" action="{% url 'accounts:user_deactivate' membership.pk %}">
-            {% csrf_token %}
-            <button type="submit">Desactivar</button>
-          </form>
-          {% else %}
-          <form method="post" action="{% url 'accounts:user_reactivate' membership.pk %}">
-            {% csrf_token %}
-            <button type="submit">Reactivar</button>
-          </form>
-          {% endif %}
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="sheet__body">
+    {% if page_obj.object_list %}
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Cuentas de la empresa">
+    <table class="table table--users">
+      <caption class="table__caption">Cuentas de la empresa</caption>
+      <thead>
+        <tr>
+          <th scope="col">Persona</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Último acceso</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for membership in page_obj %}
+        <tr>
+          <th scope="row">
+            <span class="table__person">{{ membership.account.display_name }}</span>
+            <span class="table__meta">{{ membership.account.email }}</span>
+          </th>
+          <td>
+            {% if membership.role == "dueno" %}
+            <span class="badge badge--owner">{{ membership.get_role_display }}</span>
+            {% elif membership.role == "encargado" %}
+            <span class="badge badge--manager">{{ membership.get_role_display }}</span>
+            {% elif membership.role == "operador" %}
+            <span class="badge badge--operator">{{ membership.get_role_display }}</span>
+            {% else %}
+            <span class="badge badge--viewer">{{ membership.get_role_display }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if membership.is_active %}
+            <span class="badge badge--active">Activa</span>
+            {% else %}
+            <span class="badge badge--inactive">Inactiva</span>
+            {% endif %}
+          </td>
+          <td class="table__num">
+            {% if membership.account.user.last_login %}
+            {{ membership.account.user.last_login|date:"d/m/Y H:i" }}
+            {% else %}
+            Nunca
+            {% endif %}
+          </td>
+          <td class="table__actions">
+            {% if membership.role == owner_role %}
+            <span class="muted">Cuenta del dueño</span>
+            {% else %}
+            <form method="post" action="{% url 'accounts:user_change_role' membership.pk %}">
+              {% csrf_token %}
+              <label class="visually-hidden" for="role-{{ membership.pk }}">Rol de {{ membership.account.display_name }}</label>
+              <select id="role-{{ membership.pk }}" name="role">
+                {% for value, label in role_choices %}
+                <option value="{{ value }}"{% if membership.role == value %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <button class="button button--sm button--secondary" type="submit">Cambiar rol</button>
+            </form>
+            {% if membership.is_active %}
+            <form method="post" action="{% url 'accounts:user_regenerate_password' membership.pk %}">
+              {% csrf_token %}
+              <button class="button button--sm button--secondary" type="submit">Regenerar contraseña</button>
+            </form>
+            <form method="post" action="{% url 'accounts:user_deactivate' membership.pk %}">
+              {% csrf_token %}
+              <button class="button button--sm button--danger-quiet" type="submit">Desactivar</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'accounts:user_reactivate' membership.pk %}">
+              {% csrf_token %}
+              <button class="button button--sm button--secondary" type="submit">Reactivar</button>
+            </form>
+            {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p class="empty-state__title">No hay usuarios registrados en la empresa.</p>
+    </div>
+    {% endif %}
+
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Paginación de usuarios">
+      <ul class="pagination__list">
+        {% if page_obj.has_previous %}
+        <li><a class="pagination__link" href="?page={{ page_obj.previous_page_number }}" rel="prev">Anterior</a></li>
+        {% endif %}
+        <li><span class="pagination__current" aria-current="page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li><a class="pagination__link" href="?page={{ page_obj.next_page_number }}" rel="next">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
   </div>
-  {% else %}
-  <p class="panel__text">No hay usuarios registrados en la empresa.</p>
-  {% endif %}
-
-  {% if page_obj.has_other_pages %}
-  <nav aria-label="Paginación de usuarios">
-    <ul class="pagination">
-      {% if page_obj.has_previous %}
-      <li><a href="?page={{ page_obj.previous_page_number }}" rel="prev">Anterior</a></li>
-      {% endif %}
-      <li>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</li>
-      {% if page_obj.has_next %}
-      <li><a href="?page={{ page_obj.next_page_number }}" rel="next">Siguiente</a></li>
-      {% endif %}
-    </ul>
-  </nav>
-  {% endif %}
 </section>
 {% endblock %}

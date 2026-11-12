@@ -3,26 +3,32 @@
 {% block title %}{{ title }} — NexoPyme AI{% endblock %}
 
 {% block content %}
-<section class="panel panel--stage" aria-labelledby="user-confirm-title">
-  <h1 class="panel__title" id="user-confirm-title">{{ title }}</h1>
+<section class="sheet sheet--accent" aria-labelledby="user-confirm-title">
+  <header class="sheet__header">
+    <h1 class="sheet__title" id="user-confirm-title">{{ title }}</h1>
+  </header>
 
-  {% if error %}
-  <div class="form-errors" role="alert">
-    <p>{{ error }}</p>
-  </div>
-  {% else %}
-  <div role="status">
-    <p>{{ message }}</p>
+  <div class="sheet__body">
+    {% if error %}
+    <div class="alert alert--error" role="alert">
+      <p>{{ error }}</p>
+    </div>
+    {% else %}
+    <div class="alert alert--success" role="status">
+      <p>{{ message }}</p>
+    </div>
     {% if temporary_password %}
-    <p>Contraseña temporal (se muestra una sola vez):</p>
-    <p><code>{{ temporary_password }}</code></p>
-    <p>Entregala a {{ target.account.display_name }} por un canal seguro.</p>
+    <div class="receipt">
+      <p class="receipt__label">Contraseña temporal (se muestra una sola vez):</p>
+      <p class="receipt__code"><code>{{ temporary_password }}</code></p>
+      <p class="receipt__note">Entregala a {{ target.account.display_name }} por un canal seguro.</p>
+    </div>
     {% endif %}
-  </div>
-  {% endif %}
+    {% endif %}
 
-  <p>
-    <a class="button button--primary" href="{% url 'accounts:user_list' %}">Volver al listado</a>
-  </p>
+    <p class="form-actions">
+      <a class="button button--primary" href="{% url 'accounts:user_list' %}">Volver al listado</a>
+    </p>
+  </div>
 </section>
 {% endblock %}

@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/tasks.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 a T-09; T-04 a T-07 publicadas; RC-8 APROBADO; T-08 y T-09 no iniciadas; T-10/T-11 no autorizadas** |
+| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 a T-09; T-04 a T-08 publicadas; RC-8 APROBADO; T-09 no iniciada; T-10/T-11 no autorizadas** |
 | Especificación | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Plan | `specs/004-rediseno-visual/plan.md` v0.1 (aprobado) |
 | Fecha | 2026-11-12 |
@@ -80,7 +80,7 @@ Reglas adicionales:
 | T-05 | Encabezado, navegación y pie | F2 | T-04 | G-1, G-3, G-4 | `[x]` |
 | T-06 | Botones, campos, alertas y componentes | F2 | T-05 | G-1 | `[x]` |
 | T-07 | Login y panel | F3 | T-06 | G-1, G-3, G-4 | `[x]` |
-| T-08 | Usuarios, empresa y auditoría | F3 | T-07 | G-1, G-3, G-4 | `[ ]` |
+| T-08 | Usuarios, empresa y auditoría | F3 | T-07 | G-1, G-3, G-4 | `[x]` |
 | T-09 | Perfil, contraseñas y errores | F3 | T-08 | G-1, G-3, G-4 | `[ ]` |
 | T-10 | Responsive, accesibilidad y pruebas visuales | F4 | T-09 | G-1, G-3, G-4 | `[ ]` |
 | T-11 | Revisión final y documentación | F4 | T-10 | G-1, G-5 | `[ ]` |
@@ -229,6 +229,7 @@ G-5 aplica a toda tarea que genere archivos: T-01 a T-11. No se repite en cada f
 - **Evidencia:** pytest objetivo, capturas y búsqueda de copy conservado.
 - **Trazabilidad:** D-02, D-04; RF-05, RF-06, RF-07, RF-08, RF-09; RNF-06, RNF-08, RNF-09; R-07, R-09, R-10, R-12.
 - **Prohibiciones:** duplicar el secreto; cambiar copy o formato de fecha; ocultar columnas; modificar formularios, vistas o pruebas.
+- **Registro de ejecución (2026-11-12):** T-08 implementada en `templates/accounts/user_list.html`, `user_form.html`, `user_confirm.html`, `company_form.html`, `audit_list.html` y `static/css/main.css`. Listado de cinco columnas con Persona (nombre y correo), Rol/Estado con badges, Último acceso y Acciones agrupadas; se conservaron `caption`, `scope`, `th scope="row"`, `.table-scroll` enfocable, el `aria-label` de paginación y la ausencia de paginación en vacío. Alta, confirmación y empresa usan `.sheet`, ayuda, acciones secundarias y recibo; se conservaron el primer `<code>` único, `role="status"`, `aria-busy`, CSRF y el copy verificado; scripts de alta y empresa migrados a `.sheet form`. Auditoría con dos secciones, `.table--audit`, fechas `.num`, acciones `code`, estados vacíos y paginación. **Verificación:** 151 pruebas en verde; `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes detected; 12 capturas en 320/768/1440 con 0 px de desbordamiento, cinco cabeceras de usuarios, cinco filas, 14 filas de auditoría y dos secciones. Hallazgo corregido: `document.scrollWidth` incluía el ancho de la tabla aunque `.table-scroll` tuviera scroll interno; se añadió `overflow:auto` + `contain:paint`, y `.table--users` con anchos fijos y acciones que envuelven. Correcciones posteriores: valores de auditoría en chips `.table__chip` con anchos de columna legibles; acciones de usuarios alineadas a la derecha con `.table .table__actions`; `table__person` con `overflow-wrap`. Observaciones no bloqueantes: consolidar `.table__actions`/`.pagination__list` duplicados y renumerar comentarios en T-09; estados vacíos sin acción y `messages` siempre como éxito a T-10; conservar `[role="status"]` global hasta T-09; envolver los chips en un `div` y revisar la flecha `aria-hidden` y la tabla de seguridad de 4 columnas en T-10. Dictamen del Reviewer: APROBADO (2026-11-12), sin hallazgos bloqueantes.
 
 ### T-09 — Perfil, contraseñas y errores
 
@@ -385,7 +386,7 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 - `[x]` T-05: barra de aplicación, navegación con `aria-current` y pie compartido aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-06: componentes de botones, campos, alertas, badges, hojas, contexto, tablas, paginación, estados, recibo y error aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-07: login de una columna y panel con hoja, contexto y lista de trabajo aprobados por el Reviewer (2026-11-12) y commiteados.
-- `[ ]` T-08: no iniciada; requiere G-1, G-3 y G-4.
+- `[x]` T-08: usuarios, empresa y auditoría migrados a hojas, badges, tablas y recibos; aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[ ]` T-09: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-10: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-11: no iniciada; requiere G-1 y G-5.
@@ -393,4 +394,4 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 
 ---
 
-**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 a T-09. T-04 a T-07 están publicadas; RC-8 está APROBADO; T-08 y T-09 están autorizadas y no iniciadas; T-10 y T-11 no están autorizadas y la Etapa 003 no se modifica.
+**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 a T-09. T-04 a T-08 están publicadas; RC-8 está APROBADO; T-09 autorizada y no iniciada; T-10 y T-11 no están autorizadas y la Etapa 003 no se modifica.
