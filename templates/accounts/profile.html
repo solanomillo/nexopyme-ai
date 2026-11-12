@@ -3,30 +3,40 @@
 {% block title %}Perfil — NexoPyme AI{% endblock %}
 
 {% block content %}
-<section class="panel panel--stage" aria-labelledby="profile-title">
-  <h1 class="panel__title" id="profile-title">Mi perfil</h1>
+<section class="sheet sheet--accent" aria-labelledby="profile-title">
+  <header class="sheet__header">
+    <h1 class="sheet__title" id="profile-title">Mi perfil</h1>
+  </header>
 
-  {% if messages %}
-  <div role="status">
-    {% for message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
+  <div class="sheet__body">
+    {% if messages %}
+    <div class="alert alert--success" role="status">
+      {% for message in messages %}
+      <p>{{ message }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="identity">
+      <p class="identity__name">{{ profile_account.display_name }}</p>
+      <p class="identity__email">{{ profile_account.email }}</p>
+      <p class="identity__meta">
+        {% if profile_membership.role == "dueno" %}
+        <span class="badge badge--owner">{{ profile_membership.get_role_display }}</span>
+        {% elif profile_membership.role == "encargado" %}
+        <span class="badge badge--manager">{{ profile_membership.get_role_display }}</span>
+        {% elif profile_membership.role == "operador" %}
+        <span class="badge badge--operator">{{ profile_membership.get_role_display }}</span>
+        {% else %}
+        <span class="badge badge--viewer">{{ profile_membership.get_role_display }}</span>
+        {% endif %}
+        <span>{{ profile_membership.company.name }}</span>
+      </p>
+    </div>
+
+    <p class="form-actions">
+      <a class="button button--primary" href="{% url 'accounts:password_change' %}">Cambiar contraseña</a>
+    </p>
   </div>
-  {% endif %}
-
-  <dl>
-    <dt>Nombre</dt>
-    <dd>{{ profile_account.display_name }}</dd>
-    <dt>Correo</dt>
-    <dd>{{ profile_account.email }}</dd>
-    <dt>Rol</dt>
-    <dd>{{ profile_membership.get_role_display }}</dd>
-    <dt>Empresa</dt>
-    <dd>{{ profile_membership.company.name }}</dd>
-  </dl>
-
-  <p>
-    <a class="button button--primary" href="{% url 'accounts:password_change' %}">Cambiar contraseña</a>
-  </p>
 </section>
 {% endblock %}

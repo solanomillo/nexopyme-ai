@@ -2,31 +2,34 @@
 {% block title %}Acceso denegado — NexoPyme AI{% endblock %}
 {% block site_header %}{% include "components/error_header.html" %}{% endblock %}
 {% block content %}
-<h1>Acceso denegado</h1>
+<div class="error-page">
+<p class="error-page__code">403</p>
+<h1 class="error-page__title">Acceso denegado</h1>
 {% if reason == "context" %}
 <p>Tu cuenta no tiene acceso al panel. Podés cerrar sesión e ingresar con otra cuenta.</p>
 {% if signed_in %}
-<div class="error-actions">
+<div class="error-page__actions">
   <form method="post" action="/logout/">
     {% csrf_token %}
     <button class="button button--primary" type="submit">Cerrar sesión</button>
   </form>
 </div>
 {% else %}
-<div class="error-actions">
+<div class="error-page__actions">
   <a class="button button--primary" href="/login/">Iniciar sesión</a>
 </div>
 {% endif %}
 {% else %}
 <p>No tenés permiso para realizar esta operación.</p>
 {% if can_return_to_panel %}
-<div class="error-actions">
+<div class="error-page__actions">
   <a class="button button--primary" href="/panel/">Volver al panel</a>
 </div>
 {% else %}
-<div class="error-actions">
+<div class="error-page__actions">
   <a class="button button--primary" href="/login/">Iniciar sesión</a>
 </div>
 {% endif %}
 {% endif %}
+</div>
 {% endblock %}

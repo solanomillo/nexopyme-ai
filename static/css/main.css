@@ -44,16 +44,7 @@
   --color-header-ink: #fbfcf7;
   --color-header-muted: #cfddd6;
   --color-header-accent: #e8b05c;
-
-  /* Compatibilidad heredada — se retira por hitos: color P0 en T-06,
-     .panel* y selectores en T-09, home hasta P2. */
-  --color-paper: var(--color-canvas);
-  --color-paper-raised: var(--color-surface);
-  --color-rule: var(--color-border);
-  --color-rule-strong: var(--color-border-strong);
-  --color-accent-deep: #084c57;
-  --color-danger-bg: var(--color-danger-soft);
-  --color-danger-ink: var(--color-danger);
+  --color-header-hover: rgba(251, 252, 247, 0.08);
 
   /* Tipografía */
   --font-display: "Candara", "Optima", "Segoe UI", system-ui, sans-serif;
@@ -77,7 +68,6 @@
 
   /* Aliases heredados exactos de 6893e59 para las reglas no migradas y la
      home; se retiran al migrar cada consumidor. */
-  --text-xs: 0.8125rem;
   --text-sm: 0.9375rem;
   --text-base: 1.0625rem;
   --text-lg: 1.25rem;
@@ -90,7 +80,6 @@
   --line-h3: 1.25;
   --line-copy: 1.55;
   --line-tight: 1.15;
-  --line-body: 1.65;
   --line-small: 1.45;
 
   --measure-body: 66ch;
@@ -101,8 +90,6 @@
   --measure-table: 40ch;
   --measure: 62ch;
   --measure-narrow: 46ch;
-  --measure-display: 22ch;
-  --measure-title: 26ch;
   --measure-form: 36rem;
   --measure-login: 28rem;
 
@@ -123,8 +110,6 @@
   --content-max: 72rem;
 
   /* Bordes, radios y foco */
-  --rule-hairline: 1px solid var(--color-border);
-  --rule-hairline-strong: 1px solid var(--color-rule-strong);
   --radius-sm: 2px;
   --radius-control: 4px;
   --radius-pill: 999px;
@@ -448,7 +433,7 @@ samp {
 
 .app-header__link:hover {
   border-bottom-color: var(--color-header-accent);
-  background-color: rgba(251, 252, 247, 0.08);
+  background-color: var(--color-header-hover);
   color: var(--color-header-ink);
 }
 
@@ -485,53 +470,15 @@ samp {
   align-items: center;
   min-height: 2.75rem;
   color: var(--color-ink);
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 700;
   letter-spacing: 0.01em;
   line-height: var(--line-tight);
   text-decoration: none;
 }
 
 .brand:hover {
-  color: var(--color-primary);
-}
-
-.site-nav {
-  margin-inline-start: auto;
-}
-
-.site-nav__item {
-  display: flex;
-}
-
-.site-nav__list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-5);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.site-nav__link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  padding-inline: var(--space-1);
-  border-bottom: 1px solid transparent;
-  color: var(--color-ink);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-  transition: color var(--transition-quick),
-    border-color var(--transition-quick);
-}
-
-.site-nav__link:hover {
-  border-bottom-color: var(--color-primary);
   color: var(--color-primary);
 }
 
@@ -763,22 +710,7 @@ samp {
   margin-top: var(--space-5);
 }
 
-[role="status"] {
-  margin-top: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  border-left: 3px solid var(--color-primary);
-  background-color: var(--color-surface);
-}
-
-.login {
-  max-width: var(--measure-login);
-}
-
 .login form {
-  margin-top: var(--space-4);
-}
-
-.error-actions {
   margin-top: var(--space-4);
 }
 
@@ -913,6 +845,11 @@ samp {
 }
 
 .sheet__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -925,7 +862,7 @@ samp {
 }
 
 .sheet__title {
-  font-size: var(--text-h2);
+  font-size: var(--text-h1);
 }
 
 .context-strip {
@@ -969,14 +906,12 @@ samp {
   contain: paint;
 }
 
-table,
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--text-table);
 }
 
-caption,
 .table__caption {
   padding-block: var(--space-2);
   color: var(--color-ink-soft);
@@ -985,8 +920,6 @@ caption,
   text-align: left;
 }
 
-th,
-td,
 .table th,
 .table td {
   padding: var(--space-3) var(--space-4);
@@ -995,7 +928,6 @@ td,
   vertical-align: top;
 }
 
-thead th,
 .table thead th {
   color: var(--color-ink);
   font-size: var(--text-label);
@@ -1004,7 +936,6 @@ thead th,
   text-transform: none;
 }
 
-tbody th,
 .table tbody th {
   color: var(--color-ink);
   font-weight: 600;
@@ -1020,8 +951,7 @@ tbody th,
   white-space: nowrap;
 }
 
-.table__code,
-code {
+.table__code {
   font-family: var(--font-mono);
   font-size: var(--text-code);
   overflow-wrap: anywhere;
@@ -1040,8 +970,8 @@ code {
   border-top: 2px solid var(--color-border-strong);
 }
 
-table button,
-table select {
+.table button,
+.table select {
   min-height: 2.75rem;
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--color-control-border);
@@ -1051,26 +981,17 @@ table select {
   font-size: var(--text-label);
 }
 
-table button:hover,
-table select:hover {
+.table button:hover,
+.table select:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-}
-
-.pagination {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
-  padding: 0;
-  list-style: none;
 }
 
 .pagination__list {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  margin: 0;
+  margin: var(--space-4) 0 0;
   padding: 0;
   list-style: none;
 }
@@ -1213,18 +1134,6 @@ table select:hover {
 
 .login form .button {
   width: 100%;
-}
-
-.sheet__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.sheet__title {
-  font-size: var(--text-h1);
 }
 
 .work-list__heading {
@@ -1393,10 +1302,6 @@ table select:hover {
   font-size: var(--text-h2);
 }
 
-.pagination__list {
-  margin-top: var(--space-4);
-}
-
 @media (max-width: 47.99rem) {
   .context-strip {
     grid-template-columns: 1fr;
@@ -1416,7 +1321,7 @@ table select:hover {
   }
 }
 
-/* 9. Paneles informativos
+/* 14. Home: paneles (P2)
    ========================================================================== */
 
 .home-panels {
@@ -1424,25 +1329,25 @@ table select:hover {
   padding-block: var(--space-7) var(--space-8);
 }
 
-.panel {
+.home-panels .panel {
   padding-block: var(--space-5) var(--space-6);
   border-top: 1px solid var(--color-border);
 }
 
-.panel--stage {
+.home-panels .panel--stage {
   border-top: 3px solid var(--color-accent);
 }
 
-.panel--next {
+.home-panels .panel--next {
   border-top: 3px solid var(--color-border);
 }
 
-.panel__title {
+.home-panels .panel__title {
   font-size: var(--text-xl);
   font-weight: 700;
 }
 
-.panel__stage {
+.home-panels .panel__stage {
   margin-top: var(--space-4);
   color: var(--color-accent-ink);
   font-family: var(--font-serif);
@@ -1451,7 +1356,7 @@ table select:hover {
   line-height: 1.4;
 }
 
-.panel__text {
+.home-panels .panel__text {
   max-width: var(--measure-narrow);
   margin-top: var(--space-4);
   color: var(--color-ink-soft);
@@ -1459,53 +1364,30 @@ table select:hover {
   line-height: 1.65;
 }
 
-/* 10. Panel comercial
+/* 15. Perfil (T-09)
    ========================================================================== */
 
-.panel-context {
+.identity__name {
+  color: var(--color-ink);
+  font-size: var(--text-h2);
+  font-weight: 700;
+}
+
+.identity__email {
+  margin-top: var(--space-1);
   color: var(--color-ink-soft);
-  font-size: var(--text-xs);
-  letter-spacing: 0.01em;
 }
 
-.panel-context__company {
-  color: var(--color-ink);
-  font-weight: 600;
+.identity__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  color: var(--color-ink-soft);
 }
 
-.panel-context__company::after {
-  content: " ·";
-}
-
-.panel__subtitle {
-  margin-top: var(--space-6);
-  font-size: var(--text-lg);
-}
-
-dl {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: var(--space-2) var(--space-4);
-  margin-top: var(--space-4);
-}
-
-dt {
-  color: var(--color-ink);
-  font-weight: 600;
-}
-
-dd {
-  margin: 0;
-}
-
-button.site-nav__link {
-  background: none;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  cursor: pointer;
-}
-
-/* 11. Próximos pasos
+/* 16. Próximos pasos
    ========================================================================== */
 
 .next-steps {
@@ -1540,7 +1422,7 @@ button.site-nav__link {
   line-height: 1.4;
 }
 
-/* 12. Pie de página
+/* 17. Pie de página
    ========================================================================== */
 
 .site-footer {
@@ -1583,7 +1465,7 @@ button.site-nav__link {
   font-variant-numeric: tabular-nums;
 }
 
-/* 13. Responsive — 768 px
+/* 18. Responsive — 768 px
    ========================================================================== */
 
 @media (min-width: 48rem) {
@@ -1600,12 +1482,12 @@ button.site-nav__link {
     column-gap: clamp(2rem, 5vw, 4rem);
   }
 
-  .panel {
+  .home-panels .panel {
     padding-top: var(--space-5);
   }
 }
 
-/* 14. Responsive — 1440 px
+/* 19. Responsive — 1440 px
    ========================================================================== */
 
 @media (min-width: 90rem) {
@@ -1618,7 +1500,7 @@ button.site-nav__link {
   }
 }
 
-/* 15. Responsive — 1920 px
+/* 20. Responsive — 1920 px
    ========================================================================== */
 
 @media (min-width: 120rem) {
@@ -1627,7 +1509,7 @@ button.site-nav__link {
   }
 }
 
-/* 16. Movimiento reducido
+/* 21. Movimiento reducido
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1644,7 +1526,7 @@ button.site-nav__link {
   }
 }
 
-/* 17. Contraste forzado
+/* 22. Contraste forzado
    ========================================================================== */
 
 @media (forced-colors: active) {
@@ -1657,13 +1539,4 @@ button.site-nav__link {
   .skip-link {
     border: 1px solid CanvasText;
   }
-}
-
-/* 18. Compatibilidad de la home (P2)
-   ========================================================================== */
-
-/* La home conserva sus reglas y responsive actuales hasta P2. El bloque
-   evita que la etiqueta de etapa quede en ámbar cuando T-06 cambie el token. */
-.home-panels .panel__stage {
-  color: var(--color-accent-ink);
 }

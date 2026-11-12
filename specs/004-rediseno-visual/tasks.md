@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/tasks.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 a T-09; T-04 a T-08 publicadas; RC-8 APROBADO; T-09 no iniciada; T-10/T-11 no autorizadas** |
+| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 a T-09; T-04 a T-09 publicadas; RC-8 APROBADO; RC-9 pendiente; T-10/T-11 no autorizadas** |
 | Especificación | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Plan | `specs/004-rediseno-visual/plan.md` v0.1 (aprobado) |
 | Fecha | 2026-11-12 |
@@ -81,7 +81,7 @@ Reglas adicionales:
 | T-06 | Botones, campos, alertas y componentes | F2 | T-05 | G-1 | `[x]` |
 | T-07 | Login y panel | F3 | T-06 | G-1, G-3, G-4 | `[x]` |
 | T-08 | Usuarios, empresa y auditoría | F3 | T-07 | G-1, G-3, G-4 | `[x]` |
-| T-09 | Perfil, contraseñas y errores | F3 | T-08 | G-1, G-3, G-4 | `[ ]` |
+| T-09 | Perfil, contraseñas y errores | F3 | T-08 | G-1, G-3, G-4 | `[x]` |
 | T-10 | Responsive, accesibilidad y pruebas visuales | F4 | T-09 | G-1, G-3, G-4 | `[ ]` |
 | T-11 | Revisión final y documentación | F4 | T-10 | G-1, G-5 | `[ ]` |
 
@@ -245,7 +245,7 @@ G-5 aplica a toda tarea que genere archivos: T-01 a T-11. No se repite en cada f
 - **Verificación:** pruebas de auth, autorización y navegación con base (G-4) en verde; 403 de contexto y de capacidad distinguibles; 404 idénticos; un `h1`; capturas (G-3); búsqueda de `.panel*` y selectores desnudos con cero usos en P0; home sin regresión.
 - **Evidencia:** pytest objetivo, capturas de 403/404 y diff.
 - **Trazabilidad:** D-04, D-06; RF-10, RF-11, RF-12; RNF-01, RNF-06, RNF-09; R-04, R-10, R-12.
-- **Prohibiciones:** crear shell nuevo; cambiar mensajes o acciones; extraer el script inline; tocar pruebas.
+- **Registro de ejecución (2026-11-12):** T-09 implementada en `templates/accounts/profile.html`, `password_change.html`, `templates/errors/403.html`, `404.html`, `templates/base_panel.html` y `static/css/main.css`. Perfil con `.sheet`, identidad, badge de rol y acción de contraseña; contraseña con alerta temporal, formulario, ayuda y script `.sheet form`; errores con `.error-page`, código, `h1`, explicación y acciones, conservando contexto/logout/CSRF, rutas literales, `no-store` y ausencia de navegación pública. Se eliminaron `.panel*` genéricos, selectores desnudos, `[role="status"]` global, `.site-nav*`, `.pagination` heredada, `.error-actions` y alias sin uso; la home conserva un bloque acotado `.home-panels .panel*`. Se consolidaron `.sheet__header`/`.sheet__title` y `.pagination__list`, se renumeraron las secciones y `.identity*` tiene sección propia; `.brand` usa tipografía vigente y `aria-current` cubre `/password/`. **Verificación:** 118 pruebas en verde (auth, autorización, navegación, seguridad, integración, home y estructura); `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes detected; 15 capturas en 320/768/1440 con 0 px de desbordamiento, un `h1`, pie único, `aria-current` «Perfil» también en `/password/`, títulos de hoja de 28 px en móvil y 40 px en 1440, 403/404 con código/acciones y sin `/admin/`; la home conserva su composición con 0 px de desbordamiento en las capturas `t05` regeneradas. Auditoría CSS: 221 llaves, 0 `var()` sin resolver, sin `.panel*` genérico, selectores desnudos, `[role="status"]` global, `.site-nav` ni aliases usados; `--color-header-hover` tokeniza el `rgba` del hover. Pendientes para T-10: captura visual del aviso de contraseña temporal y del 403 de contexto. Dictamen del Reviewer: APROBADO (2026-11-12) tras corregir H-1 a H-5 y las observaciones O-1/O-2.
 
 ### T-10 — Responsive, accesibilidad y pruebas visuales
 
@@ -387,11 +387,11 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 - `[x]` T-06: componentes de botones, campos, alertas, badges, hojas, contexto, tablas, paginación, estados, recibo y error aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-07: login de una columna y panel con hoja, contexto y lista de trabajo aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-08: usuarios, empresa y auditoría migrados a hojas, badges, tablas y recibos; aprobados por el Reviewer (2026-11-12) y commiteados.
-- `[ ]` T-09: no iniciada; requiere G-1, G-3 y G-4.
+- `[x]` T-09: perfil, contraseña y errores migrados y limpieza de compatibilidad aprobada por el Reviewer (2026-11-12) y commiteada.
 - `[ ]` T-10: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-11: no iniciada; requiere G-1 y G-5.
 - **Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 a T-09. T-10 y T-11 permanecen no autorizadas.
 
 ---
 
-**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 a T-09. T-04 a T-08 están publicadas; RC-8 está APROBADO; T-09 autorizada y no iniciada; T-10 y T-11 no están autorizadas y la Etapa 003 no se modifica.
+**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 a T-09. T-04 a T-09 están publicadas; RC-8 está APROBADO y RC-9 está pendiente; T-10 y T-11 no están autorizadas y la Etapa 003 no se modifica.

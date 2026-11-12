@@ -2,15 +2,18 @@
 {% block title %}Recurso no encontrado — NexoPyme AI{% endblock %}
 {% block site_header %}{% include "components/error_header.html" %}{% endblock %}
 {% block content %}
-<h1>Recurso no encontrado</h1>
+<div class="error-page">
+<p class="error-page__code">404</p>
+<h1 class="error-page__title">Recurso no encontrado</h1>
 <p>El recurso solicitado no existe.</p>
 {% if can_return_to_panel %}
-<div class="error-actions">
+<div class="error-page__actions">
   <a class="button button--primary" href="/panel/">Volver al panel</a>
 </div>
 {% elif not signed_in %}
-<div class="error-actions">
+<div class="error-page__actions">
   <a class="button button--primary" href="/login/">Iniciar sesión</a>
 </div>
 {% endif %}
+</div>
 {% endblock %}

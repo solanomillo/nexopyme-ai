@@ -26,7 +26,7 @@
               <a class="app-header__link" href="{% url 'accounts:panel' %}"{% if request.resolver_match.url_name == "panel" %} aria-current="page"{% endif %}>Panel</a>
             </li>
             <li class="app-header__item">
-              <a class="app-header__link" href="{% url 'accounts:profile' %}"{% if request.resolver_match.url_name == "profile" or request.resolver_match.url_name == "profile_detail" %} aria-current="page"{% endif %}>Perfil</a>
+              <a class="app-header__link" href="{% url 'accounts:profile' %}"{% if request.resolver_match.url_name == "profile" or request.resolver_match.url_name == "profile_detail" or request.resolver_match.url_name == "password_change" %} aria-current="page"{% endif %}>Perfil</a>
             </li>
             {% if panel_nav.users %}
             <li class="app-header__item">
