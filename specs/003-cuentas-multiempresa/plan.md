@@ -9,7 +9,7 @@
 | Versión | 1.4 |
 | Estado | APROBADO — v1.2 aprobado por el usuario el 2026-11-10; v1.3 registra `/panel/` y `panel.html` de T-11; v1.4 ajusta §7.6 al middleware de T-12 |
 | Especificación de referencia | `specs/003-cuentas-multiempresa/spec.md` v1.0 aprobada el 2026-11-10 |
-| Tareas | `specs/003-cuentas-multiempresa/tasks.md` v1.4 |
+| Tareas | `specs/003-cuentas-multiempresa/tasks.md` v1.7 |
 | Fecha | 2026-11-10 |
 | Responsable | Planner |
 | Fase SDD | 5 a 7: plan técnico y descomposición en tareas |

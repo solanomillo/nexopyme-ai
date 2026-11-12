@@ -467,10 +467,10 @@ px), más `20b-forbidden-context-1440.png`, `tab-order.json`, `skip-link.json`,
 ## Etapa 003 — Cuentas y multiempresa
 
 Implementación por tarea de la especificación 003 v1.0, el plan v1.4 y las tareas
-de la etapa. T-01 a T-24 están implementadas y T-25 (revisión final) está
-aprobada; T-26 (cierre documental y Git) permanece pendiente. Toda la persistencia
-operativa vive en MySQL 8.x (`nexopyme_bootstrap_dev` para desarrollo y
-`nexopyme_bootstrap_test` para pruebas, autorizada por `DA-07`).
+de la etapa. T-01 a T-26 están cerradas y la Etapa 003 quedó cerrada el
+2026-11-12; la Etapa 004 no se inició y requiere aprobación humana. Toda la
+persistencia operativa vive en MySQL 8.x (`nexopyme_bootstrap_dev` para
+desarrollo y `nexopyme_bootstrap_test` para pruebas, autorizada por `DA-07`).
 
 ### Roles y capacidades
 
@@ -679,6 +679,28 @@ desarrollo; queda cubierto por `tests/test_accounts_navigation.py`.
   se reescribió el historial por decisión del usuario. Los commits de T-25 y T-26
   se crean con `git commit -F` desde un archivo UTF-8 sin BOM.
 
+### Evidencias T-26 — Cierre de la etapa
+
+- `MEMORY.md` actualizado a 40 líneas con el estado final de la Etapa 003, el
+  stack, las decisiones vigentes, la documentación, las limitaciones y la Etapa
+  004 no iniciada.
+- Consistencia revisada: `plan.md` con `tasks.md` v1.7; `tasks.md` v1.7 con T-26
+  `[x]`; `docs/README.md` y `README.md` con el estado final. `spec.md` §17 se
+  conserva como instantánea no normativa de la aprobación; el estado operativo y
+  el cierre se registran en `plan.md`, `tasks.md` y este documento.
+- Verificación final de RC-7: 337 pruebas (36 DB-free + 301 con base autorizada);
+  `ruff check .` → All checks passed; `manage.py check` sin problemas;
+  `makemigrations --check --dry-run` → No changes detected; enlaces internos
+  válidos.
+- Git: T-24 `6d70e7e` y T-25 `3611f7c` publicados; T-26 en commit propio; Build
+  ejecuta el push de cierre y verifica `HEAD` = `origin/main`, divergencia `0 0`
+  y árbol limpio salvo los tres no rastreados preexistentes.
+- Incidencia aceptada: el BOM de `6d70e7e` permanece documentado sin reescribir el
+  historial; los commits de T-25 y T-26 se crean con `git commit -F` desde un
+  archivo UTF-8 sin BOM.
+- Dictamen del Reviewer: APROBADO (2026-11-12), sin hallazgos bloqueantes; B-1
+  cerrado.
+
 ### Limitaciones
 
 - El Admin Unfold conserva textos en inglés y acento violeta (limitación de la
@@ -689,6 +711,9 @@ desarrollo; queda cubierto por `tests/test_accounts_navigation.py`.
   que conserva su cacheabilidad.
 - El evento `membership.owner_password_reset` usa `actor=None` y, por RF-39/CA-39,
   no aparece en la consulta de auditoría del panel.
+- `spec.md` §17 conserva la instantánea de la aprobación (plan y tareas v1.2,
+  T-01); es no normativa y no se alteró. El estado operativo y el cierre se
+  registran en `plan.md`, `tasks.md` y este documento.
 - La suite completa en un solo proceso mantiene la limitación preexistente de
   `test_settings_test_guard_variables_are_present` descrita arriba.
 - Windows 11 no se probó independientemente.
