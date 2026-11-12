@@ -1,37 +1,84 @@
 /* ==========================================================================
    NexoPyme AI — main.css
-   Etapa 001 — Django Project Foundation (T-09)
+   Etapa 004 — Rediseño visual «Mostrador» (T-04)
 
-   Dirección visual: papelería profesional. Papel frío, tinta profunda,
-   filetes finos y un único acento petróleo. Serif de sistema para marca y
-   encabezados; sans de sistema para cuerpo y navegación.
+   Dirección visual: mostrador de negocio. Cal fría, verde profundo, ámbar de
+   sello, hojas de trabajo y cifras de caja. Tipografía humanista de sistema
+   (Candara + Segoe UI) con fallbacks; sin fuentes externas ni recursos remotos.
 
-   Sin frameworks, sin fuentes externas y sin recursos remotos.
+   T-04 establece tokens, tipografía, reset, layout, foco y utilidades.
+   Las secciones de componentes y las pantallas se migran en T-05 a T-09.
    ========================================================================== */
 
 /* 1. Tokens de diseño
    ========================================================================== */
 
 :root {
-  /* Color */
-  --color-paper: #f6f5f1;
-  --color-paper-raised: #fbfaf7;
-  --color-ink: #1b2a2e;
-  --color-ink-soft: #4c5c60;
-  --color-rule: #d3d3cb;
-  --color-rule-strong: #b4b5ab;
+  /* Color — sistema «Mostrador» */
+  --color-canvas: #f1f3ec;
+  --color-surface: #fbfcf7;
+  --color-surface-sunken: #e7ebe2;
+  --color-ink: #17251f;
+  --color-ink-soft: #4a5a52;
+  --color-ink-muted: #5e6e65;
+  --color-primary: #14523f;
+  --color-primary-deep: #0d3d2f;
+  --color-primary-soft: #ddeae3;
+  /* T-04 conserva petróleo en --color-accent hasta T-06; el ámbar aprobado
+     queda reservado para la migración de componentes. */
   --color-accent: #0b5d6b;
-  --color-accent-deep: #084c57;
+  --color-accent-amber: #b26a1f;
+  --color-accent-ink: #8a4e12;
+  --color-accent-soft: #f6e7d2;
+  --color-success: #1e6b45;
+  --color-success-soft: #e3f1e8;
+  --color-warning: #7a4e00;
+  --color-warning-soft: #fbf0d9;
   --color-danger: #9b2c2c;
-  --color-danger-bg: #fdf3f2;
-  --color-danger-ink: #7a1f1f;
+  --color-danger-soft: #fbedec;
+  --color-info: #245a6b;
+  --color-info-soft: #e6f1f4;
+  --color-border: #c9d0c6;
+  --color-border-strong: #a9b5ac;
+  --color-control-border: #6f7f76;
+  --color-focus: #0b6e8a;
+  --color-header: #14523f;
+  --color-header-ink: #fbfcf7;
+  --color-header-muted: #cfddd6;
+  --color-header-accent: #e8b05c;
+
+  /* Compatibilidad heredada — se retira por hitos: color P0 en T-06,
+     .panel*/selectores en T-09 y home hasta P2. */
+  --color-paper: var(--color-canvas);
+  --color-paper-raised: var(--color-surface);
+  --color-rule: var(--color-border);
+  --color-rule-strong: var(--color-border-strong);
+  --color-accent-deep: #084c57;
+  --color-danger-bg: var(--color-danger-soft);
+  --color-danger-ink: var(--color-danger);
 
   /* Tipografía */
+  --font-display: "Candara", "Optima", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue",
+    Arial, sans-serif;
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino,
     "Book Antiqua", Georgia, "Times New Roman", serif;
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Consolas", "Cascadia Mono", "Courier New", monospace;
 
+  --text-display-lg: clamp(2.5rem, 2rem + 2.2vw, 4rem);
+  --text-h1: clamp(1.75rem, 1.45rem + 1.2vw, 2.5rem);
+  --text-h2: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+  --text-h3: 1.125rem;
+  --text-lead: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-label: 0.8125rem;
+  --text-table: 0.875rem;
+  --text-button: 0.875rem;
+  --text-code: 0.8125rem;
+
+  /* Aliases heredados exactos de 6893e59 para las reglas no migradas y la
+     home; se retiran al migrar cada consumidor. */
   --text-xs: 0.8125rem;
   --text-sm: 0.9375rem;
   --text-base: 1.0625rem;
@@ -39,10 +86,27 @@
   --text-xl: clamp(1.375rem, 1.2rem + 0.6vw, 1.625rem);
   --text-display: clamp(2.25rem, 1.5rem + 3.6vw, 4rem);
 
+  --line-display: 1.05;
+  --line-h1: 1.12;
+  --line-h2: 1.2;
+  --line-h3: 1.25;
+  --line-copy: 1.55;
   --line-tight: 1.15;
   --line-body: 1.65;
+  --line-small: 1.45;
+
+  --measure-body: 66ch;
+  --measure-lead: 60ch;
+  --measure-h2: 36ch;
+  --measure-h3: 42ch;
+  --measure-label: 34ch;
+  --measure-table: 40ch;
   --measure: 62ch;
   --measure-narrow: 46ch;
+  --measure-display: 22ch;
+  --measure-title: 26ch;
+  --measure-form: 36rem;
+  --measure-login: 28rem;
 
   /* Espaciado */
   --space-1: 0.25rem;
@@ -55,15 +119,20 @@
   --space-8: 4rem;
   --space-9: 6rem;
 
-  --gutter: clamp(1.25rem, 4.5vw, 2.5rem);
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
   --container-max: 72rem;
+  --container-wide: 80rem;
+  --content-max: 72rem;
 
-  /* Bordes y radios */
+  /* Bordes, radios y foco */
   --rule-hairline: 1px solid var(--color-rule);
   --rule-hairline-strong: 1px solid var(--color-rule-strong);
   --radius-sm: 2px;
-  --focus-ring: 2px solid var(--color-accent);
-  --focus-offset: 3px;
+  --radius-control: 4px;
+  --radius-pill: 999px;
+  --focus-ring: 3px solid var(--color-focus);
+  --focus-halo: var(--color-surface);
+  --focus-offset: 2px;
 
   /* Movimiento */
   --transition-quick: 140ms ease;
@@ -95,11 +164,11 @@ figure {
 
 body {
   min-height: 100vh;
-  background-color: var(--color-paper);
+  background-color: var(--color-canvas);
   color: var(--color-ink-soft);
   font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: var(--line-body);
+  font-size: var(--text-body);
+  line-height: var(--line-copy);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -108,10 +177,27 @@ h1,
 h2,
 h3 {
   color: var(--color-ink);
-  font-family: var(--font-serif);
-  font-weight: 600;
-  line-height: var(--line-tight);
+  font-family: var(--font-display);
+  font-weight: 700;
   text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-h1);
+  letter-spacing: -0.015em;
+  line-height: var(--line-h1);
+}
+
+h2 {
+  font-size: var(--text-h2);
+  letter-spacing: -0.01em;
+  line-height: var(--line-h2);
+}
+
+h3 {
+  font-size: var(--text-h3);
+  letter-spacing: 0;
+  line-height: var(--line-h3);
 }
 
 p {
@@ -119,13 +205,13 @@ p {
 }
 
 a {
-  color: var(--color-accent);
+  color: var(--color-primary);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
 }
 
 a:hover {
-  color: var(--color-accent-deep);
+  color: var(--color-primary-deep);
   text-decoration-thickness: 2px;
 }
 
@@ -146,14 +232,22 @@ textarea {
   color: inherit;
 }
 
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-mono);
+}
+
 ::selection {
-  background-color: var(--color-accent);
-  color: var(--color-paper);
+  background-color: var(--color-primary);
+  color: var(--color-surface);
 }
 
 :focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+  box-shadow: 0 0 0 2px var(--focus-halo);
 }
 
 /* 3. Layout general
@@ -170,6 +264,10 @@ textarea {
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: var(--gutter);
+}
+
+.container--wide {
+  max-width: var(--container-wide);
 }
 
 .site-main {
@@ -190,10 +288,10 @@ textarea {
   left: var(--space-3);
   z-index: 10;
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-ink);
-  color: var(--color-paper);
-  font-size: var(--text-sm);
+  border-radius: var(--radius-control);
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  font-size: var(--text-small);
   font-weight: 600;
   text-decoration: none;
   transform: translateY(calc(-100% - var(--space-4)));
@@ -202,12 +300,61 @@ textarea {
 .skip-link:focus,
 .skip-link:focus-visible {
   transform: none;
-  color: var(--color-paper);
+  color: var(--color-surface);
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+  box-shadow: 0 0 0 2px var(--focus-halo);
 }
 
-/* 5. Encabezado y navegación
+/* 5. Utilidades
+   ========================================================================== */
+
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.muted {
+  color: var(--color-ink-soft);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.stack > * + * {
+  margin-block-start: var(--space-4);
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.grid--2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+.grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+
+/* 6. Encabezado y navegación
    ========================================================================== */
 
 .site-header {
@@ -279,7 +426,7 @@ textarea {
   color: var(--color-accent);
 }
 
-/* 6. Portada de la home
+/* 7. Portada de la home (compatibilidad P2)
    ========================================================================== */
 
 .home-hero {
@@ -334,7 +481,7 @@ textarea {
   line-height: 1.5;
 }
 
-/* 7. Botones
+/* 8. Botones
    ========================================================================== */
 
 .button {
@@ -367,7 +514,7 @@ textarea {
   color: var(--color-paper);
 }
 
-/* 8. Paneles informativos
+/* 9. Paneles informativos
    ========================================================================== */
 
 .home-panels {
@@ -410,7 +557,7 @@ textarea {
   line-height: 1.65;
 }
 
-/* 8 bis. Panel comercial
+/* 10. Panel comercial
    ========================================================================== */
 
 .panel-context {
@@ -588,7 +735,7 @@ button.site-nav__link {
   cursor: pointer;
 }
 
-/* 9. Próximos pasos
+/* 11. Próximos pasos
    ========================================================================== */
 
 .next-steps {
@@ -623,7 +770,7 @@ button.site-nav__link {
   line-height: 1.4;
 }
 
-/* 10. Pie de página
+/* 12. Pie de página
    ========================================================================== */
 
 .site-footer {
@@ -666,7 +813,7 @@ button.site-nav__link {
   font-variant-numeric: tabular-nums;
 }
 
-/* 11. Responsive — 768 px
+/* 13. Responsive — 768 px
    ========================================================================== */
 
 @media (min-width: 48rem) {
@@ -688,14 +835,10 @@ button.site-nav__link {
   }
 }
 
-/* 12. Responsive — 1440 px
+/* 14. Responsive — 1440 px
    ========================================================================== */
 
 @media (min-width: 90rem) {
-  :root {
-    --container-max: 76rem;
-  }
-
   .home-hero {
     padding-block: var(--space-9) var(--space-8);
   }
@@ -705,16 +848,16 @@ button.site-nav__link {
   }
 }
 
-/* 13. Responsive — 1920 px
+/* 15. Responsive — 1920 px
    ========================================================================== */
 
 @media (min-width: 120rem) {
-  :root {
-    --container-max: 82rem;
+  .home-panels {
+    padding-block: var(--space-8) var(--space-9);
   }
 }
 
-/* 14. Movimiento reducido
+/* 16. Movimiento reducido
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -729,4 +872,28 @@ button.site-nav__link {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* 17. Contraste forzado
+   ========================================================================== */
+
+@media (forced-colors: active) {
+  :focus-visible,
+  .site-main:focus-visible {
+    outline: 3px solid CanvasText;
+    box-shadow: none;
+  }
+
+  .skip-link {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* 18. Compatibilidad de la home (P2)
+   ========================================================================== */
+
+/* La home conserva sus reglas y responsive actuales hasta P2. El bloque
+   evita que la etiqueta de etapa quede en ámbar cuando T-06 cambie el token. */
+.home-panels .panel__stage {
+  color: var(--color-accent-ink);
 }
