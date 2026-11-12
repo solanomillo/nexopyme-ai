@@ -3,14 +3,79 @@
 {% block title %}Panel de {{ request.company.name }} — NexoPyme AI{% endblock %}
 
 {% block content %}
-<section class="panel panel--stage" aria-labelledby="panel-title">
-  <h1 class="panel__title" id="panel-title">Panel de {{ request.company.name }}</h1>
-  <p class="panel__text">
-    Sesión iniciada como {{ request.account.display_name }}
-    ({{ request.membership.get_role_display }}).
-  </p>
-  <p class="panel__text">
-    Usá la navegación superior para acceder a las secciones disponibles para tu rol.
-  </p>
+<section class="sheet sheet--accent" aria-labelledby="panel-title">
+  <header class="sheet__header">
+    <h1 class="sheet__title" id="panel-title">Panel de {{ request.company.name }}</h1>
+    {% if panel_nav.users %}
+    <a class="button button--primary" href="{% url 'accounts:user_list' %}">Gestionar usuarios</a>
+    {% endif %}
+  </header>
+
+  <div class="sheet__body">
+    <dl class="context-strip">
+      <div class="context-strip__item">
+        <dt class="context-strip__label">Empresa</dt>
+        <dd class="context-strip__value">{{ request.company.name }}</dd>
+      </div>
+      <div class="context-strip__item">
+        <dt class="context-strip__label">Tu rol</dt>
+        <dd class="context-strip__value">{{ request.membership.get_role_display }}</dd>
+      </div>
+      <div class="context-strip__item">
+        <dt class="context-strip__label">Sesión iniciada</dt>
+        <dd class="context-strip__value">
+          {% if request.user.last_login %}
+          {{ request.user.last_login|date:"d/m/Y H:i" }}
+          {% else %}
+          Sesión actual
+          {% endif %}
+        </dd>
+      </div>
+    </dl>
+
+    <p class="muted">
+      Sesión iniciada como {{ request.account.display_name }}
+      ({{ request.membership.get_role_display }}).
+      Usá la navegación superior para acceder a las secciones disponibles para tu rol.
+    </p>
+
+    <h2 class="work-list__heading">Trabajo de hoy</h2>
+    <ul class="work-list">
+      {% if panel_nav.users %}
+      <li class="work-list__item">
+        <a class="work-list__link" href="{% url 'accounts:user_list' %}">
+          <span class="work-list__title">Gestionar usuarios</span>
+          <span class="work-list__meta">Altas, roles y accesos</span>
+        </a>
+      </li>
+      {% endif %}
+      {% if panel_nav.company %}
+      <li class="work-list__item">
+        <a class="work-list__link" href="{% url 'accounts:company_edit' %}">
+          <span class="work-list__title">Editar datos del negocio</span>
+          <span class="work-list__meta">Nombre y datos de la empresa</span>
+        </a>
+      </li>
+      {% endif %}
+      {% if panel_nav.audit %}
+      <li class="work-list__item">
+        <a class="work-list__link" href="{% url 'accounts:audit_list' %}">
+          <span class="work-list__title">Revisar auditoría</span>
+          <span class="work-list__meta">Operaciones y rechazos</span>
+        </a>
+      </li>
+      {% endif %}
+      <li class="work-list__item">
+        <a class="work-list__link" href="{% url 'accounts:profile' %}">
+          <span class="work-list__title">Ver mi perfil</span>
+          <span class="work-list__meta">Tu cuenta y tu rol</span>
+        </a>
+      </li>
+    </ul>
+
+    <p class="muted">
+      Estamos preparando inventario, compras, ventas, finanzas, reportes y asistente.
+    </p>
+  </div>
 </section>
 {% endblock %}

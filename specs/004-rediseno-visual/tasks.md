@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/tasks.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 y el bloque T-05/T-06; T-04, T-05 y T-06 publicadas; RC-8 APROBADO; T-07 a T-11 no iniciadas** |
+| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 a T-09; T-04 a T-07 publicadas; RC-8 APROBADO; T-08 y T-09 no iniciadas; T-10/T-11 no autorizadas** |
 | Especificación | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Plan | `specs/004-rediseno-visual/plan.md` v0.1 (aprobado) |
 | Fecha | 2026-11-12 |
@@ -63,7 +63,7 @@ Reglas adicionales:
 | `spec.md`, `plan.md` y `tasks.md` v0.1 | Aprobados en G-0a/G-0b el 2026-11-12 |
 | G-0a: aprobación de la especificación | APROBADO el 2026-11-12 |
 | G-0b: aprobación del plan y las tareas | APROBADO el 2026-11-12 |
-| G-1: autorización de implementación | APROBADO el 2026-11-12 para T-04 y el bloque T-05/T-06; T-07 a T-11 no autorizadas |
+| G-1: autorización de implementación | APROBADO el 2026-11-12 para T-04 a T-09; T-10 y T-11 no autorizadas |
 | G-3 y G-4: servidor y base de pruebas | Pendientes de autorización por ejecución |
 | Dependencias nuevas | Ninguna |
 
@@ -79,7 +79,7 @@ Reglas adicionales:
 | T-04 | Tokens, tipografía y CSS base | F2 | T-03 | G-1 | `[x]` |
 | T-05 | Encabezado, navegación y pie | F2 | T-04 | G-1, G-3, G-4 | `[x]` |
 | T-06 | Botones, campos, alertas y componentes | F2 | T-05 | G-1 | `[x]` |
-| T-07 | Login y panel | F3 | T-06 | G-1, G-3, G-4 | `[ ]` |
+| T-07 | Login y panel | F3 | T-06 | G-1, G-3, G-4 | `[x]` |
 | T-08 | Usuarios, empresa y auditoría | F3 | T-07 | G-1, G-3, G-4 | `[ ]` |
 | T-09 | Perfil, contraseñas y errores | F3 | T-08 | G-1, G-3, G-4 | `[ ]` |
 | T-10 | Responsive, accesibilidad y pruebas visuales | F4 | T-09 | G-1, G-3, G-4 | `[ ]` |
@@ -211,6 +211,7 @@ G-5 aplica a toda tarea que genere archivos: T-01 a T-11. No se repite en cada f
 - **Evidencia:** pytest de auth y navegación, diff y capturas.
 - **Trazabilidad:** D-02, D-06; RF-03, RF-04; RNF-01, RNF-06, RNF-07; R-04, R-10, R-12.
 - **Prohibiciones:** extraer el script a `static/js/`; cambiar nombres de campo o copy; añadir consultas; ocultar el header del login.
+- **Registro de ejecución (2026-11-12):** T-07 implementada en `templates/accounts/login.html`, `templates/accounts/panel.html` y `static/css/main.css`. Login de una columna con wordmark, promesa y formulario de 28rem; se conservaron `role="alert"`, `aria-busy`, `data-loading-label`, CSRF, nombres de campo, `.login form` y el script inline. Panel con `.sheet`, `h1`, `.context-strip` (empresa, rol, sesión), acción «Gestionar usuarios» solo con capacidad y lista de trabajo con verbos completos; sin consultas nuevas. **Verificación:** 89 pruebas en verde (home, estructura, auth y navegación); `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes detected; 6 capturas regeneradas en 320/768/1440 con 0 px de desbordamiento, un solo `h1`, formulario 448/280 px, tres ítems de contexto, cuatro de trabajo con verbos completos («Gestionar usuarios», «Editar datos del negocio», «Revisar auditoría», «Ver mi perfil»), acción principal `.button--primary`, copy existente del panel restaurado y acción de usuarios solo para el dueño. Se citan `tests/test_accounts_navigation.py` para la visibilidad por capacidad y `tests/test_accounts_isolation.py` para las tres consultas. Observaciones menores: «Tu negocio, en orden.» proviene de la propuesta aprobada; el párrafo restaurado duplica contexto a evaluar en T-10; `.login`/`.sheet__header` duplican reglas de T-06 y se consolidarán en T-09. Dictamen del Reviewer: APROBADO (2026-11-12), sin hallazgos bloqueantes.
 
 ### T-08 — Usuarios, empresa y auditoría
 
@@ -365,7 +366,7 @@ T-01 a T-03 son documentales: no autorizan código. T-04 a T-11 requieren G-1. C
 |---|---|---|
 | G-0a | Aprobación de `spec.md` | APROBADO el 2026-11-12 |
 | G-0b | Aprobación de `plan.md` y `tasks.md` | APROBADO el 2026-11-12 |
-| G-1 | Autorización de implementación de T-04 a T-11 | APROBADO el 2026-11-12 para T-04 y el bloque T-05/T-06; T-07 a T-11 no autorizadas |
+| G-1 | Autorización de implementación de T-04 a T-11 | APROBADO el 2026-11-12 para T-04 a T-09; T-10 y T-11 no autorizadas |
 | G-2 | Migraciones | No aplica |
 | G-3 | Servidor local y datos ficticios en `nexopyme_bootstrap_dev` | Confirmado por ejecución en T-05; se reconfirma por tarea |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` | Confirmado por ejecución en T-05; se reconfirma por tarea |
@@ -383,13 +384,13 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 - `[x]` T-04: tokens, tipografía y CSS base aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-05: barra de aplicación, navegación con `aria-current` y pie compartido aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-06: componentes de botones, campos, alertas, badges, hojas, contexto, tablas, paginación, estados, recibo y error aprobados por el Reviewer (2026-11-12) y commiteados.
-- `[ ]` T-07: no iniciada; requiere G-1, G-3 y G-4.
+- `[x]` T-07: login de una columna y panel con hoja, contexto y lista de trabajo aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[ ]` T-08: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-09: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-10: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-11: no iniciada; requiere G-1 y G-5.
-- **Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 y el bloque T-05/T-06. T-07 a T-11 permanecen no autorizadas.
+- **Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 a T-09. T-10 y T-11 permanecen no autorizadas.
 
 ---
 
-**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 y el bloque T-05/T-06. T-04, T-05 y T-06 están publicadas; RC-8 está APROBADO; T-07 a T-11 no están autorizadas y la Etapa 003 no se modifica.
+**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 a T-09. T-04 a T-07 están publicadas; RC-8 está APROBADO; T-08 y T-09 están autorizadas y no iniciadas; T-10 y T-11 no están autorizadas y la Etapa 003 no se modifica.

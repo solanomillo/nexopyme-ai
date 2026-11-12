@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/plan.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0b por el usuario el 2026-11-12**; G-1 aprobado para T-04 y el bloque T-05/T-06 |
+| Estado | **APROBADO — G-0b por el usuario el 2026-11-12**; G-1 aprobado para T-04 a T-09 |
 | Especificación de referencia | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Tareas | `specs/004-rediseno-visual/tasks.md` v0.1 (aprobadas) |
 | Fecha | 2026-11-12 |
@@ -39,7 +39,7 @@ Definir cómo se implementará el sistema visual de la especificación 004 sin a
 | Admin | Unfold sin `main.css`; `User` y `Group` en solo lectura |
 | Dependencias | Ninguna nueva prevista |
 | Migraciones | Ninguna; G-2 no aplica |
-| Autorización | G-0a y G-0b aprobados; G-1 aprobado para T-04 y el bloque T-05/T-06 |
+| Autorización | G-0a y G-0b aprobados; G-1 aprobado para T-04 a T-09 |
 
 ### 3.1 Restricciones de pruebas en el estado de partida
 
@@ -212,15 +212,15 @@ Definir cómo se implementará el sistema visual de la especificación 004 sin a
 |---|---|---|---|
 | G-0a | Tras T-02 | Usuario | Aprobación de `spec.md` |
 | G-0b | Tras T-03 | Usuario | Aprobación de `plan.md` y `tasks.md` |
-| G-1 | Antes de T-04 | Usuario | Autorización de implementación de T-04 a T-11; aprobada para T-04 y el bloque T-05/T-06 |
+| G-1 | Antes de T-04 | Usuario | Autorización de implementación de T-04 a T-11; aprobada para T-04 a T-09 |
 | G-2 | No aplica | — | Sin migraciones ni cambios de esquema |
 | G-3 | Antes de la primera captura o servidor local | Usuario | Servidor y datos ficticios solo en `nexopyme_bootstrap_dev` |
 | G-4 | Antes de la primera prueba con base | Usuario | `nexopyme_bootstrap_test` autorizada para la etapa |
 | G-5 | Por tarea con archivos | Implementer y Build | Flujo operativo de `git add`, commit y push; no requiere autorización adicional |
 
-Sin G-1 no se ejecuta ninguna tarea de T-04 a T-11. G-0a y G-0b quedaron aprobados por el usuario el 2026-11-12; G-1 fue aprobado para T-04. G-3 y G-4 se confirman por ejecución antes de la primera captura y la primera prueba con base. El silencio no es aprobación.
+Sin G-1 no se ejecuta ninguna tarea de T-04 a T-11. G-0a y G-0b quedaron aprobados por el usuario el 2026-11-12; G-1 fue aprobado para T-04 a T-09. G-3 y G-4 se confirman por ejecución antes de la primera captura y la primera prueba con base. El silencio no es aprobación.
 
-**Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 y el bloque T-05/T-06. T-07 a T-11 permanecen no autorizadas.
+**Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 a T-09. T-10 y T-11 permanecen no autorizadas.
 
 ### 10.1 Flujo obligatorio de revisión y Git por tarea
 
