@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/tasks.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 y el bloque T-05/T-06; T-04 y T-05 publicadas; T-06 aprobada y commiteada; T-07 a T-11 no iniciadas** |
+| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 y el bloque T-05/T-06; T-04, T-05 y T-06 publicadas; RC-8 APROBADO; T-07 a T-11 no iniciadas** |
 | Especificación | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Plan | `specs/004-rediseno-visual/plan.md` v0.1 (aprobado) |
 | Fecha | 2026-11-12 |
@@ -290,11 +290,13 @@ G-5 aplica a toda tarea que genere archivos: T-01 a T-11. No se repite en cada f
 
 | Checkpoint | Momento | Tareas | Alcance | Veredicto |
 |---|---|---|---|---|
-| RC-8 | Tras T-06 | T-01 a T-06 | Sistema visual, shell y fundación de componentes | APROBADO / CAMBIOS NECESARIOS |
+| RC-8 | Tras T-06 | T-01 a T-06 | Sistema visual, shell y fundación de componentes | APROBADO (2026-11-12) |
 | RC-9 | Tras T-09 | T-07 a T-09 | Login, panel, usuarios, empresa, auditoría, perfil, contraseña y errores | APROBADO / CAMBIOS NECESARIOS |
 | RC-10 | Tras T-11 | T-10 y T-11 | Validación responsive y accesible, suite, documentación y cierre | APROBADO / CAMBIOS NECESARIOS |
 
 Cada checkpoint cierra cuando todas sus tareas están aprobadas y commiteadas. RC-8, RC-9 y RC-10 son checkpoints adicionales y no sustituyen la revisión individual de cada tarea. Un veredicto CAMBIOS NECESARIOS reabre la tarea afectada sin avanzar a la siguiente.
+
+- **RC-8 APROBADO (2026-11-12):** T-01 a T-06 revisadas; `HEAD` = `b6c3610`; suite completa **337 passed** (36 DB-free + 301 con base autorizada); Ruff, `manage.py check` y `makemigrations --check` en verde. Sin bloqueantes. Observaciones asignadas: O-1 delta visual de la home a validar en T-10 (aceptado provisionalmente); O-2 bordes de tabla y `tfoot` a T-08/T-10; O-3 hoja/H1 a T-07/T-10; O-4 recibo discontinuo a T-08/T-10; O-5 estados a T-08/T-09/T-10; O-6 `[role="status"]` a T-08/T-09; O-7 `.site-nav*`/`rgba` a T-08/T-09; O-8 context strip responsive a T-07/T-10; O-9 `aria-current`/nav/login a T-07/T-09/T-10; O-10 brand de error a T-09/T-10; O-11 comentarios a T-09; O-12 documentación/commits de T-01–T-03 a T-11; O-13 `.container--wide` a T-10; O-14 cierra el borde ámbar y las excepciones H-3/H-9/H-10. T-07 no iniciada y sin autorización.
 
 ---
 
@@ -390,4 +392,4 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 
 ---
 
-**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 y el bloque T-05/T-06. T-04, T-05 y T-06 están publicadas; T-07 a T-11 no están autorizadas y la Etapa 003 no se modifica.
+**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 y el bloque T-05/T-06. T-04, T-05 y T-06 están publicadas; RC-8 está APROBADO; T-07 a T-11 no están autorizadas y la Etapa 003 no se modifica.

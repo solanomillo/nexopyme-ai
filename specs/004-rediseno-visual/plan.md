@@ -276,7 +276,7 @@ python -m pytest tests/test_accounts_auth.py tests/test_accounts_authorization.p
 ## 12. Orden, checkpoints y criterios de cierre
 
 - Orden: T-01 → T-02 → T-03 → T-04 → T-05 → T-06 → T-07 → T-08 → T-09 → T-10 → T-11.
-- Checkpoints: **RC-8** tras T-06 (sistema visual y fundación), **RC-9** tras T-09 (pantallas rediseñadas), **RC-10** tras T-11 (validación y cierre).
+- Checkpoints: **RC-8** tras T-06 (sistema visual y fundación) — **APROBADO (2026-11-12)**; **RC-9** tras T-09 (pantallas rediseñadas); **RC-10** tras T-11 (validación y cierre).
 - Veredicto de cada checkpoint: APROBADO o CAMBIOS NECESARIOS.
 
 **T-10 — delimitación.** T-10 es principalmente una tarea de validación responsive, accesibilidad y pruebas visuales. Solo se permiten correcciones puntuales de CSS o plantillas P0 necesarias para cumplir los criterios aprobados, correcciones justificadas por defectos detectados en las verificaciones y pruebas o evidencias que demuestren que la corrección resuelve el problema. No se permite rediseñar pantallas, cambiar decisiones visuales aprobadas, ampliar P0/P1/P2, cambiar copy o comportamiento ni modificar backend, modelos, migraciones o pruebas sin autorización expresa. Cada corrección se documenta, se prueba y pasa por revisión individual; si supera el alcance, se detiene y se consulta.

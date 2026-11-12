@@ -433,4 +433,4 @@ Los identificadores con prefijo `003-` pertenecen a `specs/003-cuentas-multiempr
 - **G-0a:** APROBADO por el usuario el 2026-11-12 para `spec.md`. **G-0b:** APROBADO por el usuario el 2026-11-12 para `plan.md` y `tasks.md`.
 - **G-1:** APROBADO por el usuario el 2026-11-12 para T-04 y el bloque T-05/T-06; T-07 a T-11 no autorizadas.
 - **Etapa 003:** cerrada y publicada en `6893e59`; no se modifica.
-- **Implementación:** T-04 y T-05 publicadas; T-06 implementada; T-07 a T-11 no iniciadas; no se ejecutó la suite de 004 ni la validación visual de esta etapa.
+- **Implementación:** T-04, T-05 y T-06 publicadas; RC-8 APROBADO; T-07 a T-11 no iniciadas; no se ejecutó la validación visual de esta etapa.
