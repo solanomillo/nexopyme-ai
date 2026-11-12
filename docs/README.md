@@ -1,7 +1,8 @@
 # Documentación — NexoPyme AI
 
-Guía de la **Etapa 001 — Django Project Foundation** y de la fundación técnica
-del proyecto. El Bootstrap 000 permanece cerrado y no se modifica.
+Guía de las etapas **001 — Django Project Foundation** y **003 — Cuentas y
+multiempresa**, y de la fundación técnica del proyecto. El Bootstrap 000
+permanece cerrado y no se modifica.
 
 ## Contenido
 
@@ -12,6 +13,10 @@ del proyecto. El Bootstrap 000 permanece cerrado y no se modifica.
 - `specs/001-django-project-foundation/tasks.md`: tareas v1.6 y trazabilidad.
 - `specs/002-productos-inventario/spec.md`: especificación renumerada, no
   aprobada ni implementada.
+- `specs/003-cuentas-multiempresa/spec.md`: especificación v1.0 aprobada el
+  2026-11-10.
+- `specs/003-cuentas-multiempresa/plan.md`: plan técnico v1.4.
+- `specs/003-cuentas-multiempresa/tasks.md`: tareas y trazabilidad de la etapa.
 
 Los artefactos de la Etapa 001 forman parte del alcance versionable de T-15. Los
 artefactos de la Etapa 000 ya estaban versionados en `144056c` y se verificaron
@@ -58,6 +63,51 @@ tests/
 
 `apps/core` es una aplicación de infraestructura sin modelos, migraciones ni
 servicios de negocio. No se crearon aplicaciones funcionales.
+
+### Estructura de la Etapa 003
+
+```text
+apps/
+├── accounts/
+│   ├── capabilities.py        # Role, Capability, ROLE_CAPABILITIES
+│   ├── context_processors.py  # panel_navigation (enlaces por capacidad)
+│   ├── models.py              # Account, Company, Membership
+│   ├── services.py            # Empresa, membresía y contraseñas
+│   ├── emails.py              # Normalización y limpieza de correos
+│   ├── forms.py               # Formularios del panel y de la empresa
+│   ├── middleware.py          # ActiveCompanyMiddleware
+│   ├── decorators.py          # require_capability y denegaciones
+│   ├── backends.py            # EmailBackend y TechnicalAdminBackend
+│   ├── views.py               # Panel comercial y gestión
+│   ├── urls.py                # Rutas del namespace accounts
+│   ├── admin.py               # Admin técnico acotado
+│   ├── migrations/0001_initial.py
+│   └── management/commands/   # init_company, reset_owner_password
+└── audit/
+    ├── models.py              # AuditEvent, SecurityEvent
+    ├── services.py            # record_audit, record_security
+    └── migrations/0001_initial.py
+config/
+├── settings.py                # Middleware, backends, cookies y logging
+└── urls.py                    # handler403 y handler404 con no-store
+templates/
+├── base.html                  # Bloque site_header y pie compartido
+├── base_panel.html            # Panel, navegación por capacidad
+├── home.html                  # Portada con la etapa actual
+├── accounts/                  # login, panel, perfil, usuarios, empresa, auditoría
+├── components/
+│   ├── footer.html            # Pie único de todas las plantillas
+│   ├── navbar.html            # Navegación pública
+│   └── error_header.html      # Cabecera mínima de errores
+└── errors/                    # 403 y 404 con recuperación
+tests/
+├── conftest.py                # Fixtures de empresa, cuenta y membresía
+├── test_accounts_*.py         # Capacidades, auth, autorización, aislamiento,
+│                              # middleware, usuarios, empresa, auditoría,
+│                              # seguridad, comandos, formularios e integración
+├── test_accounts_navigation.py  # Navegación por capacidad y errores (T-24)
+└── test_db_guards.py          # Guarda existente; no modificar
+```
 
 ## Configuración aplicada
 
@@ -212,7 +262,9 @@ En cada ancho comprobar:
 
 - [ ] `lang="es"` en el elemento `html`.
 - [ ] Un solo `h1` con «NexoPyme AI».
-- [ ] Se muestra «Etapa 001 — Django Project Foundation».
+- [ ] Se muestra la etapa vigente: en la revisión de T-16 era «Etapa 001 —
+      Django Project Foundation»; desde T-24 el pie único muestra «Etapa 003 —
+      Cuentas y multiempresa».
 - [ ] Los próximos pasos aparecen como «Pendiente de especificación».
 - [ ] No hay métricas, gráficos, tablas ni datos ficticios.
 - [ ] El footer muestra la identidad, la etapa y el año.
@@ -376,17 +428,34 @@ px), más `20b-forbidden-context-1440.png`, `tab-order.json`, `skip-link.json`,
 
 ### Observaciones
 
-- El pie de las páginas que usan `base.html` (login, 403 y 404) conserva
-  «Etapa 001 — Django Project Foundation»; el panel usa «Etapa 003». Es una
-  desviación de RNF-10 que el usuario autorizó corregir en T-24 (2026-11-12).
-- El 403 y el 404 no ofrecen una acción de recuperación («Volver al panel» o
-  «Iniciar sesión») y, al extender `base.html`, muestran la navegación pública
-  («Inicio» y «Administración») a una cuenta comercial autenticada. El usuario
-  autorizó mejorar la recuperación en T-24 (2026-11-12).
-- La navegación del panel mantiene visibles «Usuarios», «Empresa» y
+- El pie de las páginas que usan `base.html` (login, 403 y 404) conservaba
+  «Etapa 001 — Django Project Foundation»; el panel usaba «Etapa 003». **Corregido
+  en T-24 (2026-11-12):** `templates/components/footer.html` es el pie único con
+  «Etapa 003 — Cuentas y multiempresa», y `base.html` y `base_panel.html` lo
+  incluyen. Evidencia: `tests/test_accounts_navigation.py` verifica la etiqueta en
+  login, panel, home, 403 y 404, y que «Etapa 001 — Django Project Foundation» ya
+  no aparece; el panel renderiza un solo `<footer>`.
+- El 403 y el 404 no ofrecían una acción de recuperación («Volver al panel» o
+  «Iniciar sesión») y, al extender `base.html`, mostraban la navegación pública
+  («Inicio» y «Administración») a una cuenta comercial autenticada. **Corregido en
+  T-24 (2026-11-12):** las páginas de error sobrescriben el bloque `site_header`
+  con `templates/components/error_header.html`, sin navegación pública; el 403 de
+  capacidad ofrece «Volver al panel», el 403 de contexto ofrece «Cerrar sesión»
+  con CSRF, el 404 autenticado ofrece «Volver al panel» y el 404 anónimo ofrece
+  «Iniciar sesión». Se conservan `Cache-Control: no-store`, la uniformidad del 404
+  y el logout por POST. Evidencia: `tests/test_accounts_navigation.py` (403 de
+  capacidad y de contexto, 404 autenticado y anónimo, ausencia de `href="/admin/"`
+  y de «Administración» en los errores).
+- La navegación del panel mantenía visibles «Usuarios», «Empresa» y
   «Auditoría» para roles sin la capacidad correspondiente; el servidor responde
-  403. La ocultación por capacidad quedó diferida a T-22/T-23 y no se ejecutó;
-  el usuario autorizó ocultar esos enlaces en T-24 (2026-11-12).
+  403. **Corregido en T-24 (2026-11-12):** el context processor
+  `apps.accounts.context_processors.panel_navigation` deriva `panel_nav` del rol de
+  `request.membership` y `base_panel.html` envuelve cada enlace en
+  `{% if panel_nav.users %}`, `{% if panel_nav.company %}` y
+  `{% if panel_nav.audit %}`; los `href` usan `{% url %}`. Evidencia:
+  `tests/test_accounts_navigation.py` comprueba que el dueño ve los tres enlaces,
+  que encargado y consulta no los ven y que el servidor sigue respondiendo 403 con
+  `no-store` a `/users/`, `/company/` y `/audit/`.
 - El Admin Unfold conserva textos en inglés y acento violeta (limitación de la
   Etapa 001).
 - El estado vacío de `/users/` no es alcanzable porque toda empresa conserva su
@@ -394,3 +463,204 @@ px), más `20b-forbidden-context-1440.png`, `tab-order.json`, `skip-link.json`,
   denomina `22-single-member-1440.png` para no confundirla con un estado vacío.
 - Checklist visual aprobado explícitamente por el usuario el 2026-11-12.
   Dictamen del Reviewer: APROBADO (2026-11-12).
+
+## Etapa 003 — Cuentas y multiempresa
+
+Implementación por tarea de la especificación 003 v1.0, el plan v1.4 y las tareas
+de la etapa. T-01 a T-24 están implementadas; T-25 (revisión final del Reviewer) y
+T-26 (cierre documental y Git) permanecen pendientes. Toda la persistencia
+operativa vive en MySQL 8.x (`nexopyme_bootstrap_dev` para desarrollo y
+`nexopyme_bootstrap_test` para pruebas, autorizada por `DA-07`).
+
+### Roles y capacidades
+
+Roles fijos de la V1 (`Role`): `dueno`, `encargado`, `operador` y `consulta`. Las
+capacidades (`Capability`) usan el patrón `recurso.accion` y se evalúan en
+`apps/accounts/capabilities.py`:
+
+| Rol | Capacidades |
+|---|---|
+| Dueño | Todas |
+| Encargado | `producto.consultar`, `historial.consultar`, `producto.crear`, `producto.editar`, `producto.desactivar`, `movimiento.entrada`, `movimiento.salida`, `movimiento.ajustar`, `existencia.inicializar` |
+| Operador | `producto.consultar`, `historial.consultar`, `movimiento.entrada`, `movimiento.salida` |
+| Consulta | `producto.consultar`, `historial.consultar` |
+
+`has_capability` deniega por defecto ante roles o capacidades desconocidos. Las
+vistas se protegen con `require_capability` y los servicios repiten la validación;
+un enlace oculto nunca sustituye la autorización del servidor.
+
+### Rutas
+
+| Ruta | Acceso | Función |
+|---|---|---|
+| `/login/` | Anónimo | Acceso con correo y contraseña |
+| `/logout/` | Autenticado (POST) | Cierre de sesión con CSRF |
+| `/panel/` | Membresía activa | Panel comercial de la empresa activa |
+| `/profile/`, `/profile/<id>/` | Membresía activa | Perfil propio |
+| `/password/` | Autenticado | Cambio de contraseña; obligatorio tras una temporal |
+| `/users/`, `/users/new/`, `/users/<id>/role/`, `/users/<id>/deactivate/`, `/users/<id>/reactivate/`, `/users/<id>/password/` | `usuarios.gestionar` | Gestión de usuarios de la empresa |
+| `/company/` | `empresa.configurar` | Configuración de la empresa |
+| `/audit/` | `auditoria.consultar` | Auditoría de negocio y eventos de seguridad |
+| `/admin/` | Personal técnico | Django Admin con Unfold, separado del panel |
+
+### Comandos
+
+```powershell
+python manage.py init_company --name "Mi Empresa" --email dueno@example.com
+python manage.py reset_owner_password --email dueno@example.com
+```
+
+`init_company` pide la contraseña por `getpass` con confirmación, valida la
+política vigente, crea la empresa y su dueño en un bloque atómico y audita
+`company.initialized`; es idempotente cuando ya existe una empresa activa con un
+único dueño y el correo coincide, y falla con `CommandError` ante estados
+ambiguos. `reset_owner_password` localiza al dueño activo por correo normalizado,
+genera una contraseña temporal que muestra una sola vez por `stdout`, activa
+`must_change_password` y audita `membership.owner_password_reset` con actor nulo.
+Ninguno acepta contraseñas como argumento ni las escribe en logs o auditoría.
+
+### Middleware y aislamiento
+
+`ActiveCompanyMiddleware` resuelve una vez por solicitud `request.membership`,
+`request.company`, `request.account` y `request.must_change_password`:
+
+- Sin membresía activa o con empresa inactiva → 403 de contexto
+  (`MissingContextDenied`).
+- `company_id` enviado por el cliente se ignora: ninguna vista lo lee; la empresa
+  siempre proviene de la membresía (CA-08).
+- `company` (GET o POST) distinto de la empresa activa → 404 uniforme y evento
+  `company.scope.injected`, con `attempted_company_id` cuando es numérico.
+- Acceso a un recurso de otra empresa → 404 uniforme y evento
+  `company.scope.foreign`, sin revelar la existencia del recurso. El aislamiento
+  se evalúa antes que la capacidad.
+- Rutas excluidas: `/`, `/health/`, `/favicon.ico`, `/login/`, `/logout/`,
+  `/static/` y `/admin/`.
+
+Los 403 y 404 se renderizan con `Cache-Control: no-store`; el 404 es idéntico para
+un recurso ajeno y uno inexistente en el mismo estado de autenticación.
+
+### Admin técnico y panel comercial
+
+`AUTHENTICATION_BACKENDS` separa `EmailBackend` (cuentas comerciales con membresía
+activa) y `TechnicalAdminBackend` (personal `is_staff` sin cuenta comercial). Una
+cuenta comercial no puede iniciar sesión en el Admin, el personal técnico no accede
+al panel sin membresía y el Admin no registra cuentas, roles ni empresa.
+
+### Sesión, cookies y logging técnico
+
+- `SESSION_COOKIE_HTTPONLY=True`, `SESSION_COOKIE_SAMESITE="Lax"`,
+  `CSRF_COOKIE_HTTPONLY=True` y `CSRF_COOKIE_SAMESITE="Lax"`.
+- `DJANGO_SECURE_COOKIES` (por defecto `False`) controla `Secure` en sesión y CSRF.
+- `DJANGO_SESSION_COOKIE_AGE` (por defecto `1209600`, entero positivo).
+- `DJANGO_LOG_LEVEL` (por defecto `INFO`) define el nivel del logging técnico por
+  consola, sin archivos, sin cuerpos de solicitud y sin datos personales. La
+  auditoría de negocio es independiente.
+
+### Frontend y recuperación de errores
+
+- Pie único en `templates/components/footer.html` («Etapa 003 — Cuentas y
+  multiempresa»), incluido por `base.html` y `base_panel.html`.
+- Navegación por capacidad mediante el context processor `panel_navigation`; el
+  panel solo muestra «Usuarios», «Empresa» y «Auditoría» con la capacidad
+  correspondiente y usa `{% url %}` para los enlaces.
+- `base.html` expone el bloque `site_header`; las páginas de error lo sobrescriben
+  con `templates/components/error_header.html`, una cabecera mínima sin navegación
+  pública.
+- 403 de capacidad: «Volver al panel». 403 de contexto: «Cerrar sesión» por POST
+  con CSRF. 404 autenticado: «Volver al panel». 404 anónimo: «Iniciar sesión».
+  Un usuario autenticado nunca ve «Iniciar sesión» en el 404, para evitar el bucle
+  de `redirect_authenticated_user`.
+
+### Estrategia de pruebas
+
+- **DB-free:** estructura, settings, home, URLs, Admin y catálogo de capacidades;
+  no preparan base de datos.
+- **Con base autorizada (`DA-07`):** `tests/conftest.py` aporta las fixtures
+  `company`, `owner_account`, `owner_membership`, `foreign_company`,
+  `foreign_account` y `foreign_membership`; cubren autenticación, autorización,
+  aislamiento entre empresas, middleware, usuarios, empresa, auditoría, seguridad,
+  comandos, formularios, navegación e integración de extremo a extremo.
+- **Comandos:** se ejecutan con `call_command` y `getpass` simulado sobre la base
+  de pruebas; nunca sobre `nexopyme_bootstrap_dev`.
+- `tests/test_db_guards.py` impide que la configuración de pruebas apunte a la base
+  de desarrollo.
+- Limitación del proceso único: ejecutar toda la suite en una sola invocación hace
+  fallar la guarda preexistente
+  `test_settings_foundation.py::test_settings_test_guard_variables_are_present`,
+  porque pytest-django cambia `DATABASES["default"]["NAME"]` al nombre de la base
+  de pruebas cuando ya la preparó. No es una regresión de la etapa; la evidencia se
+  obtiene en dos invocaciones (DB-free primero y con base después) sin modificar
+  las guardas de la Etapa 001.
+
+### Evidencias CA-42, CA-43 y CA-44
+
+| CA | Estado | Evidencia |
+|---|---|---|
+| CA-42 | PASS | Validación visual T-23 con teclado, foco visible, etiquetas, errores asociados, contraste (13,58:1 texto; 6,69:1 borde; 9,44:1 error), objetivos ≥ 24×24 px, zoom 200 %, `lang="es"` y `prefers-reduced-motion`; aprobada por el usuario el 2026-11-12. |
+| CA-43 | PASS | Estados vacío (auditoría), error (login, alta, contraseña, 403 de capacidad y de contexto, 404), carga (`aria-busy`), confirmación (rol y contraseña temporal) y éxito (empresa) validados en T-23; T-24 mejora la recuperación de 403/404 y el pie único. |
+| CA-44 | PASS | `ruff check .` sin errores; **336 pruebas en verde** en la suite completa de T-24 (36 DB-free + 300 con base autorizada) y 277 en la ejecución objetivo de 12 archivos; `manage.py check` y `makemigrations --check --dry-run` sin cambios. |
+
+### Evidencias T-24
+
+- `apps/accounts/context_processors.py`: `panel_navigation` deriva `panel_nav` del
+  rol de la membresía ya resuelta por el middleware, sin consultas adicionales.
+- `templates/components/footer.html`: pie único con «Etapa 003 — Cuentas y
+  multiempresa»; `base_panel.html` dejó de declarar un `<footer>` literal y ahora
+  incluye el componente.
+- `templates/base.html` expone `{% block site_header %}`;
+  `templates/components/error_header.html` es la cabecera mínima de errores.
+- `config/urls.py`: `handler403` y `handler404` reciben `signed_in` y
+  `can_return_to_panel`; se conservan `no-store`, el registro de seguridad y el
+  orden aislamiento → capacidad.
+- `templates/errors/403.html` y `404.html`: acciones de recuperación y ausencia de
+  navegación pública.
+- `templates/home.html` y `templates/components/footer.html`: etapa 003 y
+  descripción de cuentas, roles y aislamiento; se mantiene un solo `h1` y
+  «Pendiente de especificación» en los módulos.
+- `tests/test_accounts_navigation.py`: 18 pruebas nuevas de navegación por
+  capacidad y recuperación de errores.
+- `.env.example`: el comentario de la base de pruebas ya no dice «prohibida en la
+  Etapa 001» y la describe como «base fija de pruebas».
+- Verificación de T-24: `ruff check .` → All checks passed; `manage.py check` sin
+  problemas; `makemigrations --check --dry-run` → No changes detected; **277
+  passed** en la ejecución objetivo de 12 archivos, incluidas las 18 nuevas, y
+  **336 passed** en la suite completa en dos invocaciones (36 DB-free + 300 con
+  base autorizada), con 13 warnings de `langsmith` no bloqueantes.
+
+### Validación visual T-24
+
+Fecha: 2026-11-12. G-3 ampliado por el usuario para T-24. Dos servidores locales
+(`127.0.0.1:8000` con `DJANGO_DEBUG=True` y `127.0.0.1:8001` con
+`DJANGO_DEBUG=False --insecure`) sobre `nexopyme_bootstrap_dev`, sin modificar
+esquema, datos, permisos MySQL ni migraciones. Batería automatizada con Brave
+aislado y CDP; 13 capturas enmascaradas en `<TEMP>\opencode\t24\`.
+
+| Punto | Resultado |
+|---|---|
+| Viewports | PASS — 0 px de desbordamiento en login, home, panel (dueño, encargado y consulta), 403 de capacidad y 404 anónimo/autenticado en 320/375/768/1440/1920 px |
+| Pie único | PASS — un solo `<footer>` y «Etapa 003 — Cuentas y multiempresa» en las cinco superficies; «Etapa 001 — Django Project Foundation» ausente |
+| Navegación por capacidad | PASS — el dueño ve Usuarios, Empresa y Auditoría; encargado y consulta solo Panel, Perfil y Cerrar sesión |
+| Recuperación | PASS — 403 de capacidad con «Volver al panel»; 404 anónimo con «Iniciar sesión»; 404 autenticado con «Volver al panel»; el 403 de contexto conserva el logout por POST con CSRF |
+| Navegación pública en errores | PASS — 403 y 404 no muestran «Inicio», «Administración» ni `href="/admin/"` |
+
+Hallazgo corregido: el botón de recuperación quedaba pegado al párrafo en 403 y
+404. Se añadió `.error-actions` (`margin-top: var(--space-4)`) en `main.css` y el
+contenedor en ambas plantillas; la captura repetida confirma el espaciado.
+
+Limitación: el 403 de contexto no se capturó porque la única cuenta sin membresía
+(`inactivo@bodega.example`) no puede iniciar sesión y no se modificaron datos de
+desarrollo; queda cubierto por `tests/test_accounts_navigation.py`.
+
+### Limitaciones
+
+- El Admin Unfold conserva textos en inglés y acento violeta (limitación de la
+  Etapa 001).
+- El estado vacío de `/users/` no es alcanzable porque toda empresa conserva su
+  dueño; la rama vacía existe como defensa.
+- El 403 de CSRF lo emite el middleware de CSRF y no pasa por `handler403`, por lo
+  que conserva su cacheabilidad.
+- El evento `membership.owner_password_reset` usa `actor=None` y, por RF-39/CA-39,
+  no aparece en la consulta de auditoría del panel.
+- La suite completa en un solo proceso mantiene la limitación preexistente de
+  `test_settings_test_guard_variables_are_present` descrita arriba.
+- Windows 11 no se probó independientemente.

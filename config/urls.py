@@ -11,6 +11,13 @@ from apps.audit.services import record_security
 from .views import health, home
 
 
+def _is_signed_in(request: HttpRequest) -> bool:
+    """Indica si la solicitud corresponde a una sesión autenticada."""
+
+    user = getattr(request, "user", None)
+    return bool(user is not None and user.is_authenticated)
+
+
 def handler403(request: HttpRequest, exception: Exception | None = None) -> HttpResponse:
     """Renderiza el 403 con el mensaje correspondiente al motivo."""
 
@@ -24,7 +31,22 @@ def handler403(request: HttpRequest, exception: Exception | None = None) -> Http
             result="denied",
         )
     reason = "context" if is_context_denial else "capability"
-    response = render(request, "errors/403.html", {"reason": reason}, status=403)
+    signed_in = _is_signed_in(request)
+    can_return_to_panel = (
+        signed_in
+        and reason != "context"
+        and getattr(request, "account", None) is not None
+    )
+    response = render(
+        request,
+        "errors/403.html",
+        {
+            "reason": reason,
+            "signed_in": signed_in,
+            "can_return_to_panel": can_return_to_panel,
+        },
+        status=403,
+    )
     response["Cache-Control"] = "no-store"
     return response
 
@@ -32,7 +54,15 @@ def handler403(request: HttpRequest, exception: Exception | None = None) -> Http
 def handler404(request: HttpRequest, exception: Exception | None = None) -> HttpResponse:
     """Renderiza el 404 uniforme para recursos ajenos o inexistentes."""
 
-    response = render(request, "errors/404.html", status=404)
+    response = render(
+        request,
+        "errors/404.html",
+        {
+            "signed_in": _is_signed_in(request),
+            "can_return_to_panel": getattr(request, "account", None) is not None,
+        },
+        status=404,
+    )
     response["Cache-Control"] = "no-store"
     return response
 

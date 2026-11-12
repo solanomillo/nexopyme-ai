@@ -28,15 +28,21 @@
             <li class="site-nav__item">
               <a class="site-nav__link" href="{% url 'accounts:profile' %}">Perfil</a>
             </li>
+            {% if panel_nav.users %}
             <li class="site-nav__item">
-              <a class="site-nav__link" href="/users/">Usuarios</a>
+              <a class="site-nav__link" href="{% url 'accounts:user_list' %}">Usuarios</a>
             </li>
+            {% endif %}
+            {% if panel_nav.company %}
             <li class="site-nav__item">
-              <a class="site-nav__link" href="/company/">Empresa</a>
+              <a class="site-nav__link" href="{% url 'accounts:company_edit' %}">Empresa</a>
             </li>
+            {% endif %}
+            {% if panel_nav.audit %}
             <li class="site-nav__item">
-              <a class="site-nav__link" href="/audit/">Auditoría</a>
+              <a class="site-nav__link" href="{% url 'accounts:audit_list' %}">Auditoría</a>
             </li>
+            {% endif %}
             <li class="site-nav__item">
               <form method="post" action="{% url 'accounts:logout' %}">
                 {% csrf_token %}
@@ -54,15 +60,7 @@
       </div>
     </main>
 
-    <footer class="site-footer">
-      <div class="container site-footer__inner">
-        <p class="site-footer__identity">
-          <span class="site-footer__brand">NexoPyme AI</span>
-          <span class="site-footer__stage">Etapa 003 — Cuentas y multiempresa</span>
-        </p>
-        <p class="site-footer__year">&copy; {% now "Y" %}</p>
-      </div>
-    </footer>
+    {% include "components/footer.html" %}
 
     {% block scripts %}{% endblock %}
   </body>

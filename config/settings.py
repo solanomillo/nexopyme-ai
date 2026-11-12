@@ -100,6 +100,7 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
+                "apps.accounts.context_processors.panel_navigation",
                 "django.contrib.messages.context_processors.messages",
             ],
         },

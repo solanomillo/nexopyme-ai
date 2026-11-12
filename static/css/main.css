@@ -552,6 +552,10 @@ table select:hover {
   margin-top: var(--space-4);
 }
 
+.error-actions {
+  margin-top: var(--space-4);
+}
+
 dl {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);

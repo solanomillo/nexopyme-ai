@@ -6,15 +6,15 @@
 |---|---|
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
-| Versión | 1.4 |
-| Estado | G-0 APROBADO — T-01 a T-23 publicadas; RC-5 y RC-6 APROBADOS (2026-11-10); T-24 pendiente |
+| Versión | 1.5 |
+| Estado | G-0 APROBADO — T-01 a T-24 aprobadas; RC-5, RC-6 y RC-7 APROBADOS (2026-11-10 y 2026-11-12); T-24 pendiente de push; T-25 y T-26 pendientes |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
 | Responsable | Planner |
 | Tareas | 26 (T-01 a T-26) |
 
-**Historial:** v1.0 inicial; v1.1 correcciones del primer dictamen; v1.2 correcciones del segundo dictamen y renumeración secuencial (capacidades → modelos → auditoría → servicios); v1.3 registro de la corrección documental de T-11 (`/panel/`, `panel.html`, validación visual y estilos diferidos a T-22/T-23); v1.4 sincroniza con `plan.md` v1.4, registra las correcciones de T-12 (consulta de perfil filtrada por empresa, pruebas adicionales) y los ajustes de T-17 (formulario y vista de empresa, accesibilidad de errores y límite de 150 caracteres).
+**Historial:** v1.0 inicial; v1.1 correcciones del primer dictamen; v1.2 correcciones del segundo dictamen y renumeración secuencial (capacidades → modelos → auditoría → servicios); v1.3 registro de la corrección documental de T-11 (`/panel/`, `panel.html`, validación visual y estilos diferidos a T-22/T-23); v1.4 sincroniza con `plan.md` v1.4, registra las correcciones de T-12 (consulta de perfil filtrada por empresa, pruebas adicionales) y los ajustes de T-17 (formulario y vista de empresa, accesibilidad de errores y límite de 150 caracteres); v1.5 registra T-24: pie único (RNF-10), navegación por capacidad, recuperación de 403/404, validación visual y documentación de la etapa.
 
 ---
 
@@ -72,7 +72,7 @@
 | T-21 | Pruebas de aislamiento entre empresas | F8 | T-02 a T-20 | G-4 | `[x]` |
 | T-22 | Integración, regresión y calidad | F8 | T-21 | G-4 | `[x]` |
 | T-23 | Validación funcional y visual | F9 | T-22 | G-3 | `[x]` |
-| T-24 | Documentación de la etapa | F9 | T-23 | — | `[ ]` |
+| T-24 | Documentación de la etapa | F9 | T-23 | — | `[x]` |
 | T-25 | Revisión final del Reviewer | F9 | T-24 | — | `[ ]` |
 | T-26 | Cierre documental y verificación Git | F9 | T-25 | G-5 | `[ ]` |
 
@@ -477,7 +477,7 @@ Se mantienen las pruebas de acceso cruzado de T-14 a T-16 como evidencia especí
 ### T-24 — Documentación de la etapa
 
 - **Objetivo:** dejar la etapa reproducible y comprensible.
-- **Alcance:** `README.md`, `docs/README.md`, `.env.example`, `tasks.md`.
+- **Alcance:** `README.md`, `docs/README.md`, `.env.example`, `tasks.md`, `apps/accounts/context_processors.py`, `config/settings.py`, `config/urls.py`, `templates/base.html`, `templates/base_panel.html`, `templates/components/footer.html`, `templates/components/error_header.html`, `templates/errors/403.html`, `templates/errors/404.html`, `templates/home.html`, `tests/test_accounts_navigation.py` y el espaciado `.error-actions` en `static/css/main.css`.
 - **Dependencias:** T-23.
 - **Pasos:**
   1. Documentar estructura, roles, capacidades y comandos.
@@ -487,7 +487,8 @@ Se mantienen las pruebas de acceso cruzado de T-14 a T-16 como evidencia especí
   5. Verificar enlaces y ausencia de secretos.
 - **Verificación:** checklist de documentación completo; enlaces válidos; sin secretos.
 - **Evidencia:** diff de documentación y verificación de enlaces.
-- **Trazabilidad:** RNF-12; criterios de cierre.
+- **Trazabilidad:** RNF-10, RNF-12; CA-43.
+- **Registro de ejecución (2026-11-12):** alcance ampliado por el usuario para incluir RNF-10, la ocultación de enlaces sin capacidad y la recuperación de 403/404, además de la documentación. Decisiones: (1) `templates/components/footer.html` pasa a ser el pie único con «Etapa 003 — Cuentas y multiempresa» y `base_panel.html` lo incluye en lugar de un `<footer>` literal, con lo que login, panel, home, 403 y 404 comparten identidad y etapa; (2) `apps/accounts/context_processors.py::panel_navigation` expone `panel_nav` a partir de `request.membership.role`, sin consultas adicionales ni lógica de negocio en plantillas, y `base_panel.html` oculta «Usuarios», «Empresa» y «Auditoría» sin la capacidad y usa `{% url %}`; el servidor conserva `require_capability` y responde 403; (3) `base.html` expone `{% block site_header %}` y las páginas de error lo sobrescriben con `templates/components/error_header.html`, una cabecera mínima sin navegación pública, evitando el bucle de `redirect_authenticated_user`; (4) `handler403` recibe `reason`, `signed_in` y `can_return_to_panel`, y `handler404` recibe `signed_in` y `can_return_to_panel`, con rutas literales para renderizar bajo cualquier `ROOT_URLCONF`; se conservan CSRF, logout por POST, `no-store` y la uniformidad del 404; (5) `home.html` declara la etapa 003 para no contradecir el pie. Archivos creados: `apps/accounts/context_processors.py`, `templates/components/error_header.html` y `tests/test_accounts_navigation.py` (18 pruebas). Pruebas: 277 en verde en la ejecución objetivo de 12 archivos, incluidas las 18 nuevas; suite completa en dos invocaciones (36 DB-free + 300 con base autorizada = 336) sin fallos; `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes detected. Validación visual T-24 con G-3 ampliado: dos servidores locales (`127.0.0.1:8000` con `DJANGO_DEBUG=True` y `127.0.0.1:8001` con `DJANGO_DEBUG=False --insecure`) sobre `nexopyme_bootstrap_dev`, 13 capturas enmascaradas fuera del repositorio y 8 superficies en 320/375/768/1440/1920 px con 0 px de desbordamiento; se verificaron pie único, un solo `<footer>`, ausencia de «Etapa 001», navegación del dueño con los tres enlaces y de encargado/consulta sin ellos, 403 de capacidad con «Volver al panel», 404 anónimo con «Iniciar sesión», 404 autenticado con «Volver al panel» y ausencia de navegación pública en los errores. Hallazgo corregido: el botón de recuperación quedaba pegado al párrafo en 403/404; se añadió `.error-actions` con `margin-top: var(--space-4)` y el contenedor en ambas plantillas, y se repitió la captura. Limitaciones: el 403 de contexto no se capturó porque la única cuenta sin membresía (`inactivo@bodega.example`) no puede iniciar sesión y no se modificaron datos de desarrollo; queda cubierto por pruebas funcionales. Dictamen del Reviewer: APROBADO (2026-11-12), sin hallazgos bloqueantes. Observaciones no bloqueantes: conteos finales (confirmados con la suite completa), checklist manual de T-16 (corregido en T-24), copy de `panel.html` y cobertura adicional del POST de logout desde el 403 (T-25), fallback `signed_in` residual en el 403 de capacidad, trazabilidad precisa de RNF-12 y actualización de `MEMORY.md` (T-25/T-26), y módulos omitidos en el árbol documentado (corregido en T-24). Commit de T-24 con los archivos del alcance.
 
 ### T-25 — Revisión final del Reviewer
 
@@ -528,7 +529,7 @@ Se mantienen las pruebas de acceso cruzado de T-14 a T-16 como evidencia especí
 | RC-1 | Antes de implementar | `plan.md` y `tasks.md` | APROBADO / CAMBIOS NECESARIOS |
 | RC-5 | Tras T-01–T-09 | T-01 a T-09 | APROBADO / CAMBIOS NECESARIOS por tarea |
 | RC-6 | Tras T-10–T-19 | T-10 a T-19 | APROBADO — correcciones M-1/M-2 aplicadas (2026-11-10) |
-| RC-7 | Tras T-20–T-24 | T-20 a T-24 | APROBADO / CAMBIOS NECESARIOS por tarea |
+| RC-7 | Tras T-20–T-24 | T-20 a T-24 | APROBADO (2026-11-12) |
 | T-25 | Tras T-24 commiteado | Etapa completa | APROBADO / CAMBIOS NECESARIOS |
 
 ---
@@ -560,7 +561,7 @@ Se mantienen las pruebas de acceso cruzado de T-14 a T-16 como evidencia especí
 | T-21 | RF-08 a RF-13; RN-14, RN-17; RNF-01 | CA-08 a CA-13, CA-38 |
 | T-22 | Todos; RN-14; RNF-03, RNF-09, RNF-11 | CA-01 a CA-41, CA-44 |
 | T-23 | RNF-07, RNF-08, RNF-10 | CA-42, CA-43 |
-| T-24 | RNF-12 | — |
+| T-24 | RNF-10, RNF-12 | CA-43 |
 | T-25 | Todos | Todos |
 | T-26 | Criterios de cierre | — |
 
@@ -579,11 +580,11 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | Gate | Alcance | Estado |
 |---|---|---|
 | G-0 | Aprobación de `plan.md` y `tasks.md` | APROBADO por el usuario el 2026-11-10 |
-| G-1 | Autorización de implementación | T-01 publicada; T-02 a T-19 autorizadas el 2026-11-10; T-20 a T-24 autorizadas el 2026-11-11, con ampliación acotada de T-20 (`no-store` en 403/404) |
+| G-1 | Autorización de implementación | T-01 publicada; T-02 a T-19 autorizadas el 2026-11-10; T-20 a T-24 autorizadas el 2026-11-11, con ampliación acotada de T-20 (`no-store` en 403/404); T-24 ampliada por el usuario el 2026-11-12 para incluir RNF-10, la ocultación de enlaces sin capacidad y la recuperación de 403/404 |
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
-| G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19; ampliado puntualmente el 2026-11-12 para T-23 (servidor local y datos ficticios solo en `nexopyme_bootstrap_dev`) |
+| G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19; ampliado puntualmente el 2026-11-12 para T-23 y T-24 (servidor local y datos ficticios solo en `nexopyme_bootstrap_dev`) |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-23 publicadas; T-24 pendiente |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-23 publicadas; T-24 aprobada y pendiente de push |
 
 ---
 
@@ -612,7 +613,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-21: pruebas de aislamiento aprobadas por el Reviewer (2026-11-11) y commiteadas.
 - `[x]` T-22: integración, regresión y endurecimiento aprobados por el Reviewer (2026-11-11) y commiteados.
 - `[x]` T-23: validación funcional y visual aprobada por el Reviewer (2026-11-12) y por el usuario (2026-11-12); commiteada.
-- `[ ]` T-24 a T-26: no iniciadas.
+- `[x]` T-24: pie único, navegación por capacidad, recuperación de 403/404, validación visual y documentación aprobadas por el Reviewer (2026-11-12) y commiteadas.
+- `[ ]` T-25 y T-26: no iniciadas.
 - **Decisiones del usuario (2026-11-12):** dirección de rediseño «Mostrador» aprobada como fuente para `specs/004-rediseno-visual/`; T-24 autorizado a incluir la corrección del pie de página (RNF-10), la ocultación de enlaces sin capacidad y la mejora de recuperación en 403/404, además de la documentación. La Etapa 004 no se inicia hasta cerrar la Etapa 003.
 - **RC-6 APROBADO (2026-11-10):** 36 pruebas DB-free y 221 con base autorizada (257 en total), `ruff check .` sin errores, `manage.py check` sin problemas y `makemigrations --check` sin cambios. Correcciones del dictamen: las cuatro vistas de gestión resuelven primero la membresía por empresa (404 uniforme y evento `company.scope.foreign` sin `attempted_company_id`) y después la capacidad (403), con prueba específica de actor sin capacidad y recurso ajeno; los servicios registran el mismo evento ante `CrossCompanyError`; el perfil registra el evento en el 404 entre empresas; `base_panel.html` y `panel.html` usan `request.account`; `user_list` recibe `owner_role` del catálogo en lugar del literal. Limitaciones trasladadas: `no-store` en 403/404 (T-20, requiere ampliar su alcance); `assertNumQueries` del panel y pruebas `page=0/999`/`company` ajeno sobre `/users/` (T-21); `DEBUG=False`, endurecimiento de comandos y longitud en servicios (T-22); visibilidad de enlaces por capacidad, rutas con `{% url %}` y validación visual (T-22/T-23); evento `membership.owner_password_reset` con `actor=None` (T-24); `--display-name` y empresa inactiva en `init_company` (T-22); `reset_owner_password` con usuario inactivo (T-22).
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
@@ -623,4 +625,4 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 
 ---
 
-**Fin de las tareas v1.4.** La especificación 003 v1.0 y la planificación v1.4 están aprobadas (G-0). La implementación avanza por tarea con autorización explícita.
+**Fin de las tareas v1.5.** La especificación 003 v1.0 y la planificación v1.4 están aprobadas (G-0). La implementación avanza por tarea con autorización explícita.

@@ -11,7 +11,7 @@
   <body class="site">
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
 
-    {% include "components/navbar.html" %}
+    {% block site_header %}{% include "components/navbar.html" %}{% endblock %}
 
     <main class="site-main" id="contenido" tabindex="-1">
       <div class="container">

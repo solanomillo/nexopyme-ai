@@ -4,15 +4,18 @@ Plataforma de gestión empresarial para pequeños negocios: productos, inventari
 compras, ventas, clientes, finanzas básicas y reportes, con un asistente de IA
 para apoyar las operaciones del negocio.
 
-Este repositorio contiene el **Bootstrap 000** cerrado y la **Etapa 001 — Django
-Project Foundation** en implementación. La etapa 001 establece la estructura
-Django, el Admin con Django Unfold, la fundación visual propia y las pruebas
-DB-free. El MVP de negocio todavía no está implementado.
+Este repositorio contiene el **Bootstrap 000** y la **Etapa 001 — Django Project
+Foundation** cerrados, y la **Etapa 003 — Cuentas y multiempresa** con T-01 a T-24
+implementadas. La etapa 003 incorpora cuentas con roles y capacidades, acceso al
+panel comercial separado del Admin técnico, aislamiento de datos entre empresas y
+la base visual del panel. T-25 (revisión final) y T-26 (cierre documental) están
+pendientes. El MVP de negocio todavía no está implementado.
 
 ## Estado actual
 
 - Bootstrap 000: cerrado documentalmente; T-01–T-13 completadas.
-- Etapa 001: T-01–T-17 completadas; T-13–T-16 aprobadas en RC-4 y T-17 aprobada en la revisión final (2026-11-10); T-18 pendiente.
+- Etapa 001: cerrada; T-01–T-18 completadas y aprobadas (RC-4, revisión final del 2026-11-10 y cierre documental en `bef5c58`).
+- Etapa 003: T-01–T-24 implementadas; T-25 (revisión final) y T-26 (cierre documental y Git) pendientes.
 - Sin módulos de negocio, agentes de IA, checkpointer ni despliegue remoto.
 - V1 local, sin microservicios, Redis, RAG ni bases vectoriales.
 
@@ -151,12 +154,98 @@ comando. No se elimina ni recrea la base para recuperar acceso.
 La identidad, el correo y la contraseña del superusuario no se registran en
 documentación, capturas ni evidencias.
 
+## Etapa 003 — Cuentas y multiempresa
+
+### Rutas del panel comercial
+
+- `/login/` — acceso con correo y contraseña.
+- `/logout/` — cierre de sesión por `POST` con token CSRF.
+- `/panel/` — panel comercial de la empresa activa.
+- `/profile/` y `/profile/<id>/` — perfil propio.
+- `/password/` — cambio de contraseña, obligatorio en el primer acceso.
+- `/users/`, `/users/new/`, `/users/<id>/role/`, `/users/<id>/deactivate/`,
+  `/users/<id>/reactivate/` y `/users/<id>/password/` — gestión de usuarios.
+- `/company/` — configuración de la empresa.
+- `/audit/` — consulta de auditoría y de eventos de seguridad.
+
+La Administración técnica sigue en `/admin/` y es independiente del panel
+comercial: una cuenta comercial no puede iniciar sesión en el Admin y el personal
+técnico no accede al panel sin membresía activa.
+
+### Roles y capacidades
+
+Roles fijos de la V1: dueño, encargado, operador y consulta. Las capacidades usan
+el patrón `recurso.accion` y se definen en `apps/accounts/capabilities.py`: el
+dueño posee todas; encargado agrega alta, edición y desactivación de productos,
+movimientos y existencia inicial; operador consulta y registra entradas y salidas;
+consulta solo lectura. El servidor valida cada vista y servicio con
+`require_capability` y `has_capability`; ocultar un enlace no sustituye la
+autorización, que sigue respondiendo 403.
+
+### Comandos
+
+```powershell
+python manage.py init_company --name "Mi Empresa" --email dueno@example.com
+python manage.py reset_owner_password --email dueno@example.com
+```
+
+`init_company` solicita la contraseña por consola con confirmación, es idempotente
+y crea la empresa con su dueño. `reset_owner_password` genera una contraseña
+temporal que se muestra una sola vez y obliga el cambio en el próximo acceso.
+Ninguno acepta contraseñas como argumento ni las registra en logs o auditoría.
+
+### Sesión, cookies y logging técnico
+
+Variables opcionales (por defecto entre paréntesis):
+
+- `DJANGO_SECURE_COOKIES` (`False`): marca las cookies de sesión y CSRF como
+  `Secure` cuando el sitio se sirve por HTTPS.
+- `DJANGO_SESSION_COOKIE_AGE` (`1209600`): duración de la sesión en segundos;
+  debe ser mayor que cero.
+- `DJANGO_LOG_LEVEL` (`INFO`): nivel del logging técnico por consola
+  (`DEBUG`, `INFO`, `WARNING`, `ERROR` o `CRITICAL`). La auditoría de negocio es
+  independiente y no escribe credenciales ni datos personales.
+
+### Frontend del panel
+
+- Pie único: `templates/components/footer.html` es el único pie y declara
+  «Etapa 003 — Cuentas y multiempresa»; lo usan `base.html` y `base_panel.html`.
+- Navegación por capacidad: «Usuarios», «Empresa» y «Auditoría» solo aparecen con
+  la capacidad correspondiente, resuelta por el context processor
+  `apps.accounts.context_processors.panel_navigation` a partir de la membresía ya
+  cargada por el middleware.
+- Recuperación de errores: el 403 de capacidad ofrece «Volver al panel»; el 403
+  de contexto ofrece cerrar sesión con CSRF; el 404 autenticado ofrece volver al
+  panel y el 404 anónimo, iniciar sesión. Las páginas de error usan una cabecera
+  mínima sin navegación pública y conservan `Cache-Control: no-store`.
+
+### Estrategia de pruebas
+
+- Pruebas DB-free: no tocan base de datos y cubren estructura, settings, home,
+  URLs, Admin y catálogo de capacidades.
+- Pruebas con base: usan exclusivamente `nexopyme_bootstrap_test` (`DA-07`) con
+  fixtures de `tests/conftest.py`; cubren autenticación, autorización,
+  aislamiento entre empresas, usuarios, empresa, auditoría, seguridad, comandos e
+  integración de extremo a extremo.
+- `tests/test_db_guards.py` protege que la configuración de pruebas no apunte a la
+  base de desarrollo.
+- Limitación conocida: ejecutar toda la suite en un único proceso hace fallar la
+  guarda preexistente `test_settings_foundation.py::test_settings_test_guard_variables_are_present`
+  porque pytest-django cambia `DATABASES["default"]["NAME"]` al preparar la base;
+  la evidencia válida se obtiene en dos invocaciones (DB-free primero y con base
+  después), sin modificar las guardas de la Etapa 001.
+- Evidencia de T-24: 277 pruebas en la ejecución objetivo de 12 archivos y 336 en
+  la suite completa (36 DB-free + 300 con base autorizada), todas en verde.
+
 ## Frontend propio
 
 - `templates/base.html`: HTML5, `lang="es"`, viewport, metadatos, skip link,
-  navbar, `main`, footer y carga de `static/css/main.css`.
+  bloque `site_header` con la navbar, `main`, footer compartido y carga de
+  `static/css/main.css`.
 - `templates/components/navbar.html`: marca, Inicio y Administración.
-- `templates/components/footer.html`: identidad, etapa y año.
+- `templates/components/error_header.html`: cabecera mínima de las páginas de
+  error, sin navegación pública.
+- `templates/components/footer.html`: pie único con identidad, etapa y año.
 - `templates/home.html`: portada informativa, un solo `h1`, enlace a
   Administración y próximos pasos marcados como pendientes.
 - `static/css/main.css`: tokens, reset mínimo, layout, componentes, responsive,
@@ -170,9 +259,13 @@ muestra datos ficticios ni métricas inventadas.
 
 ## Pruebas y calidad
 
-La suite completa de pytest está **NO EJECUTADA** porque usaría
-`nexopyme_bootstrap_test`, base prohibida en esta etapa. La estrategia aprobada
-son pruebas DB-free sobre cinco archivos concretos:
+La estrategia de la Etapa 001 fueron pruebas DB-free sobre cinco archivos
+concretos; la suite completa quedó fuera de alcance porque usaría
+`nexopyme_bootstrap_test`, base prohibida en esa etapa. La Etapa 003 autorizó esa
+base (`DA-07`) y su estrategia se describe en
+[«Etapa 003 — Cuentas y multiempresa»](#etapa-003--cuentas-y-multiempresa).
+
+Evidencia de la Etapa 001:
 
 ```powershell
 python -m pytest tests/test_project_structure.py tests/test_settings_foundation.py tests/test_home_view.py tests/test_urls.py tests/test_admin_unfold.py
@@ -199,18 +292,20 @@ alcance.
 ```text
 apps/
 ├── __init__.py
+├── accounts/              # Cuentas, empresa, membresías, panel y comandos
+├── audit/                 # Auditoría de negocio y eventos de seguridad
 └── core/                  # Infraestructura, sin modelos ni migraciones
     ├── __init__.py
     ├── admin.py           # Re-registro Unfold de User/Group
     └── apps.py
 config/                    # settings, urls, views, wsgi/asgi
-docs/                      # Documentación de la etapa
+docs/                      # Documentación de las etapas
 locale/es_AR/LC_MESSAGES/  # Catálogo mínimo del logout
 specs/                     # Especificaciones, planes y tareas
-static/css/main.css        # Fundación visual propia
+static/css/main.css        # Fundación visual propia y estilos del panel
 static/img/favicon.svg     # Icono propio (rel="icon")
-templates/                 # base, home y componentes
-tests/                     # Pruebas DB-free y guardas existentes
+templates/                 # base, home, panel, cuentas, errores y componentes
+tests/                     # Pruebas DB-free, con base y guardas existentes
 ```
 
 ## Validación visual T-16
@@ -236,6 +331,10 @@ suite completa `NO EJECUTADA`.
 - Evidencia de la Etapa 001 en `specs/001-django-project-foundation/plan.md` y
   `tasks.md`: Admin/Unfold, superusuario, `runserver`, pruebas DB-free, Ruff y
   validación visual.
+- Evidencia de la Etapa 003 en `specs/003-cuentas-multiempresa/tasks.md`,
+  `plan.md` y [`docs/README.md`](docs/README.md#etapa-003--cuentas-y-multiempresa):
+  implementación por tarea, pruebas DB-free y con base autorizada, aislamiento
+  entre empresas, validación visual T-23 y correcciones de T-24.
 - Windows 10 x64 es el entorno efectivamente verificado. Windows 11 no se probó
   independientemente y no se afirma compatibilidad universal.
 - pytest reportó 13 warnings de `langsmith`
@@ -252,7 +351,7 @@ suite completa `NO EJECUTADA`.
 - `CONSTITUTION.md`: principios aprobados.
 - `AGENTS.md`: instrucciones de trabajo.
 - `MEMORY.md`: estado operativo resumido.
-- `docs/README.md`: guía de la Etapa 001, checklist visual y tabla de CA.
+- `docs/README.md`: guía de las etapas 001 y 003, checklist visual y tabla de CA.
 - `specs/000-project-bootstrap/spec.md`: especificación v1.4.
 - `specs/000-project-bootstrap/plan.md`: plan técnico y evidencias.
 - `specs/000-project-bootstrap/tasks.md`: tareas, trazabilidad y checklist.
@@ -261,3 +360,6 @@ suite completa `NO EJECUTADA`.
 - `specs/001-django-project-foundation/tasks.md`: tareas v1.6 y trazabilidad.
 - `specs/002-productos-inventario/spec.md`: especificación renumerada, no
   aprobada ni implementada.
+- `specs/003-cuentas-multiempresa/spec.md`: especificación v1.0 aprobada.
+- `specs/003-cuentas-multiempresa/plan.md`: plan técnico v1.4.
+- `specs/003-cuentas-multiempresa/tasks.md`: tareas y trazabilidad de la etapa.
