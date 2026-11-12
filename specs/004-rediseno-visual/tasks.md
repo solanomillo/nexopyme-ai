@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/tasks.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0a y G-0b por el usuario el 2026-11-12; G-1 aprobado para T-04; T-04 aprobada y commiteada; T-05 a T-11 no iniciadas** |
+| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 y el bloque T-05/T-06; T-04 y T-05 publicadas; T-06 autorizada y no iniciada; T-07 a T-11 no iniciadas** |
 | Especificación | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Plan | `specs/004-rediseno-visual/plan.md` v0.1 (aprobado) |
 | Fecha | 2026-11-12 |
@@ -63,7 +63,7 @@ Reglas adicionales:
 | `spec.md`, `plan.md` y `tasks.md` v0.1 | Aprobados en G-0a/G-0b el 2026-11-12 |
 | G-0a: aprobación de la especificación | APROBADO el 2026-11-12 |
 | G-0b: aprobación del plan y las tareas | APROBADO el 2026-11-12 |
-| G-1: autorización de implementación | APROBADO el 2026-11-12 para T-04; T-05 a T-11 no autorizadas |
+| G-1: autorización de implementación | APROBADO el 2026-11-12 para T-04 y el bloque T-05/T-06; T-07 a T-11 no autorizadas |
 | G-3 y G-4: servidor y base de pruebas | Pendientes de autorización por ejecución |
 | Dependencias nuevas | Ninguna |
 
@@ -77,7 +77,7 @@ Reglas adicionales:
 | T-02 | Formalizar especificación y criterios | F1 | T-01 | — (produce G-0a) | `[x]` |
 | T-03 | Plan y tareas | F1 | T-02 | — (produce G-0b) | `[x]` |
 | T-04 | Tokens, tipografía y CSS base | F2 | T-03 | G-1 | `[x]` |
-| T-05 | Encabezado, navegación y pie | F2 | T-04 | G-1, G-3, G-4 | `[ ]` |
+| T-05 | Encabezado, navegación y pie | F2 | T-04 | G-1, G-3, G-4 | `[x]` |
 | T-06 | Botones, campos, alertas y componentes | F2 | T-05 | G-1 | `[ ]` |
 | T-07 | Login y panel | F3 | T-06 | G-1, G-3, G-4 | `[ ]` |
 | T-08 | Usuarios, empresa y auditoría | F3 | T-07 | G-1, G-3, G-4 | `[ ]` |
@@ -174,6 +174,7 @@ G-5 aplica a toda tarea que genere archivos: T-01 a T-11. No se repite en cada f
 - **Evidencia:** pytest objetivo, capturas y búsqueda de tokens prohibidos.
 - **Trazabilidad:** D-01, D-06; RF-01, RF-02; RNF-01, RNF-02, RNF-06; R-02, R-07, R-11, R-12.
 - **Prohibiciones:** cambiar el copy del pie; introducir contexto de sesión en `base.html`; crear un shell compartido; tocar pruebas.
+- **Registro de ejecución (2026-11-12):** T-05 implementada en `templates/base_panel.html`, `templates/components/navbar.html` y `static/css/main.css`; `base.html`, `components/footer.html` y `components/error_header.html` se conservan. La barra usa `.app-header` con marca, contexto de empresa/rol, navegación visible sin JavaScript y `aria-current="page"` en Panel, Perfil, Usuarios, Empresa y Auditoría según la ruta. La navegación pública queda con «Acceso al panel» y «Acceso técnico» discreto (`href="/admin/"`), y el pie compartido conserva «Etapa 003 — Cuentas y multiempresa», el año y un solo `<footer>`. El nombre de empresa se trunca con `max-width`/`text-overflow`; la simulación de 150 caracteres devolvió `truncated: true` (scrollWidth 1300, clientWidth 352). **Verificación:** 119 pruebas en verde (DB-free de home/estructura y con base de auth, navegación, autorización y aislamiento); `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes detected; 12 capturas en 320/768/1440 con 0 px de desbordamiento, un solo pie, etapa correcta, enlaces del dueño visibles y ausencia de `/admin/` en el panel; la visibilidad por capacidad se cubre además en `tests/test_accounts_navigation.py`. Hallazgo corregido: un `*/` dentro de un comentario CSS anulaba `--color-paper`; se reemplazó por texto sin cierre de comentario y se repitieron las capturas (botones con texto legible). Observaciones no bloqueantes: retirar `.site-nav*` huérfano en T-06/T-09; tokenizar el `rgba` del hover en T-06; confirmar el borde ámbar de la barra en T-10/RC-8; evaluar `aria-current` de «Perfil» en `/password/` en T-09; pulir alineación del nav público en 320 y el login en T-07/T-10; actualizar `MEMORY.md` y los estados de G-3/G-4 al cierre. Dictamen del Reviewer: APROBADO (2026-11-12), sin hallazgos bloqueantes.
 
 ### T-06 — Botones, campos, alertas y componentes
 
@@ -361,10 +362,10 @@ T-01 a T-03 son documentales: no autorizan código. T-04 a T-11 requieren G-1. C
 |---|---|---|
 | G-0a | Aprobación de `spec.md` | APROBADO el 2026-11-12 |
 | G-0b | Aprobación de `plan.md` y `tasks.md` | APROBADO el 2026-11-12 |
-| G-1 | Autorización de implementación de T-04 a T-11 | APROBADO el 2026-11-12 para T-04; T-05 a T-11 no autorizadas |
+| G-1 | Autorización de implementación de T-04 a T-11 | APROBADO el 2026-11-12 para T-04 y el bloque T-05/T-06; T-07 a T-11 no autorizadas |
 | G-2 | Migraciones | No aplica |
-| G-3 | Servidor local y datos ficticios en `nexopyme_bootstrap_dev` | Pendiente de autorización por ejecución |
-| G-4 | Pruebas con `nexopyme_bootstrap_test` | Pendiente de autorización por ejecución |
+| G-3 | Servidor local y datos ficticios en `nexopyme_bootstrap_dev` | Confirmado por ejecución en T-05; se reconfirma por tarea |
+| G-4 | Pruebas con `nexopyme_bootstrap_test` | Confirmado por ejecución en T-05; se reconfirma por tarea |
 | G-5 | Commit y push por tarea | Operativo dentro del flujo autorizado; no requiere autorización adicional |
 
 El silencio no constituye aprobación. Ninguna aprobación de este documento autoriza por sí sola la implementación.
@@ -377,15 +378,15 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 - `[x]` T-02: `spec.md` v0.1 aprobada en G-0a (2026-11-12).
 - `[x]` T-03: `plan.md` y `tasks.md` v0.1 aprobados en G-0b (2026-11-12).
 - `[x]` T-04: tokens, tipografía y CSS base aprobados por el Reviewer (2026-11-12) y commiteados.
-- `[ ]` T-05: no iniciada; requiere G-1, G-3 y G-4.
+- `[x]` T-05: barra de aplicación, navegación con `aria-current` y pie compartido aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[ ]` T-06: no iniciada; requiere G-1.
 - `[ ]` T-07: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-08: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-09: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-10: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-11: no iniciada; requiere G-1 y G-5.
-- **Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04. T-05 a T-11 permanecen no autorizadas.
+- **Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 y el bloque T-05/T-06. T-07 a T-11 permanecen no autorizadas.
 
 ---
 
-**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado solo para T-04, que queda aprobada y commiteada. T-05 a T-11 no están autorizadas y la Etapa 003 no se modifica.
+**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 y el bloque T-05/T-06. T-04 y T-05 están publicadas; T-06 está autorizada y no iniciada; T-07 a T-11 no están autorizadas y la Etapa 003 no se modifica.

@@ -11,42 +11,42 @@
   <body class="site">
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
 
-    <header class="site-header">
-      <div class="container site-header__inner">
-        <a class="brand" href="{% url 'accounts:panel' %}" rel="home">NexoPyme AI</a>
+    <header class="app-header">
+      <div class="container app-header__inner">
+        <a class="app-header__brand" href="{% url 'accounts:panel' %}" rel="home">NexoPyme AI</a>
 
-        <p class="panel-context">
-          <span class="panel-context__company">{{ request.company.name }}</span>
-          <span class="panel-context__user">{{ request.account.display_name }} · {{ request.membership.get_role_display }}</span>
+        <p class="app-header__context">
+          <span class="app-header__company" title="{{ request.company.name }}">{{ request.company.name }}</span>
+          <span class="app-header__user">{{ request.account.display_name }} · {{ request.membership.get_role_display }}</span>
         </p>
 
-        <nav class="site-nav" aria-label="Navegación del panel">
-          <ul class="site-nav__list">
-            <li class="site-nav__item">
-              <a class="site-nav__link" href="{% url 'accounts:panel' %}"{% if request.resolver_match.url_name == "panel" %} aria-current="page"{% endif %}>Panel</a>
+        <nav class="app-header__nav" aria-label="Navegación del panel">
+          <ul class="app-header__list">
+            <li class="app-header__item">
+              <a class="app-header__link" href="{% url 'accounts:panel' %}"{% if request.resolver_match.url_name == "panel" %} aria-current="page"{% endif %}>Panel</a>
             </li>
-            <li class="site-nav__item">
-              <a class="site-nav__link" href="{% url 'accounts:profile' %}">Perfil</a>
+            <li class="app-header__item">
+              <a class="app-header__link" href="{% url 'accounts:profile' %}"{% if request.resolver_match.url_name == "profile" or request.resolver_match.url_name == "profile_detail" %} aria-current="page"{% endif %}>Perfil</a>
             </li>
             {% if panel_nav.users %}
-            <li class="site-nav__item">
-              <a class="site-nav__link" href="{% url 'accounts:user_list' %}">Usuarios</a>
+            <li class="app-header__item">
+              <a class="app-header__link" href="{% url 'accounts:user_list' %}"{% if request.resolver_match.url_name == "user_list" or request.resolver_match.url_name == "user_create" or request.resolver_match.url_name == "user_change_role" or request.resolver_match.url_name == "user_deactivate" or request.resolver_match.url_name == "user_reactivate" or request.resolver_match.url_name == "user_regenerate_password" %} aria-current="page"{% endif %}>Usuarios</a>
             </li>
             {% endif %}
             {% if panel_nav.company %}
-            <li class="site-nav__item">
-              <a class="site-nav__link" href="{% url 'accounts:company_edit' %}">Empresa</a>
+            <li class="app-header__item">
+              <a class="app-header__link" href="{% url 'accounts:company_edit' %}"{% if request.resolver_match.url_name == "company_edit" %} aria-current="page"{% endif %}>Empresa</a>
             </li>
             {% endif %}
             {% if panel_nav.audit %}
-            <li class="site-nav__item">
-              <a class="site-nav__link" href="{% url 'accounts:audit_list' %}">Auditoría</a>
+            <li class="app-header__item">
+              <a class="app-header__link" href="{% url 'accounts:audit_list' %}"{% if request.resolver_match.url_name == "audit_list" %} aria-current="page"{% endif %}>Auditoría</a>
             </li>
             {% endif %}
-            <li class="site-nav__item">
+            <li class="app-header__item">
               <form method="post" action="{% url 'accounts:logout' %}">
                 {% csrf_token %}
-                <button class="site-nav__link" type="submit">Cerrar sesión</button>
+                <button class="app-header__link app-header__link--button" type="submit">Cerrar sesión</button>
               </form>
             </li>
           </ul>

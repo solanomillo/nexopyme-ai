@@ -1,14 +1,14 @@
-<header class="site-header">
-  <div class="container site-header__inner">
-    <a class="brand" href="{% url 'home' %}" rel="home">NexoPyme AI</a>
+<header class="app-header">
+  <div class="container app-header__inner">
+    <a class="app-header__brand" href="{% url 'home' %}" rel="home">NexoPyme AI</a>
 
-    <nav class="site-nav" aria-label="Navegación principal">
-      <ul class="site-nav__list">
-        <li class="site-nav__item">
-          <a class="site-nav__link" href="{% url 'home' %}">Inicio</a>
+    <nav class="app-header__nav" aria-label="Navegación principal">
+      <ul class="app-header__list">
+        <li class="app-header__item">
+          <a class="app-header__link" href="{% url 'accounts:login' %}">Acceso al panel</a>
         </li>
-        <li class="site-nav__item">
-          <a class="site-nav__link" href="/admin/">Administración</a>
+        <li class="app-header__item">
+          <a class="app-header__link app-header__link--quiet" href="/admin/">Acceso técnico</a>
         </li>
       </ul>
     </nav>
