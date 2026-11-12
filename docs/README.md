@@ -105,7 +105,7 @@ tests/
 ├── test_accounts_*.py         # Capacidades, auth, autorización, aislamiento,
 │                              # middleware, usuarios, empresa, auditoría,
 │                              # seguridad, comandos, formularios e integración
-├── test_accounts_navigation.py  # Navegación por capacidad y errores (T-24)
+├── test_accounts_navigation.py  # Navegación por capacidad y errores (T-24, T-25)
 └── test_db_guards.py          # Guarda existente; no modificar
 ```
 
@@ -467,8 +467,8 @@ px), más `20b-forbidden-context-1440.png`, `tab-order.json`, `skip-link.json`,
 ## Etapa 003 — Cuentas y multiempresa
 
 Implementación por tarea de la especificación 003 v1.0, el plan v1.4 y las tareas
-de la etapa. T-01 a T-24 están implementadas; T-25 (revisión final del Reviewer) y
-T-26 (cierre documental y Git) permanecen pendientes. Toda la persistencia
+de la etapa. T-01 a T-24 están implementadas y T-25 (revisión final) está
+aprobada; T-26 (cierre documental y Git) permanece pendiente. Toda la persistencia
 operativa vive en MySQL 8.x (`nexopyme_bootstrap_dev` para desarrollo y
 `nexopyme_bootstrap_test` para pruebas, autorizada por `DA-07`).
 
@@ -598,7 +598,7 @@ al panel sin membresía y el Admin no registra cuentas, roles ni empresa.
 |---|---|---|
 | CA-42 | PASS | Validación visual T-23 con teclado, foco visible, etiquetas, errores asociados, contraste (13,58:1 texto; 6,69:1 borde; 9,44:1 error), objetivos ≥ 24×24 px, zoom 200 %, `lang="es"` y `prefers-reduced-motion`; aprobada por el usuario el 2026-11-12. |
 | CA-43 | PASS | Estados vacío (auditoría), error (login, alta, contraseña, 403 de capacidad y de contexto, 404), carga (`aria-busy`), confirmación (rol y contraseña temporal) y éxito (empresa) validados en T-23; T-24 mejora la recuperación de 403/404 y el pie único. |
-| CA-44 | PASS | `ruff check .` sin errores; **336 pruebas en verde** en la suite completa de T-24 (36 DB-free + 300 con base autorizada) y 277 en la ejecución objetivo de 12 archivos; `manage.py check` y `makemigrations --check --dry-run` sin cambios. |
+| CA-44 | PASS | `ruff check .` sin errores; **337 pruebas en verde** en la suite completa de T-25 (36 DB-free + 301 con base autorizada) y 278 en la ejecución objetivo de 12 archivos; `manage.py check` y `makemigrations --check --dry-run` sin cambios. |
 
 ### Evidencias T-24
 
@@ -617,15 +617,15 @@ al panel sin membresía y el Admin no registra cuentas, roles ni empresa.
 - `templates/home.html` y `templates/components/footer.html`: etapa 003 y
   descripción de cuentas, roles y aislamiento; se mantiene un solo `h1` y
   «Pendiente de especificación» en los módulos.
-- `tests/test_accounts_navigation.py`: 18 pruebas nuevas de navegación por
-  capacidad y recuperación de errores.
+- `tests/test_accounts_navigation.py`: 18 pruebas nuevas en T-24, ampliadas a 19
+  en T-25 con la regresión del POST real de logout desde el 403 de contexto.
 - `.env.example`: el comentario de la base de pruebas ya no dice «prohibida en la
   Etapa 001» y la describe como «base fija de pruebas».
-- Verificación de T-24: `ruff check .` → All checks passed; `manage.py check` sin
-  problemas; `makemigrations --check --dry-run` → No changes detected; **277
-  passed** en la ejecución objetivo de 12 archivos, incluidas las 18 nuevas, y
-  **336 passed** en la suite completa en dos invocaciones (36 DB-free + 300 con
-  base autorizada), con 13 warnings de `langsmith` no bloqueantes.
+- Verificación de T-24 (histórico): `ruff check .` → All checks passed;
+  `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes
+  detected; **277 passed** en la ejecución objetivo de 12 archivos, incluidas las
+  18 nuevas, y **336 passed** en la suite completa (36 DB-free + 300 con base
+  autorizada). Tras las regresiones de T-25, la evidencia vigente es **278 / 337**.
 
 ### Validación visual T-24
 
@@ -650,6 +650,34 @@ contenedor en ambas plantillas; la captura repetida confirma el espaciado.
 Limitación: el 403 de contexto no se capturó porque la única cuenta sin membresía
 (`inactivo@bodega.example`) no puede iniciar sesión y no se modificaron datos de
 desarrollo; queda cubierto por `tests/test_accounts_navigation.py`.
+
+### Evidencias T-25 — Revisión final
+
+- Trazabilidad: los 116 identificadores RF/RNF/CA/RN de `spec.md` están cubiertos
+  por la matriz §7 de `tasks.md`; los identificadores intermedios de los rangos
+  «x a y» quedan incluidos por su rango.
+- RNF-12: se mantiene en T-24 como soporte documental de la política de
+  persistencia; su verificación es la revisión de configuración del plan (§14,
+  con el estado de partida de §3): MySQL 8.x y SQLite solo para el checkpointer.
+- Commits: T-01 `4344c31`; un commit por tarea hasta T-24 `6d70e7e`, incluidos
+  T-20 `01e55c4`, T-21 `4542c33`, T-22 `56eab2d` y T-23 `1babad1`; commits
+  documentales `d907766`, `a355248` y `e622137`; fix de inicializadores de
+  migración `441c2a4`; corrección de aislamiento `540b0c3` (M-1/M-2 de RC-6).
+- Correcciones: registro de T-24 publicado, nota de la incidencia del BOM del
+  commit `6d70e7e`, G-5 sin anticipar el dictamen, copy de
+  `templates/accounts/panel.html` con las secciones disponibles para el rol,
+  árbol documental completado con `forms.py` y `emails.py`, checklist manual de
+  T-16 alineado con la etapa 003 y regresiones del 404 anónimo y del POST real de
+  logout desde el 403 con el token renderizado en el formulario.
+- Verificación: 278 pruebas en la ejecución objetivo de 12 archivos y 337 en la
+  suite completa (36 DB-free + 301 con base autorizada); `ruff check .` → All
+  checks passed; `manage.py check` sin problemas; `makemigrations --check
+  --dry-run` → No changes detected; enlaces internos válidos.
+- Dictamen del Reviewer: APROBADO (2026-11-12), sin hallazgos bloqueantes; B-1,
+  B-2 y O-1 a O-9 cerrados.
+- Incidencia aceptada: el asunto de `6d70e7e` contiene un BOM UTF-8 al inicio; no
+  se reescribió el historial por decisión del usuario. Los commits de T-25 y T-26
+  se crean con `git commit -F` desde un archivo UTF-8 sin BOM.
 
 ### Limitaciones
 

@@ -1,7 +1,8 @@
-"""Pruebas de navegación por capacidad y recuperación de errores (T-24)."""
+"""Pruebas de navegación por capacidad y recuperación de errores (T-24, T-25)."""
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -166,6 +167,32 @@ def test_context_403_offers_logout_with_csrf(client: Client) -> None:
     assert "Volver al panel" not in content
 
 
+def test_context_403_logout_post_ends_the_session() -> None:
+    """El formulario del 403 de contexto cierra la sesión con CSRF válido."""
+
+    user = get_user_model().objects.create_user(
+        username=generate_username(),
+        password=TEST_PASSWORD,
+    )
+    client = Client(enforce_csrf_checks=True)
+    client.force_login(user)
+
+    page = client.get("/panel/")
+    assert page.status_code == 403
+    token = re.search(
+        r'name="csrfmiddlewaretoken" value="([^"]+)"',
+        page.content.decode(),
+    )
+    assert token is not None
+
+    response = client.post("/logout/", {"csrfmiddlewaretoken": token.group(1)})
+
+    assert response.status_code == 302
+    assert response.url == "/login/"
+    assert "_auth_user_id" not in client.session
+    assert client.get("/panel/").status_code == 302
+
+
 def test_authenticated_404_offers_the_return_to_panel(
     client: Client,
     owner_account: Account,
@@ -253,6 +280,7 @@ def test_error_pages_hide_the_public_navigation(
     contents = [
         capability_client.get("/users/").content.decode(),
         client.get("/profile/999999/").content.decode(),
+        Client().get("/no-existe/").content.decode(),
     ]
     for content in contents:
         assert 'href="/admin/"' not in content

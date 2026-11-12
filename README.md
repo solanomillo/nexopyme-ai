@@ -8,14 +8,14 @@ Este repositorio contiene el **Bootstrap 000** y la **Etapa 001 — Django Proje
 Foundation** cerrados, y la **Etapa 003 — Cuentas y multiempresa** con T-01 a T-24
 implementadas. La etapa 003 incorpora cuentas con roles y capacidades, acceso al
 panel comercial separado del Admin técnico, aislamiento de datos entre empresas y
-la base visual del panel. T-25 (revisión final) y T-26 (cierre documental) están
-pendientes. El MVP de negocio todavía no está implementado.
+la base visual del panel. T-25 (revisión final) está aprobada y T-26 (cierre
+documental) pendiente. El MVP de negocio todavía no está implementado.
 
 ## Estado actual
 
 - Bootstrap 000: cerrado documentalmente; T-01–T-13 completadas.
 - Etapa 001: cerrada; T-01–T-18 completadas y aprobadas (RC-4, revisión final del 2026-11-10 y cierre documental en `bef5c58`).
-- Etapa 003: T-01–T-24 implementadas; T-25 (revisión final) y T-26 (cierre documental y Git) pendientes.
+- Etapa 003: T-01–T-24 implementadas y T-25 (revisión final) aprobada; T-26 (cierre documental y Git) pendiente.
 - Sin módulos de negocio, agentes de IA, checkpointer ni despliegue remoto.
 - V1 local, sin microservicios, Redis, RAG ni bases vectoriales.
 
@@ -234,8 +234,8 @@ Variables opcionales (por defecto entre paréntesis):
   porque pytest-django cambia `DATABASES["default"]["NAME"]` al preparar la base;
   la evidencia válida se obtiene en dos invocaciones (DB-free primero y con base
   después), sin modificar las guardas de la Etapa 001.
-- Evidencia de T-24: 277 pruebas en la ejecución objetivo de 12 archivos y 336 en
-  la suite completa (36 DB-free + 300 con base autorizada), todas en verde.
+- Evidencia de T-25: 278 pruebas en la ejecución objetivo de 12 archivos y 337 en
+  la suite completa (36 DB-free + 301 con base autorizada), todas en verde.
 
 ## Frontend propio
 
