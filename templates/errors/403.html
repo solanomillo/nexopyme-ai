@@ -6,7 +6,7 @@
 <p>Tu cuenta no tiene acceso al panel. Podés cerrar sesión e ingresar con otra cuenta.</p>
 <form method="post" action="/logout/">
   {% csrf_token %}
-  <button type="submit">Cerrar sesión</button>
+  <button class="button button--primary" type="submit">Cerrar sesión</button>
 </form>
 {% else %}
 <p>No tenés permiso para realizar esta operación.</p>

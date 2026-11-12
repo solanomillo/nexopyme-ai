@@ -11,6 +11,7 @@
   </p>
 
   {% if page_obj.object_list %}
+  <div class="table-scroll" tabindex="0" role="region" aria-label="Cuentas de la empresa">
   <table>
     <caption>Cuentas de la empresa</caption>
     <thead>
@@ -72,6 +73,7 @@
       {% endfor %}
     </tbody>
   </table>
+  </div>
   {% else %}
   <p class="panel__text">No hay usuarios registrados en la empresa.</p>
   {% endif %}

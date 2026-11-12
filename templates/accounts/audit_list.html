@@ -14,6 +14,7 @@
     <h2 class="panel__subtitle" id="audit-events-title">Operaciones de negocio</h2>
 
     {% if audit_rows %}
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Operaciones auditadas de la empresa">
     <table>
       <caption>Operaciones auditadas de la empresa</caption>
       <thead>
@@ -43,6 +44,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
     {% else %}
     <p class="panel__text">No hay operaciones auditadas.</p>
     {% endif %}
@@ -66,6 +68,7 @@
     <h2 class="panel__subtitle" id="security-events-title">Eventos de seguridad</h2>
 
     {% if security_rows %}
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Rechazos de seguridad de la empresa">
     <table>
       <caption>Rechazos de seguridad de la empresa</caption>
       <thead>
@@ -87,6 +90,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
     {% else %}
     <p class="panel__text">No hay eventos de seguridad.</p>
     {% endif %}

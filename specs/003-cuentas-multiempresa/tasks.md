@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.4 |
-| Estado | G-0 APROBADO — T-01 a T-22 publicadas; RC-5 y RC-6 APROBADOS (2026-11-10); T-23 pendiente |
+| Estado | G-0 APROBADO — T-01 a T-23 publicadas; RC-5 y RC-6 APROBADOS (2026-11-10); T-24 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
@@ -71,7 +71,7 @@
 | T-20 | Seguridad de sesión y logging técnico | F7 | T-11, T-19 | G-1, G-4 | `[x]` |
 | T-21 | Pruebas de aislamiento entre empresas | F8 | T-02 a T-20 | G-4 | `[x]` |
 | T-22 | Integración, regresión y calidad | F8 | T-21 | G-4 | `[x]` |
-| T-23 | Validación funcional y visual | F9 | T-22 | G-3 | `[ ]` |
+| T-23 | Validación funcional y visual | F9 | T-22 | G-3 | `[x]` |
 | T-24 | Documentación de la etapa | F9 | T-23 | — | `[ ]` |
 | T-25 | Revisión final del Reviewer | F9 | T-24 | — | `[ ]` |
 | T-26 | Cierre documental y verificación Git | F9 | T-25 | G-5 | `[ ]` |
@@ -461,7 +461,7 @@ Se mantienen las pruebas de acceso cruzado de T-14 a T-16 como evidencia especí
 ### T-23 — Validación funcional y visual
 
 - **Objetivo:** verificar la interfaz propia en estados, acceso y responsive.
-- **Alcance:** servidor local y navegador; capturas fuera del repositorio.
+- **Alcance:** servidor local y navegador; capturas fuera del repositorio; ajustes acotados en `static/css/main.css`, `templates/accounts/user_list.html`, `templates/accounts/audit_list.html`, `templates/errors/403.html`, `docs/README.md` y este archivo.
 - **Dependencias:** T-22.
 - **Pasos:**
   1. Servir la aplicación en `127.0.0.1:8000` con `DJANGO_DEBUG=True` (G-3).
@@ -472,6 +472,7 @@ Se mantienen las pruebas de acceso cruzado de T-14 a T-16 como evidencia especí
 - **Verificación:** checklist cerrado y aprobación explícita del usuario.
 - **Evidencia:** capturas enmascaradas y registro en `docs/README.md`.
 - **Trazabilidad:** RNF-07, RNF-08, RNF-10; CA-42, CA-43.
+- **Registro de ejecución (2026-11-12):** validación sobre `nexopyme_bootstrap_dev` con datos ficticios sembrados por ORM (`Bodega La Esquina` con dueña, encargado, operador, consulta e inactivo; `Almacén Vacío` sin empleados ni auditoría) y dos servidores locales: `127.0.0.1:8000` con `DJANGO_DEBUG=True` y `127.0.0.1:8001` con `DJANGO_DEBUG=False --insecure`. Batería automatizada con Brave aislado y CDP; 30 capturas enmascaradas fuera del repositorio. Resultados: acceso del dueño, consulta e inactivo; logout y redirección de rutas protegidas; panel, usuarios, empresa, auditoría, perfil y contraseña; alta duplicada con error asociado (`aria-invalid`/`aria-describedby`); confirmaciones de rol y de contraseña temporal; éxito de empresa; error de contraseña; 403 de capacidad y de contexto con `no-store`; error genérico para membresía inactiva; estado vacío de auditoría; 404 uniforme con `DEBUG=False` y `no-store`; Admin en `/admin/login/` sin `main.css` ni sesión comercial. Responsive 320/375/768/1440/1920 px sin desbordamiento en todas las superficies, incluido `/users/new/`; zoom 200 % sin desbordamiento; `lang="es"`; un `h1`; tablas con `caption` y `scope`; contenedores `.table-scroll` enfocables (`tabindex="0"`, `role="region"`, `aria-label`) y desplazables con flechas; controles ≥24×24 px; etiquetas programáticas; foco visible (contorno 2 px); skip link oculto que aparece al enfocar y mueve el foco a `#contenido` (evidencia en `tab-order.json` y `skip-link.json`); `prefers-reduced-motion` sin transiciones; contraste de texto 13,58:1 (tinta), 6,40:1 (tinta suave), 6,89:1 (botón), 6,69:1 (borde de control) y 9,44:1 (error); estados anunciados con `role="alert"`/`role="status"`. Hallazgos corregidos: las tablas de `/users/` y `/audit/` desbordaban 431/376 px a 320/375 px; se envolvieron en `.table-scroll` y se añadieron estilos de panel, tablas, formularios y paginación en `main.css`, con 0 px de desbordamiento en los cinco anchos; el borde de los controles pasó de `--color-rule-strong` (1,98:1) a `--color-ink-soft` (6,69:1); el botón de cierre de sesión del 403 de contexto recibió `class="button button--primary"`. Verificación técnica: 36 pruebas DB-free y 282 con base autorizada (318 en total) en verde; tras los ajustes finales de plantillas, 124 pruebas de las superficies afectadas (autorización, middleware, auditoría, usuarios, seguridad y separación de Admin) en verde; `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check` → No changes detected. La contraseña temporal del encargado regenerada durante la prueba se restauró al valor demo. Observaciones para T-24: el pie de las páginas que usan `base.html` (login, 403 y 404) conserva «Etapa 001 — Django Project Foundation», desviación de RNF-10 que el usuario autorizó corregir en T-24 (2026-11-12); el 403 y el 404 no ofrecen acción de recuperación y muestran la navegación pública a una cuenta comercial, mejora autorizada para T-24; «Usuarios», «Empresa» y «Auditoría» siguen visibles para roles sin capacidad y el servidor responde 403 (ocultación diferida y no ejecutada, autorizada para T-24); el Admin Unfold mantiene textos en inglés y acento violeta; el estado vacío de `/users/` no es alcanzable porque toda empresa conserva su dueño. Dictamen del Reviewer: APROBADO (2026-11-12). Checklist visual aprobado explícitamente por el usuario el 2026-11-12. Decisiones del usuario registradas: T-24 autorizado a corregir el pie de página (RNF-10), ocultar los enlaces sin capacidad y mejorar la recuperación en 403/404; la dirección de rediseño «Mostrador» queda aprobada como fuente para una etapa 004 posterior, sin iniciar su implementación.
 
 ### T-24 — Documentación de la etapa
 
@@ -580,9 +581,9 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-0 | Aprobación de `plan.md` y `tasks.md` | APROBADO por el usuario el 2026-11-10 |
 | G-1 | Autorización de implementación | T-01 publicada; T-02 a T-19 autorizadas el 2026-11-10; T-20 a T-24 autorizadas el 2026-11-11, con ampliación acotada de T-20 (`no-store` en 403/404) |
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
-| G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
+| G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19; ampliado puntualmente el 2026-11-12 para T-23 (servidor local y datos ficticios solo en `nexopyme_bootstrap_dev`) |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-22 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-23 publicadas; T-24 pendiente |
 
 ---
 
@@ -610,7 +611,9 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-20: seguridad de sesión y logging aprobada por el Reviewer (2026-11-11) y commiteada.
 - `[x]` T-21: pruebas de aislamiento aprobadas por el Reviewer (2026-11-11) y commiteadas.
 - `[x]` T-22: integración, regresión y endurecimiento aprobados por el Reviewer (2026-11-11) y commiteados.
-- `[ ]` T-23 a T-26: no iniciadas.
+- `[x]` T-23: validación funcional y visual aprobada por el Reviewer (2026-11-12) y por el usuario (2026-11-12); commiteada.
+- `[ ]` T-24 a T-26: no iniciadas.
+- **Decisiones del usuario (2026-11-12):** dirección de rediseño «Mostrador» aprobada como fuente para `specs/004-rediseno-visual/`; T-24 autorizado a incluir la corrección del pie de página (RNF-10), la ocultación de enlaces sin capacidad y la mejora de recuperación en 403/404, además de la documentación. La Etapa 004 no se inicia hasta cerrar la Etapa 003.
 - **RC-6 APROBADO (2026-11-10):** 36 pruebas DB-free y 221 con base autorizada (257 en total), `ruff check .` sin errores, `manage.py check` sin problemas y `makemigrations --check` sin cambios. Correcciones del dictamen: las cuatro vistas de gestión resuelven primero la membresía por empresa (404 uniforme y evento `company.scope.foreign` sin `attempted_company_id`) y después la capacidad (403), con prueba específica de actor sin capacidad y recurso ajeno; los servicios registran el mismo evento ante `CrossCompanyError`; el perfil registra el evento en el 404 entre empresas; `base_panel.html` y `panel.html` usan `request.account`; `user_list` recibe `owner_role` del catálogo en lugar del literal. Limitaciones trasladadas: `no-store` en 403/404 (T-20, requiere ampliar su alcance); `assertNumQueries` del panel y pruebas `page=0/999`/`company` ajeno sobre `/users/` (T-21); `DEBUG=False`, endurecimiento de comandos y longitud en servicios (T-22); visibilidad de enlaces por capacidad, rutas con `{% url %}` y validación visual (T-22/T-23); evento `membership.owner_password_reset` con `actor=None` (T-24); `--display-name` y empresa inactiva en `init_company` (T-22); `reset_owner_password` con usuario inactivo (T-22).
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.

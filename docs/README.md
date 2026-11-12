@@ -328,3 +328,69 @@ manual.
   320/375/768/1440/1920 px sin desbordamiento, consola limpia y favicon SVG
   servido con 200; teclado, foco, skip link y movimiento reducido verificados;
   aprobada explícitamente por el usuario.
+
+## Validación visual T-23 — Cuentas y multiempresa
+
+Fecha: 2026-11-12. Entorno: `nexopyme_bootstrap_dev` con datos ficticios
+sembrados por ORM (`Bodega La Esquina` con dueña, encargado, operador, consulta
+e inactivo; `Almacén Vacío` sin empleados ni auditoría). Servidores locales:
+`127.0.0.1:8000` con `DJANGO_DEBUG=True` y `127.0.0.1:8001` con
+`DJANGO_DEBUG=False --insecure`.
+
+### Evidencias automatizadas
+
+| Punto | Resultado |
+|---|---|
+| Viewports 320/375/768/1440/1920 px | PASS — 0 px de desbordamiento en `/login/`, `/panel/`, `/users/`, `/company/`, `/audit/`, `/profile/`, `/password/` y `/users/new/` |
+| Zoom 200 % | PASS — 0 px de desbordamiento en `/users/` y `/audit/`; tablas con desplazamiento interno |
+| Teclado y foco | PASS — orden de tabulación completo y foco visible de 2 px (`tab-order.json`); skip link oculto que aparece al enfocar y mueve el foco a `#contenido` (`skip-link.json`); contenedores `.table-scroll` enfocables con `role="region"` y desplazamiento con flechas |
+| Etiquetas y errores | PASS — 0 controles sin etiqueta; `aria-invalid` + `aria-describedby` en correo duplicado y contraseña incorrecta; 403 de capacidad y de contexto validados, con botón de cierre de sesión estilizado en la variante de contexto |
+| Tablas | PASS — `caption` y `scope="col"` en usuarios y auditoría; contenedores desplazables accesibles por teclado |
+| Objetivos táctiles | PASS — 0 controles visibles menores a 24×24 px |
+| Contraste | PASS — 13,58:1 texto, 6,40:1 texto suave, 6,89:1 botón, 6,69:1 borde de control y 9,44:1 error |
+| Movimiento reducido | PASS — `scroll-behavior: auto` y transición de ~0 s con `prefers-reduced-motion` |
+| Estados | PASS — vacío (auditoría), error (login, alta, contraseña, 403 de capacidad y de contexto, 404), carga (`aria-busy`), confirmación (rol y contraseña temporal) y éxito (empresa) |
+| 404 con `DEBUG=False` | PASS — 404 uniforme con `Cache-Control: no-store` |
+| Admin/panel | PASS — `/admin/` redirige a `/admin/login/`, sin sesión comercial ni `main.css` |
+| Aislamiento | PASS — la empresa ajena no aparece en `/users/` |
+
+### Hallazgos corregidos
+
+- Desbordamiento horizontal de las tablas de `/users/` y `/audit/` a 320/375 px
+  (431/376 px). Se añadió `.table-scroll` en `user_list.html` y `audit_list.html`,
+  y estilos de panel, tablas, formularios y paginación en `static/css/main.css`.
+- Borde de controles con contraste 1,98:1; se cambió a `--color-ink-soft`
+  (6,69:1) para cumplir el mínimo de 3:1 en componentes.
+- Los contenedores `.table-scroll` quedaron enfocables (`tabindex="0"`,
+  `role="region"` y `aria-label`) para que el contenido desplazable sea
+  alcanzable con teclado; las flechas desplazan la tabla.
+- El botón «Cerrar sesión» del 403 de contexto recibió `class="button
+  button--primary"`; antes se renderizaba como botón nativo sin estilo.
+
+### Capturas y artefactos
+
+30 capturas numeradas en `<TEMP>\opencode\t23\`
+(de `01-login-1440.png` a `24-not-found-1440.png`, con variantes de 320 y 1440
+px), más `20b-forbidden-context-1440.png`, `tab-order.json`, `skip-link.json`,
+`fix-verification.json` y los scripts de validación, fuera del repositorio.
+
+### Observaciones
+
+- El pie de las páginas que usan `base.html` (login, 403 y 404) conserva
+  «Etapa 001 — Django Project Foundation»; el panel usa «Etapa 003». Es una
+  desviación de RNF-10 que el usuario autorizó corregir en T-24 (2026-11-12).
+- El 403 y el 404 no ofrecen una acción de recuperación («Volver al panel» o
+  «Iniciar sesión») y, al extender `base.html`, muestran la navegación pública
+  («Inicio» y «Administración») a una cuenta comercial autenticada. El usuario
+  autorizó mejorar la recuperación en T-24 (2026-11-12).
+- La navegación del panel mantiene visibles «Usuarios», «Empresa» y
+  «Auditoría» para roles sin la capacidad correspondiente; el servidor responde
+  403. La ocultación por capacidad quedó diferida a T-22/T-23 y no se ejecutó;
+  el usuario autorizó ocultar esos enlaces en T-24 (2026-11-12).
+- El Admin Unfold conserva textos en inglés y acento violeta (limitación de la
+  Etapa 001).
+- El estado vacío de `/users/` no es alcanzable porque toda empresa conserva su
+  dueño; la rama vacía existe como defensa. La captura correspondiente se
+  denomina `22-single-member-1440.png` para no confundirla con un estado vacío.
+- Checklist visual aprobado explícitamente por el usuario el 2026-11-12.
+  Dictamen del Reviewer: APROBADO (2026-11-12).
