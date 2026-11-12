@@ -7,7 +7,7 @@
 | Funcionalidad | 003 — Cuentas y multiempresa |
 | Artefacto | `specs/003-cuentas-multiempresa/tasks.md` |
 | Versión | 1.4 |
-| Estado | G-0 APROBADO — T-01 a T-20 publicadas; RC-5 y RC-6 APROBADOS (2026-11-10); T-21 pendiente |
+| Estado | G-0 APROBADO — T-01 a T-21 publicadas; RC-5 y RC-6 APROBADOS (2026-11-10); T-22 pendiente |
 | Especificación | `spec.md` v1.0 aprobada el 2026-11-10 |
 | Plan | `plan.md` v1.4 (v1.2 aprobado; v1.3 registra `/panel/`; v1.4 ajusta §7.6 al middleware de T-12) |
 | Fecha | 2026-11-10 |
@@ -69,7 +69,7 @@
 | T-18 | Consulta de auditoría y eventos | F6 | T-05, T-09 | G-1, G-4 | `[x]` |
 | T-19 | Separación Django Admin / panel comercial | F7 | T-10 | G-1, G-4 | `[x]` |
 | T-20 | Seguridad de sesión y logging técnico | F7 | T-11, T-19 | G-1, G-4 | `[x]` |
-| T-21 | Pruebas de aislamiento entre empresas | F8 | T-02 a T-20 | G-4 | `[ ]` |
+| T-21 | Pruebas de aislamiento entre empresas | F8 | T-02 a T-20 | G-4 | `[x]` |
 | T-22 | Integración, regresión y calidad | F8 | T-21 | G-4 | `[ ]` |
 | T-23 | Validación funcional y visual | F9 | T-22 | G-3 | `[ ]` |
 | T-24 | Documentación de la etapa | F9 | T-23 | — | `[ ]` |
@@ -422,7 +422,24 @@ La columna Gate lista G-1 a G-4. G-5 (commit y push por tarea) aplica a toda tar
   5. Ejecutar con la base autorizada (G-4).
 - **Verificación:** todas las pruebas pasan; no se filtra ningún dato entre empresas.
 - **Evidencia:** pytest y conteo de casos por vista y servicio.
-- **Trazabilidad:** RF-08 a RF-13; CA-08 a CA-13, CA-38; RN-14; RNF-01.
+- **Trazabilidad:** RF-08 a RF-13; CA-08 a CA-13, CA-38; RN-14, RN-17; RNF-01.
+- **Registro de ejecución (2026-11-11):** `tests/conftest.py` incorpora las fixtures `foreign_company` (empresa inactiva creada por ORM, fuera de los servicios), `foreign_account` y `foreign_membership`. `tests/test_accounts_isolation.py` cubre 24 casos con al menos uno por vista y servicio con alcance de empresa (`/login/` y `/logout/` están excluidos del middleware y no resuelven empresa):
+
+| Superficie | Casos |
+|---|---|
+| `/panel/` | 3 (empresa desde la sesión, 403 con solo membresía ajena, 3 consultas) |
+| `/profile/` | 2 (redirección propia, 404 ajeno uniforme con evento) |
+| `/users/` | 4 (exclusión de ajenos, páginas `0`/`999` con 2 páginas, `company_id` ignorado, `company` inyectada) |
+| `/users/<pk>/*` | 4 POST (rol, desactivar, reactivar, regenerar) |
+| `/users/new/` | 1 (correo ajeno sin vínculo) |
+| `/company/` | 1 (empresa inyectada) |
+| `/password/` | 1 (empresa inyectada) |
+| `/audit/` | 1 (eventos ajenos excluidos) |
+| Servicios | 5 (`create_employee` con la empresa del actor y 4 mutaciones con `CrossCompanyError`) |
+| Precedencia | 1 (aislamiento antes que capacidad con actor `consulta`) |
+| Fixtures | 1 (segunda empresa inactiva por ORM, sin auditoría) |
+
+Se mantienen las pruebas de acceso cruzado de T-14 a T-16 como evidencia específica de cada superficie; T-21 las consolida sin retirarlas. `company_id` se ignora porque ninguna vista lo lee (CA-08), mientras que `company` se rechaza con 404 y evento (RF-12); la convención se documentará en T-24. **24 pruebas nuevas**; **36 DB-free** y **263 con base autorizada** (299 en total); `ruff check .` → All checks passed; `manage.py check` sin problemas; sin migraciones. La segunda empresa permanece inactiva y su creación no genera auditoría. Dictamen del Reviewer: APROBADO (2026-11-11), tras corregir las observaciones sobre páginas fuera de rango, cobertura de `/password/` y precedencia aislamiento→capacidad en servicios.
 
 ### T-22 — Integración, regresión y calidad
 
@@ -564,7 +581,7 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 | G-2 | Generación y aplicación de migraciones | Autorizado el 2026-11-10 para `accounts` y `audit` en `nexopyme_bootstrap_dev` |
 | G-3 | Comandos y servidor sobre desarrollo | Autorizado el 2026-11-10 dentro del alcance de T-02 a T-19 |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` (`DA-07`) | Autorizado para esta etapa; se confirma por ejecución |
-| G-5 | Commit y push por tarea | Operativo; T-01 a T-20 publicadas |
+| G-5 | Commit y push por tarea | Operativo; T-01 a T-21 publicadas |
 
 ---
 
@@ -590,7 +607,8 @@ Cada tarea se revisa y se commitea al terminar, antes de que la siguiente modifi
 - `[x]` T-18: consulta de auditoría y eventos aprobada por el Reviewer (2026-11-10) y commiteada.
 - `[x]` T-19: separación Admin/panel aprobada por el Reviewer (2026-11-10) y commiteada.
 - `[x]` T-20: seguridad de sesión y logging aprobada por el Reviewer (2026-11-11) y commiteada.
-- `[ ]` T-21 a T-26: no iniciadas.
+- `[x]` T-21: pruebas de aislamiento aprobadas por el Reviewer (2026-11-11) y commiteadas.
+- `[ ]` T-22 a T-26: no iniciadas.
 - **RC-6 APROBADO (2026-11-10):** 36 pruebas DB-free y 221 con base autorizada (257 en total), `ruff check .` sin errores, `manage.py check` sin problemas y `makemigrations --check` sin cambios. Correcciones del dictamen: las cuatro vistas de gestión resuelven primero la membresía por empresa (404 uniforme y evento `company.scope.foreign` sin `attempted_company_id`) y después la capacidad (403), con prueba específica de actor sin capacidad y recurso ajeno; los servicios registran el mismo evento ante `CrossCompanyError`; el perfil registra el evento en el 404 entre empresas; `base_panel.html` y `panel.html` usan `request.account`; `user_list` recibe `owner_role` del catálogo en lugar del literal. Limitaciones trasladadas: `no-store` en 403/404 (T-20, requiere ampliar su alcance); `assertNumQueries` del panel y pruebas `page=0/999`/`company` ajeno sobre `/users/` (T-21); `DEBUG=False`, endurecimiento de comandos y longitud en servicios (T-22); visibilidad de enlaces por capacidad, rutas con `{% url %}` y validación visual (T-22/T-23); evento `membership.owner_password_reset` con `actor=None` (T-24); `--display-name` y empresa inactiva en `init_company` (T-22); `reset_owner_password` con usuario inactivo (T-22).
 - **RC-5 APROBADO (2026-11-10):** 29 pruebas DB-free + 61 con base autorizada, Ruff y `manage.py check` en verde. Limitaciones asignadas: evidencia de suite y `DEBUG=False` → T-22/T-26; `company_id` inyectado → T-11/T-21; segunda empresa de prueba inactiva → T-21; evento de seguridad en rechazos de servicio → T-14 a T-18; reactivación de dueño → T-16; registros documentales → T-24.
 - O-2 aplicada en T-02 y T-04; O-1, O-3 y O-4 pendientes de confirmación del usuario.

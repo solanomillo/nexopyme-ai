@@ -48,3 +48,37 @@ def owner_membership(
         company=company,
         role=Role.DUENO,
     )
+
+
+@pytest.fixture
+def foreign_company(db: object) -> Company:
+    """Segunda empresa inactiva creada por ORM, fuera de los servicios (T-21)."""
+    return Company.objects.create(name="Empresa Ajena", is_active=False)
+
+
+@pytest.fixture
+def foreign_account(db: object) -> Account:
+    """Cuenta de la segunda empresa, sin membresía activa en la empresa propia."""
+    user = get_user_model().objects.create_user(
+        username=generate_username(),
+        password=TEST_PASSWORD,
+    )
+    return Account.objects.create(
+        user=user,
+        email="ajeno@example.com",
+        display_name="Persona Ajena",
+    )
+
+
+@pytest.fixture
+def foreign_membership(
+    db: object,
+    foreign_company: Company,
+    foreign_account: Account,
+) -> Membership:
+    """Membresía de la segunda empresa, cuya empresa permanece inactiva."""
+    return Membership.objects.create(
+        account=foreign_account,
+        company=foreign_company,
+        role=Role.DUENO,
+    )
