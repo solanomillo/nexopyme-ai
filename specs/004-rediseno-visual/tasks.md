@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/tasks.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 y el bloque T-05/T-06; T-04 y T-05 publicadas; T-06 autorizada y no iniciada; T-07 a T-11 no iniciadas** |
+| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 y el bloque T-05/T-06; T-04 y T-05 publicadas; T-06 aprobada y commiteada; T-07 a T-11 no iniciadas** |
 | Especificación | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Plan | `specs/004-rediseno-visual/plan.md` v0.1 (aprobado) |
 | Fecha | 2026-11-12 |
@@ -78,7 +78,7 @@ Reglas adicionales:
 | T-03 | Plan y tareas | F1 | T-02 | — (produce G-0b) | `[x]` |
 | T-04 | Tokens, tipografía y CSS base | F2 | T-03 | G-1 | `[x]` |
 | T-05 | Encabezado, navegación y pie | F2 | T-04 | G-1, G-3, G-4 | `[x]` |
-| T-06 | Botones, campos, alertas y componentes | F2 | T-05 | G-1 | `[ ]` |
+| T-06 | Botones, campos, alertas y componentes | F2 | T-05 | G-1 | `[x]` |
 | T-07 | Login y panel | F3 | T-06 | G-1, G-3, G-4 | `[ ]` |
 | T-08 | Usuarios, empresa y auditoría | F3 | T-07 | G-1, G-3, G-4 | `[ ]` |
 | T-09 | Perfil, contraseñas y errores | F3 | T-08 | G-1, G-3, G-4 | `[ ]` |
@@ -195,6 +195,7 @@ G-5 aplica a toda tarea que genere archivos: T-01 a T-11. No se repite en cada f
 - **Evidencia:** diff, búsqueda de tokens y lista de selectores de compatibilidad.
 - **Trazabilidad:** D-01, D-02; RF-01, RF-13; RNF-01, RNF-05; R-02, R-03, R-04, R-10.
 - **Prohibiciones:** crear plantillas de demostración o parciales; cambiar copy; usar `display:none` en columnas; retirar selectores o `.panel*` antes de T-09; tocar las reglas de la home fuera de su bloque de compatibilidad; tocar pruebas.
+- **Registro de ejecución (2026-11-12):** T-06 implementada únicamente en `static/css/main.css`. Se añadieron los componentes aprobados: botones primario/secundario/ghost/peligro/peligro silencioso/tamaño/block, campos con label/control/ayuda/errores/acciones y `aria-invalid`, badges por rol y estado, avisos info/éxito/advertencia/error, hojas, `.context-strip` como `dl`, tablas `.table`/`.table--audit`/caption/actions/num/code, paginación, estados vacío/carga, recibo y `.error-page`. `--color-accent` pasó a ámbar y se migraron las reglas P0 para que no usen `--color-paper*`, `--rule-hairline`, `--color-rule`, `--color-accent-deep`, `--color-danger-bg` ni `--color-danger-ink`; el ámbar solo aparece en bordes decorativos y nunca como texto. Se conservaron `.panel*`, los selectores desnudos y `[role="status"]` como compatibilidad hasta T-09, y las reglas/responsive de la home. **Verificación estática:** 194 llaves balanceadas, 0 `var()` sin resolver, todos los componentes presentes, sin recursos remotos, sin `display:none` en tablas y sin acento ámbar como texto. **Pruebas:** 36 DB-free en verde; `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes detected. Sin capturas ni G-3 en esta tarea. Observaciones no bloqueantes: H-1 `.context-strip` debe validarse en 320/T-07 y T-10; H-2 completar estados `:active`, disabled, hover/focus de filas y paginación en T-08/T-09; H-3 se acepta `--text-label` de 13 px para ayuda/badge en lugar de 12 px; H-4 cuerpo de hoja con 24 px uniformes; H-5 recibo con borde sólido en lugar de discontinuo; H-6 `.table--audit` a 14 px y diferenciación pendiente en T-08; H-7 renumerar comentarios de secciones en T-09; H-8 retirar `.site-nav*` huérfano y tokenizar el `rgba` del hover en T-08/T-09; H-9 `.button--sm` de 40 px como excepción para filas; H-10 `filter: brightness` informativo. Dictamen del Reviewer: APROBADO (2026-11-12), sin hallazgos bloqueantes.
 
 ### T-07 — Login y panel
 
@@ -379,7 +380,7 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 - `[x]` T-03: `plan.md` y `tasks.md` v0.1 aprobados en G-0b (2026-11-12).
 - `[x]` T-04: tokens, tipografía y CSS base aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-05: barra de aplicación, navegación con `aria-current` y pie compartido aprobados por el Reviewer (2026-11-12) y commiteados.
-- `[ ]` T-06: no iniciada; requiere G-1.
+- `[x]` T-06: componentes de botones, campos, alertas, badges, hojas, contexto, tablas, paginación, estados, recibo y error aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[ ]` T-07: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-08: no iniciada; requiere G-1, G-3 y G-4.
 - `[ ]` T-09: no iniciada; requiere G-1, G-3 y G-4.
@@ -389,4 +390,4 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 
 ---
 
-**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 y el bloque T-05/T-06. T-04 y T-05 están publicadas; T-06 está autorizada y no iniciada; T-07 a T-11 no están autorizadas y la Etapa 003 no se modifica.
+**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 y el bloque T-05/T-06. T-04, T-05 y T-06 están publicadas; T-07 a T-11 no están autorizadas y la Etapa 003 no se modifica.
