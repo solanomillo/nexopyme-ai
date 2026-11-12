@@ -24,13 +24,17 @@ def handler403(request: HttpRequest, exception: Exception | None = None) -> Http
             result="denied",
         )
     reason = "context" if is_context_denial else "capability"
-    return render(request, "errors/403.html", {"reason": reason}, status=403)
+    response = render(request, "errors/403.html", {"reason": reason}, status=403)
+    response["Cache-Control"] = "no-store"
+    return response
 
 
 def handler404(request: HttpRequest, exception: Exception | None = None) -> HttpResponse:
     """Renderiza el 404 uniforme para recursos ajenos o inexistentes."""
 
-    return render(request, "errors/404.html", status=404)
+    response = render(request, "errors/404.html", status=404)
+    response["Cache-Control"] = "no-store"
+    return response
 
 
 urlpatterns = [
