@@ -1,8 +1,8 @@
 # Documentación — NexoPyme AI
 
-Guía de las etapas **001 — Django Project Foundation** y **003 — Cuentas y
-multiempresa**, y de la fundación técnica del proyecto. El Bootstrap 000
-permanece cerrado y no se modifica.
+Guía de las etapas **001 — Django Project Foundation**, **003 — Cuentas y
+multiempresa** y **004 — Rediseño visual**, y de la fundación técnica del
+proyecto. El Bootstrap 000 permanece cerrado y no se modifica.
 
 ## Contenido
 
@@ -17,6 +17,10 @@ permanece cerrado y no se modifica.
   2026-11-10.
 - `specs/003-cuentas-multiempresa/plan.md`: plan técnico v1.4.
 - `specs/003-cuentas-multiempresa/tasks.md`: tareas y trazabilidad de la etapa.
+- `specs/004-rediseno-visual/spec.md`: especificación v0.1 aprobada en G-0a el
+  2026-11-12.
+- `specs/004-rediseno-visual/plan.md`: plan técnico v0.1 aprobado en G-0b.
+- `specs/004-rediseno-visual/tasks.md`: tareas, trazabilidad y evidencia T-10/RC-10.
 
 Los artefactos de la Etapa 001 forman parte del alcance versionable de T-15. Los
 artefactos de la Etapa 000 ya estaban versionados en `144056c` y se verificaron
@@ -468,9 +472,9 @@ px), más `20b-forbidden-context-1440.png`, `tab-order.json`, `skip-link.json`,
 
 Implementación por tarea de la especificación 003 v1.0, el plan v1.4 y las tareas
 de la etapa. T-01 a T-26 están cerradas y la Etapa 003 quedó cerrada el
-2026-11-12; la Etapa 004 no se inició y requiere aprobación humana. Toda la
-persistencia operativa vive en MySQL 8.x (`nexopyme_bootstrap_dev` para
-desarrollo y `nexopyme_bootstrap_test` para pruebas, autorizada por `DA-07`).
+2026-11-12; la Etapa 004 quedó cerrada el 2026-11-13. Toda la persistencia
+operativa vive en MySQL 8.x (`nexopyme_bootstrap_dev` para desarrollo y
+`nexopyme_bootstrap_test` para pruebas, autorizada por `DA-07`).
 
 ### Roles y capacidades
 
@@ -717,3 +721,87 @@ desarrollo; queda cubierto por `tests/test_accounts_navigation.py`.
 - La suite completa en un solo proceso mantiene la limitación preexistente de
   `test_settings_test_guard_variables_are_present` descrita arriba.
 - Windows 11 no se probó independientemente.
+
+## Etapa 004 — Rediseño visual
+
+Implementación de la especificación 004 v0.1, el plan v0.1 y las tareas v0.1.
+T-01 a T-11 están cerradas y RC-10 quedó APROBADO el 2026-11-13. La etapa no
+modifica `apps/**`, `config/**`, migraciones, Admin/Unfold, la Etapa 003 ni las
+pruebas.
+
+### Decisiones y alcance
+
+- D-01 «Mostrador»: cal fría, verde profundo y ámbar de sello; Candara + Segoe UI
+  con fallbacks del sistema.
+- D-02 P0 sin JavaScript, login de una columna, acciones de usuarios visibles y
+  tablas con scroll interno accesible.
+- D-03 P1 posterior: menú móvil, `<details>` por fila y login de dos columnas.
+- D-04 copy verificado conservado; D-05 etapa independiente; D-06 única barra
+  superior verde y login sin columna verde profunda.
+- Superficies P0: shell público y de panel, login, panel, usuarios, empresa,
+  auditoría, perfil, contraseña, 403 y 404; home P2 intacta; Admin sin `main.css`.
+
+### Criterios R
+
+| Criterio | Estado | Evidencia |
+|---|---|---|
+| R-01 | PASS | 0 px de scroll horizontal de página en 320/375/768/1440/1920; 404 propia con `DEBUG=False`. |
+| R-02 | PASS | Foco doble de 3 px (`--color-focus`) con halo de 2 px; `focus` sobre `canvas` 5,20:1. |
+| R-03 | PASS | 23 pares medidos: texto ≥ 4,5:1 y componentes no textuales ≥ 3:1. |
+| R-04 | PASS | `aria-invalid="true"` y `aria-describedby` en errores de campo; resumen `role="alert"`. |
+| R-05 | P1 | Menú móvil diferido por D-03; no implementado. |
+| R-06 | P1 | Gestión por fila con `<details>` diferida por D-03; no implementada. |
+| R-07 | PASS | `caption`, `scope` y `.table-scroll` enfocable con `aria-label` en usuarios y auditoría. |
+| R-08 | PASS | `prefers-reduced-motion`: transición de 1e-05s y `scroll-behavior: auto`. |
+| R-09 | PASS | Recibo con un único `<code>`, `role="status"`, sin duplicación; sin registro en logs ni auditoría. |
+| R-10 | PASS | Vacíos de auditoría con el copy verificado; el vacío de usuarios no es alcanzable y la acción «Crear usuario» está en la cabecera. |
+| R-11 | PASS | Zoom 200 % en `/panel/`, `/users/` y `/audit/` sin scroll de página; tablas con scroll interno. |
+| R-12 | PASS | 337 pruebas en verde (36 DB-free + 301 con base), sin cambios de copy ni de pruebas. |
+
+### Validación T-10
+
+Fecha: 2026-11-13. Servidor local `127.0.0.1:8000` con `DJANGO_DEBUG=True` sobre
+`nexopyme_bootstrap_dev` y servidor auxiliar `127.0.0.1:8001` con
+`DJANGO_DEBUG=False --insecure` para la 404 propia. Evidencias CDP en
+`<TEMP>\opencode\t10\` (`results-t10.json`, `results-a11y.json`,
+`results-receipt-403.json`, `results-empty.json`, `results-step9.json`,
+`results-temp-password.json`, `results-fc-zoom.json`,
+`results-404-debug-off.json`, `contrast.py` y capturas por ancho y estado).
+
+| Punto | Resultado |
+|---|---|
+| Viewports 320/375/768/1440/1920 px | PASS — 0 px de desbordamiento en login, panel, usuarios, alta, empresa, auditoría, perfil, contraseña y 404 propia; home 1440/1920 sin regresión |
+| Zoom 200 % | PASS — 0 px de página en `/panel/`, `/users/` y `/audit/`; scroll interno de tabla 596/960 |
+| Contraste | PASS — 23 pares medidos, 21 de §5.2 más `ink`/`ink-soft` sobre `surface`; umbral 4,5:1/3:1 |
+| Teclado y foco | PASS — skip link visible, orden lógico, anillo de 3 px `rgb(11,110,138)` con halo y `aria-current="page"` |
+| Formularios | PASS — error de login con `role="alert"`, `aria-invalid`/`aria-describedby`; carga con `aria-busy` y botón deshabilitado |
+| Tablas | PASS — operaciones de 6 columnas, seguridad de 4, `caption`/`scope`, borde `rgb(169,181,172)`, scroll interno en 375 y sin scroll de página en 1920 |
+| Recibo | PASS — borde discontinuo, borde superior ámbar `rgb(178,106,31)`, un único `<code>`, `role="status"`, 0 px en 320/768/1440 |
+| Estados | PASS — vacíos de auditoría, aviso de contraseña temporal, 403 de contexto y carga/error de login |
+| Accesibilidad del sistema | PASS — `prefers-reduced-motion`, `forced-colors` con Tab real, `lang="es"` y un `h1` por superficie |
+| 404 con `DEBUG=False` | PASS — «Recurso no encontrado», código 404, `main.css` cargada, 0 px en los cinco anchos |
+| Nombre de 150 caracteres | PASS — truncado con elipsis y 0 px de desbordamiento en 320/1440/1920 |
+| Admin/panel | PASS — el Admin no carga `main.css`; `test_project_structure` lo verifica |
+| Home P2 | PASS — `.panel__stage` en `accent-ink` `rgb(138,78,18)`, 0 nodos en ámbar y 0 px de desbordamiento |
+
+### Limitaciones
+
+- P1 y P2 no se implementan; requieren especificación o ampliación aprobada.
+- Sin cambios de backend, copy verificado, pruebas, migraciones ni Admin/Unfold.
+- `tfoot` y `aria-disabled` se incorporaron por el catálogo y los estados de
+  `spec.md` §5.5, pero no tienen consumidor P0.
+- `.container--wide` (80 rem) está disponible sin uso; el contenido P0 usa
+  `.container` (72 rem), compatible con `spec.md` §5.4.
+- El vacío de usuarios no es alcanzable porque toda empresa conserva su dueño; la
+  rama vacía existe como defensa.
+- La base de desarrollo no permite `DELETE`; los registros temporales de la
+  validación (`t10-receipt@example.com` y `t10_super`) quedaron desactivados.
+- La suite completa se ejecuta en dos invocaciones por la guarda preexistente de
+  `test_settings_test_guard_variables_are_present`.
+- El borde verde del login queda junto al encabezado (observación N-10, aceptada
+  desde T-07/RC-9).
+
+### RC-10
+
+Dictamen del Reviewer: APROBADO (2026-11-13), sin hallazgos bloqueantes; T-11
+APROBADA y RC-10 cerrado.

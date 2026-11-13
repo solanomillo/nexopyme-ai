@@ -9,7 +9,7 @@
 | Versión | 0.1 (aprobada) |
 | Fases SDD | 1 y 2: especificación y aclaración de ambigüedades |
 | Autor | Planner |
-| Estado | **APROBADO — G-0a por el usuario el 2026-11-12**; G-0b aprobado en `plan.md`/`tasks.md`; G-1 aprobado para T-04 a T-09 |
+| Estado | **APROBADO — G-0a por el usuario el 2026-11-12**; G-0b aprobado en `plan.md`/`tasks.md`; G-1 aprobado para T-04 a T-11; T-01 a T-11 cerradas; RC-10 APROBADO (2026-11-13) |
 | Fecha | 2026-11-12 |
 | Especificación fuente | Propuesta «Mostrador» aprobada el 2026-11-12, recuperada de la sesión de trabajo |
 | Etapa previa | 003 cerrada y publicada en `6893e59`; 337 pruebas (36 DB-free + 301 con base autorizada) |
@@ -412,10 +412,10 @@ Los identificadores con prefijo `003-` pertenecen a `specs/003-cuentas-multiempr
 | A-01 | Alcance exacto de P1 y su autorización | Aprobado como fase posterior (`D-03`); requiere especificación o ampliación y G-1 propios | RF-14, R-05, R-06 |
 | A-02 | Copy de producto de la home pública | Diferido a P2; se conserva `href="/admin/"`, «Pendiente de especificación» y la etiqueta de etapa | RF-14, R-12 |
 | A-03 | Tipografía en Linux sin Candara ni Segoe UI | Limitación declarada y aceptada; no se declara equivalencia | RNF-01, R-03 |
-| A-04 | Autorización de implementación | G-1 aprobado el 2026-11-12 para T-04 a T-09; T-10 y T-11 no autorizadas | T-04 a T-09 |
+| A-04 | Autorización de implementación | G-1 aprobado el 2026-11-12 para T-04 a T-09 y el 2026-11-13 para T-10 y T-11 (T-11 condicionada a T-10); etapa en cierre | T-04 a T-11 |
 | A-05 | Copy del pie de página | Resuelto para P0 por `D-04`: se conserva la etiqueta de etapa; el copy de producto requiere aprobación y actualización de prueba | R-12, RNF-09 |
 
-**Bloqueantes para aprobar la especificación:** ninguno. **Bloqueantes para T-04 a T-09:** ninguno (G-1 aprobado). **T-10 y T-11:** requieren autorización de implementación.
+**Bloqueantes para aprobar la especificación:** ninguno. **Bloqueantes para T-04 a T-11:** ninguno (G-1 aprobado; T-11 condicionada a la aprobación de T-10).
 
 ---
 
@@ -431,6 +431,6 @@ Los identificadores con prefijo `003-` pertenecen a `specs/003-cuentas-multiempr
 
 - **Estado:** APROBADO v0.1 en G-0a por el usuario el 2026-11-12. La existencia de este documento no sustituye la aprobación de implementación.
 - **G-0a:** APROBADO por el usuario el 2026-11-12 para `spec.md`. **G-0b:** APROBADO por el usuario el 2026-11-12 para `plan.md` y `tasks.md`.
-- **G-1:** APROBADO por el usuario el 2026-11-12 para T-04 a T-09; T-10 y T-11 no autorizadas.
+- **G-1:** APROBADO por el usuario el 2026-11-12 para T-04 a T-09 y el 2026-11-13 para T-10 y T-11 (T-11 condicionada a la aprobación de T-10).
 - **Etapa 003:** cerrada y publicada en `6893e59`; no se modifica.
-- **Implementación:** T-04 a T-09 publicadas; RC-8 y RC-9 APROBADOS; T-10 y T-11 no autorizadas; la validación visual completa queda para T-10 (T-05, T-07, T-08 y T-09 aportaron capturas parciales).
+- **Implementación:** T-04 a T-09 publicadas; T-10 publicada en `3bea74f`; T-11 publicada en el commit de cierre; RC-8, RC-9 y RC-10 APROBADOS.

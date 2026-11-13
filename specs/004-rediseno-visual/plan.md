@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/plan.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0b por el usuario el 2026-11-12**; G-1 aprobado para T-04 a T-09 |
+| Estado | **APROBADO — G-0b por el usuario el 2026-11-12**; G-1 aprobado para T-04 a T-11; T-01 a T-11 publicadas; RC-10 APROBADO (2026-11-13) |
 | Especificación de referencia | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Tareas | `specs/004-rediseno-visual/tasks.md` v0.1 (aprobadas) |
 | Fecha | 2026-11-12 |
@@ -39,7 +39,7 @@ Definir cómo se implementará el sistema visual de la especificación 004 sin a
 | Admin | Unfold sin `main.css`; `User` y `Group` en solo lectura |
 | Dependencias | Ninguna nueva prevista |
 | Migraciones | Ninguna; G-2 no aplica |
-| Autorización | G-0a y G-0b aprobados; G-1 aprobado para T-04 a T-09 |
+| Autorización | Al 2026-11-12: G-0a y G-0b aprobados; G-1 aprobado para T-04 a T-09 |
 
 ### 3.1 Restricciones de pruebas en el estado de partida
 
@@ -212,15 +212,15 @@ Definir cómo se implementará el sistema visual de la especificación 004 sin a
 |---|---|---|---|
 | G-0a | Tras T-02 | Usuario | Aprobación de `spec.md` |
 | G-0b | Tras T-03 | Usuario | Aprobación de `plan.md` y `tasks.md` |
-| G-1 | Antes de T-04 | Usuario | Autorización de implementación de T-04 a T-11; aprobada para T-04 a T-09 |
+| G-1 | Antes de T-04 | Usuario | Autorización de implementación de T-04 a T-11; aprobada para T-04 a T-11 (T-11 condicionada a T-10) |
 | G-2 | No aplica | — | Sin migraciones ni cambios de esquema |
 | G-3 | Antes de la primera captura o servidor local | Usuario | Servidor y datos ficticios solo en `nexopyme_bootstrap_dev` |
 | G-4 | Antes de la primera prueba con base | Usuario | `nexopyme_bootstrap_test` autorizada para la etapa |
 | G-5 | Por tarea con archivos | Implementer y Build | Flujo operativo de `git add`, commit y push; no requiere autorización adicional |
 
-Sin G-1 no se ejecuta ninguna tarea de T-04 a T-11. G-0a y G-0b quedaron aprobados por el usuario el 2026-11-12; G-1 fue aprobado para T-04 a T-09. G-3 y G-4 se confirman por ejecución antes de la primera captura y la primera prueba con base. El silencio no es aprobación.
+Sin G-1 no se ejecuta ninguna tarea de T-04 a T-11. G-0a y G-0b quedaron aprobados por el usuario el 2026-11-12; G-1 fue aprobado para T-04 a T-09 el 2026-11-12 y para T-10 y T-11 el 2026-11-13 (T-11 condicionada a la aprobación de T-10). G-3 y G-4 se confirman por ejecución antes de la primera captura y la primera prueba con base. El silencio no es aprobación.
 
-**Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 a T-09. T-10 y T-11 permanecen no autorizadas.
+**Registro de aprobación (2026-11-13):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 a T-09 (2026-11-12) y para T-10 y T-11 (2026-11-13, T-11 condicionada a la aprobación de T-10).
 
 ### 10.1 Flujo obligatorio de revisión y Git por tarea
 
@@ -276,14 +276,14 @@ python -m pytest tests/test_accounts_auth.py tests/test_accounts_authorization.p
 ## 12. Orden, checkpoints y criterios de cierre
 
 - Orden: T-01 → T-02 → T-03 → T-04 → T-05 → T-06 → T-07 → T-08 → T-09 → T-10 → T-11.
-- Checkpoints: **RC-8** tras T-06 (sistema visual y fundación) — **APROBADO (2026-11-12)**; **RC-9** tras T-09 (pantallas rediseñadas); **RC-10** tras T-11 (validación y cierre).
+- Checkpoints: **RC-8** tras T-06 (sistema visual y fundación) — **APROBADO (2026-11-12)**; **RC-9** tras T-09 (pantallas rediseñadas) — **APROBADO (2026-11-12)**; **RC-10** tras T-11 (validación y cierre) — **APROBADO (2026-11-13)**.
 - Veredicto de cada checkpoint: APROBADO o CAMBIOS NECESARIOS.
 
 **T-10 — delimitación.** T-10 es principalmente una tarea de validación responsive, accesibilidad y pruebas visuales. Solo se permiten correcciones puntuales de CSS o plantillas P0 necesarias para cumplir los criterios aprobados, correcciones justificadas por defectos detectados en las verificaciones y pruebas o evidencias que demuestren que la corrección resuelve el problema. No se permite rediseñar pantallas, cambiar decisiones visuales aprobadas, ampliar P0/P1/P2, cambiar copy o comportamiento ni modificar backend, modelos, migraciones o pruebas sin autorización expresa. Cada corrección se documenta, se prueba y pasa por revisión individual; si supera el alcance, se detiene y se consulta.
 
 **Criterios de cierre**
 
-1. T-04 a T-09 implementadas sin cambios de backend, copy verificado ni pruebas.
+1. T-04 a T-11 implementadas sin cambios de backend, copy verificado ni pruebas.
 2. R-01 a R-04 y R-07 a R-12 verificados; R-05 y R-06 declarados P1.
 3. Los 14 RF y los 10 RNF cubiertos con evidencia.
 4. `ruff check .`, `manage.py check` y `makemigrations --check --dry-run` sin errores.
@@ -291,6 +291,16 @@ python -m pytest tests/test_accounts_auth.py tests/test_accounts_authorization.p
 6. Validación visual registrada en los cinco anchos y con zoom 200 %.
 7. Reviewer con APROBADO individual en cada tarea y en RC-8, RC-9 y RC-10; los checkpoints no sustituyen la revisión por tarea.
 8. Commits por tarea publicados, documentación actualizada y `MEMORY.md` revisado al cierre con aprobación.
+
+### Registro de cierre (2026-11-13)
+
+- T-01 a T-03 fueron documentales: `spec.md`, `plan.md` y `tasks.md` v0.1 se aprobaron en G-0a/G-0b el 2026-11-12 y sus artefactos se publicaron junto con T-04 en `1a53789`.
+- T-04 a T-09 se publicaron en `1a53789`, `61b1285`, `b6c3610`, `b68ac9a`, `bd9fb8d` y `b46f101`; RC-8 y RC-9 quedaron APROBADOS en los commits documentales `2350a0b` y `58d4999`.
+- T-10 se publicó en `3bea74f`; T-11 se publica en el commit de cierre de la etapa.
+- Suite completa: **337 passed** (36 DB-free + 301 con base autorizada); `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes detected.
+- Documentación: `MEMORY.md` (40 líneas), `README.md` y `docs/README.md` actualizados; trazabilidad de T-01 a T-11 en `tasks.md`.
+- RC-10: APROBADO (2026-11-13), sin hallazgos bloqueantes; T-11 APROBADA.
+- Sin cambios en `apps/**`, `config/**`, migraciones, Admin/Unfold, la Etapa 003 ni las pruebas.
 
 ---
 

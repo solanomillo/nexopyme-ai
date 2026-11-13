@@ -4,18 +4,18 @@ Plataforma de gestión empresarial para pequeños negocios: productos, inventari
 compras, ventas, clientes, finanzas básicas y reportes, con un asistente de IA
 para apoyar las operaciones del negocio.
 
-Este repositorio contiene el **Bootstrap 000** y la **Etapa 001 — Django Project
-Foundation** cerrados, y la **Etapa 003 — Cuentas y multiempresa** cerrada con
-T-01 a T-26 completadas. La etapa 003 incorpora cuentas con roles y capacidades,
-acceso al panel comercial separado del Admin técnico, aislamiento de datos entre
-empresas y la base visual del panel. La Etapa 004 requiere aprobación humana y no
-se inició. El MVP de negocio todavía no está implementado.
+Este repositorio contiene el **Bootstrap 000**, la **Etapa 001 — Django Project
+Foundation**, la **Etapa 003 — Cuentas y multiempresa** y la **Etapa 004 —
+Rediseño visual** cerrados. La etapa 004 aplica el sistema visual «Mostrador» a
+las superficies P0 del panel, sin cambios de backend, copy verificado ni pruebas.
+El MVP de negocio todavía no está implementado.
 
 ## Estado actual
 
 - Bootstrap 000: cerrado documentalmente; T-01–T-13 completadas.
 - Etapa 001: cerrada; T-01–T-18 completadas y aprobadas (RC-4, revisión final del 2026-11-10 y cierre documental en `bef5c58`).
-- Etapa 003: CERRADA; T-01–T-26 completadas y aprobadas (2026-11-12); la Etapa 004 no se inició.
+- Etapa 003: CERRADA; T-01–T-26 completadas y aprobadas (2026-11-12).
+- Etapa 004: CERRADA; T-01–T-11 completadas y aprobadas (2026-11-13); RC-10 aprobado.
 - Sin módulos de negocio, agentes de IA, checkpointer ni despliegue remoto.
 - V1 local, sin microservicios, Redis, RAG ni bases vectoriales.
 
@@ -241,19 +241,68 @@ Variables opcionales (por defecto entre paréntesis):
   en verde en la suite final; Ruff, `manage.py check` y
   `makemigrations --check` sin errores.
 
+## Etapa 004 — Rediseño visual
+
+La Etapa 004 aplica el sistema visual «Mostrador» a las superficies P0 de la
+Etapa 003 sin modificar backend, copy verificado, permisos ni pruebas. Cierra con
+T-01 a T-11 y el checkpoint RC-10 APROBADO; la home pública (P2), el menú móvil y
+el login de dos columnas quedan fuera de alcance.
+
+### Alcance y sistema visual
+
+- Superficies P0: shell público y de panel, login, panel, listado/alta/confirmación
+  de usuarios, empresa, auditoría, perfil, cambio de contraseña, 403 y 404.
+- Paleta «Mostrador» de 28 colores, Candara + Segoe UI + Consolas, escala de
+  espaciado, contenedor 72/80 rem, hojas 24/32, tablas con `caption`, `scope` y
+  `.table-scroll` enfocable, recibo discontinuo, foco doble,
+  `prefers-reduced-motion` y `forced-colors`.
+- `base.html` y `base_panel.html` comparten el pie único «Etapa 003 — Cuentas y
+  multiempresa»; el Admin conserva Unfold y no carga `main.css`.
+- Sin JavaScript nuevo, frameworks CSS, fuentes externas ni recursos remotos. La
+  home pública P2 se conserva con su bloque de compatibilidad y sin ámbar como
+  texto.
+
+### Validación T-10 y RC-10
+
+- 320/375/768/1440/1920 px y zoom 200 % sin scroll horizontal de página; el único
+  scroll lateral es el interno de `.table-scroll`.
+- 23 pares de contraste medidos (21 de `spec.md` §5.2 más dos sobre `surface`), con
+  umbral 4,5:1 para texto y 3:1 para componentes no textuales.
+- Teclado, skip link, foco visible, `aria-current`, `aria-invalid`/
+  `aria-describedby`, `aria-busy`, `prefers-reduced-motion` y `forced-colors`
+  verificados; un solo `h1` y `lang="es"` en las superficies medidas.
+- Estados vacío, carga, error, éxito y confirmación; aviso de contraseña temporal;
+  403 de contexto; 404 propia con `DEBUG=False`; recibo con un único `<code>`;
+  nombre de empresa de 150 caracteres truncado; home 1440/1920 sin regresión.
+- Evidencia detallada en `specs/004-rediseno-visual/tasks.md` (T-10 y RC-10) y en
+  [`docs/README.md`](docs/README.md#etapa-004--rediseño-visual).
+
+### Límites
+
+- P1 (menú móvil, gestión por fila con `<details>`, login de dos columnas) y P2
+  (home pública, parciales, iconografía, copy de producto) no se implementan.
+- Sin cambios en `apps/**`, `config/**`, migraciones, Admin/Unfold ni la Etapa 003.
+- La base de desarrollo no permite `DELETE`; los registros temporales de validación
+  quedaron desactivados y no eliminados.
+
 ## Frontend propio
 
 - `templates/base.html`: HTML5, `lang="es"`, viewport, metadatos, skip link,
   bloque `site_header` con la navbar, `main`, footer compartido y carga de
   `static/css/main.css`.
+- `templates/base_panel.html`: shell del panel con barra superior, contexto de
+  empresa y rol, navegación por capacidad, `aria-current` y pie compartido.
 - `templates/components/navbar.html`: marca, Inicio y Administración.
 - `templates/components/error_header.html`: cabecera mínima de las páginas de
   error, sin navegación pública.
 - `templates/components/footer.html`: pie único con identidad, etapa y año.
+- `templates/accounts/`: login, panel, usuarios, empresa, auditoría, perfil y
+  contraseña con el sistema «Mostrador».
+- `templates/errors/`: 403 y 404 con `.error-page` y acciones de recuperación.
 - `templates/home.html`: portada informativa, un solo `h1`, enlace a
   Administración y próximos pasos marcados como pendientes.
-- `static/css/main.css`: tokens, reset mínimo, layout, componentes, responsive,
-  foco visible y `prefers-reduced-motion`.
+- `static/css/main.css`: tokens «Mostrador», reset mínimo, layout, componentes,
+  responsive, foco doble, `prefers-reduced-motion` y `forced-colors`.
 - `static/img/favicon.svg`: icono propio en SVG con la paleta teal, enlazado
   desde `templates/base.html` con `rel="icon"`.
 
@@ -339,6 +388,16 @@ suite completa `NO EJECUTADA`.
   `plan.md` y [`docs/README.md`](docs/README.md#etapa-003--cuentas-y-multiempresa):
   implementación por tarea, pruebas DB-free y con base autorizada, aislamiento
   entre empresas, validación visual T-23 y correcciones de T-24.
+- Evidencia de la Etapa 004 en `specs/004-rediseno-visual/tasks.md`,
+  `plan.md` y [`docs/README.md`](docs/README.md#etapa-004--rediseño-visual):
+  sistema «Mostrador», correcciones puntuales de T-10, validación en cinco anchos,
+  zoom 200 %, contraste, teclado, estados, 404 con `DEBUG=False`, recibo y home P2.
+- Limitaciones de la Etapa 004: P1/P2 fuera de alcance; sin cambios de backend,
+  copy verificado ni pruebas; `tfoot` y `aria-disabled` sin consumidor P0;
+  `.container--wide` disponible sin uso; el vacío de usuarios no es alcanzable;
+  la base de desarrollo no permite `DELETE` y los registros temporales de
+  validación quedaron desactivados; la suite se ejecuta en dos invocaciones y el
+  borde verde del login queda junto al encabezado (N-10, aceptado desde T-07/RC-9).
 - Windows 10 x64 es el entorno efectivamente verificado. Windows 11 no se probó
   independientemente y no se afirma compatibilidad universal.
 - pytest reportó 13 warnings de `langsmith`
@@ -355,7 +414,7 @@ suite completa `NO EJECUTADA`.
 - `CONSTITUTION.md`: principios aprobados.
 - `AGENTS.md`: instrucciones de trabajo.
 - `MEMORY.md`: estado operativo resumido.
-- `docs/README.md`: guía de las etapas 001 y 003, checklist visual y tabla de CA.
+- `docs/README.md`: guía de las etapas 001, 003 y 004, checklist visual y tabla de CA.
 - `specs/000-project-bootstrap/spec.md`: especificación v1.4.
 - `specs/000-project-bootstrap/plan.md`: plan técnico y evidencias.
 - `specs/000-project-bootstrap/tasks.md`: tareas, trazabilidad y checklist.
@@ -367,3 +426,6 @@ suite completa `NO EJECUTADA`.
 - `specs/003-cuentas-multiempresa/spec.md`: especificación v1.0 aprobada.
 - `specs/003-cuentas-multiempresa/plan.md`: plan técnico v1.4.
 - `specs/003-cuentas-multiempresa/tasks.md`: tareas y trazabilidad de la etapa.
+- `specs/004-rediseno-visual/spec.md`: especificación v0.1 aprobada en G-0a.
+- `specs/004-rediseno-visual/plan.md`: plan técnico v0.1 aprobado en G-0b.
+- `specs/004-rediseno-visual/tasks.md`: tareas, trazabilidad y evidencia de T-10/RC-10.

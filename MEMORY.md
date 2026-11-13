@@ -5,6 +5,7 @@
 - Bootstrap 000: T-01–T-13 completadas; cerrado documentalmente; MVP no implementado.
 - Etapa 001: CERRADA; T-01–T-18 completadas, aprobadas y publicadas el 2026-11-10.
 - Etapa 003: CERRADA; T-01–T-26 completadas y aprobadas el 2026-11-12.
+- Etapa 004: CERRADA; T-01–T-11 completadas, aprobadas y publicadas el 2026-11-13; RC-10 APROBADO.
 - Constitución: `CONSTITUTION.md` existe y está aprobada.
 - Base operativa: MySQL 8.0.36; `nexopyme_bootstrap_dev` y `nexopyme_bootstrap_test`.
 
@@ -20,21 +21,20 @@
 - Agentes sin acceso directo a la BD; operaciones de IA con confirmación humana previa.
 - Aislamiento entre empresas sin excepciones.
 - SQLite solo para un futuro checkpointer LangGraph; nunca datos operativos.
+- Sistema visual «Mostrador» aplicado solo a las superficies P0 de la Etapa 003.
 
 ## Documentación
-- Jerarquía: `CONSTITUTION.md` → `AGENTS.md` → spec → plan/tareas.
-- `MEMORY.md` es descriptivo y no normativo.
-- Spec 000 v1.4, spec 001 v1.1 y spec 003 v1.0 aprobadas.
-- Etapa 003: plan v1.4 y tasks v1.7 con T-26 cerrada; `docs/README.md` documenta la etapa.
+- Jerarquía: `CONSTITUTION.md` → `AGENTS.md` → spec → plan/tareas; `MEMORY.md` no es normativo.
+- Specs 000 v1.4, 001 v1.1, 003 v1.0 y 004 v0.1 aprobadas.
+- Etapa 004: `specs/004-rediseno-visual/` con spec, plan y tasks v0.1.
 - `specs/002-productos-inventario/` está renumerada, sin aprobar ni implementar.
 
 ## Metodología
-- SDD; Build coordina, Planner planifica, Implementer desarrolla, Reviewer revisa.
-- El usuario autoriza especificación, plan e implementación.
+- SDD; Build coordina, Planner planifica, Implementer desarrolla, Reviewer revisa; el usuario autoriza spec, plan e implementación.
 - Engram conectado a OpenCode mediante MCP.
 
 ## Avances y próximos pasos
-- Etapa 003 cerrada: 337 pruebas (36 DB-free + 301 con base) y Ruff en verde.
-- Commits de cierre: T-24 `6d70e7e`, T-25 `3611f7c`, T-26 (este commit).
-- Limitaciones: BOM aceptado en `6d70e7e` sin reescribir historial; suite en un solo proceso; deuda de `ruff format`; `/favicon.ico` en Admin.
-- Próximo: la Etapa 004 requiere especificación y aprobación humanas; no iniciada.
+- Etapa 004 cerrada: 337 pruebas (36 DB-free + 301 con base), Ruff y checks en verde.
+- Commits de cierre: T-10 `3bea74f`; T-11 (este commit); RC-10 APROBADO el 2026-11-13.
+- Limitaciones: DELETE no disponible en desarrollo; registros de validación desactivados; suite en dos invocaciones; deuda de `ruff format`.
+- Próximo: MVP de negocio; requiere especificación y aprobación humanas. No iniciar otra etapa.
