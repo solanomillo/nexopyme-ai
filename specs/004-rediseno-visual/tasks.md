@@ -7,7 +7,7 @@
 | Funcionalidad | 004 — Rediseño visual |
 | Artefacto | `specs/004-rediseno-visual/tasks.md` |
 | Versión | 0.1 (aprobada) |
-| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 a T-09; T-04 a T-09 publicadas; RC-8 y RC-9 APROBADOS; T-10/T-11 no autorizadas** |
+| Estado | **APROBADO — G-0a y G-0b; G-1 aprobado para T-04 a T-11 (T-11 condicionada a la aprobación de T-10); T-04 a T-09 publicadas; T-10 aprobada por el Reviewer y pendiente de commit; T-11 pendiente; RC-8 y RC-9 APROBADOS** |
 | Especificación | `specs/004-rediseno-visual/spec.md` v0.1 (aprobada) |
 | Plan | `specs/004-rediseno-visual/plan.md` v0.1 (aprobado) |
 | Fecha | 2026-11-12 |
@@ -63,7 +63,7 @@ Reglas adicionales:
 | `spec.md`, `plan.md` y `tasks.md` v0.1 | Aprobados en G-0a/G-0b el 2026-11-12 |
 | G-0a: aprobación de la especificación | APROBADO el 2026-11-12 |
 | G-0b: aprobación del plan y las tareas | APROBADO el 2026-11-12 |
-| G-1: autorización de implementación | APROBADO el 2026-11-12 para T-04 a T-09; T-10 y T-11 no autorizadas |
+| G-1: autorización de implementación | APROBADO el 2026-11-12 para T-04 a T-09 y el 2026-11-13 para T-10 y T-11 (T-11 condicionada a la aprobación de T-10) |
 | G-3 y G-4: servidor y base de pruebas | Pendientes de autorización por ejecución |
 | Dependencias nuevas | Ninguna |
 
@@ -82,7 +82,7 @@ Reglas adicionales:
 | T-07 | Login y panel | F3 | T-06 | G-1, G-3, G-4 | `[x]` |
 | T-08 | Usuarios, empresa y auditoría | F3 | T-07 | G-1, G-3, G-4 | `[x]` |
 | T-09 | Perfil, contraseñas y errores | F3 | T-08 | G-1, G-3, G-4 | `[x]` |
-| T-10 | Responsive, accesibilidad y pruebas visuales | F4 | T-09 | G-1, G-3, G-4 | `[ ]` |
+| T-10 | Responsive, accesibilidad y pruebas visuales | F4 | T-09 | G-1, G-3, G-4 | `[~]` |
 | T-11 | Revisión final y documentación | F4 | T-10 | G-1, G-5 | `[ ]` |
 
 G-5 aplica a toda tarea que genere archivos: T-01 a T-11. No se repite en cada fila. G-2 no aplica: la etapa no genera migraciones.
@@ -266,6 +266,7 @@ G-5 aplica a toda tarea que genere archivos: T-01 a T-11. No se repite en cada f
   10. Documentar cada corrección aplicada, la prueba o evidencia que demuestra que resuelve el defecto, y someterla a revisión individual del Reviewer.
 - **Verificación:** R-01 a R-04 y R-07 a R-12 cumplidos; R-05 y R-06 declarados P1; suite en verde; sin errores de Ruff; home P2 sin regresión visual ni de contraste; correcciones puntuales revisadas individualmente.
 - **Evidencia:** capturas por ancho y estado, mediciones de contraste, orden de tabulación, salidas de comandos y registro de cada corrección.
+- **Registro de ejecución (2026-11-13):** T-10 ejecutada como validación responsive, de accesibilidad y visual, con correcciones puntuales en `static/css/main.css` y `templates/base_panel.html`; sin cambios de copy, comportamiento, backend, modelos, migraciones ni pruebas. Correcciones: C-1 `site--panel` en `base_panel.html` y `padding-block` 32/48 px en `.site--panel .site-main` (hoja a 32 px del encabezado en los cinco anchos); C-2 `.login` con `margin-inline: auto` (márgenes simétricos dentro del contenedor: 312 px en 1440/1920 y ≈129 px en 768; el bloque queda centrado en el viewport con x=496/736) y botón separado 24 px del último campo (instrucción expresa de revisar la separación vertical correo/contraseña/botón y evitar botones pegados a campos; 24 px = `--space-5`, la unidad de hoja y bloques); C-3 `.sheet__body` con 24/32 px conforme a `spec.md` §5.5 (espaciado de §5.4); C-4 recibo con borde discontinuo y borde superior ámbar; C-5 cabecera de tabla con `--color-border-strong`, reglas `tfoot` con borde superior fuerte y hover de filas (el `tfoot` responde al catálogo de tabla de `spec.md` §5.5 y al borde fuerte de §5.4; ninguna pantalla P0 lo renderiza); C-6 estados `:active` de botones, controles de tabla y paginación, y disabled de botones, campos, controles de tabla y paginación con `pointer-events: none` (los estados disabled/`aria-disabled` cubren los estados de Botón, Campo y Paginación de `spec.md` §5.5, RNF-01 y O-19; `aria-disabled` no tiene consumidor P0 y `pointer-events: none` evita activar enlaces deshabilitados); C-7 hover de paginación. **Verificación:** 337 pruebas en verde (36 DB-free + 301 con `nexopyme_bootstrap_test`, G-4); `ruff check .` → All checks passed; `manage.py check` sin problemas; `makemigrations --check --dry-run` → No changes detected; 0 px de desbordamiento de página en 320/375/768/1440/1920 para login, panel, usuarios, alta, empresa, auditoría, perfil y contraseña, y 404 propia con `DEBUG=False` (lang `es`, un `h1`, 0 px, `main.css` cargada) y home en 1440/1920; zoom 200 % (720 px CSS) con 0 px en `/panel/`, `/users/` y `/audit/` y scroll interno de tabla (596/960); un solo `h1` y `lang="es"` en todas las superficies; login centrado y separación de 24 px entre contraseña y botón; auditoría con tabla de operaciones de 6 columnas, tabla de seguridad de 4, `caption`/`scope`, borde `rgb(169, 181, 172)` y scroll interno en 375 sin scroll de página en 1920; 28 chips y 14 flechas con `aria-hidden="true"`; contraste de 23 pares medidos (21 de `spec.md` §5.2 más `ink`/`ink-soft` sobre `surface`; `focus` sobre `primary` se excluye porque el anillo doble es el mecanismo aprobado), todos en verde con el umbral de su uso (4,5:1 para texto y 3:1 para componentes no textuales); skip link visible al foco, orden lógico y anillo de 3 px `rgb(11, 110, 138)` con halo; `aria-current="page"` correcto; error de login con `role="alert"` y campos con `aria-invalid`/`aria-describedby`; carga con `aria-busy="true"` y botón deshabilitado; `prefers-reduced-motion` con transición de 1e-05s y scroll `auto`; `forced-colors` con Tab real: skip link, marca, Panel, Perfil, Usuarios, Empresa, Auditoría y Cerrar sesión con `:focus-visible`, `outline: 3px solid` con `rgb(0, 0, 0)` (CanvasText) y `rgb(55, 0, 110)` (LinkText en el skip link), y `box-shadow: none`; aviso de contraseña temporal con `role="status"`, texto exacto, fondo `warning-soft` y borde `warning`, 0 px de desbordamiento en 320/768/1440; recibo con un único `<code>`, `role="status"` y 0 px de desbordamiento en 320/768/1440; 403 de contexto con código 403, explicación, «Cerrar sesión» y sin enlaces a `/admin/` ni `/panel/`; estados vacíos de auditoría con el copy verificado en 320/768/1440 (el listado de usuarios de una empresa siempre incluye al dueño, por lo que el vacío no es alcanzable con datos normales; R-10 se verifica en la plantilla con el título del estado vacío y la acción «Crear usuario» de la cabecera de la hoja); nombre de 150 caracteres truncado con elipsis y 0 px de desbordamiento en 320/1440/1920; `.container--wide` de 1280 px disponible sin consumidor P0; el contenido P0 usa `.container` de 1152 px (72 rem), compatible con `spec.md` §5.4 («80 rem máximo; lectura 72 rem»); home P2 en 1440/1920 con 0 px de desbordamiento, `.panel__stage` en `accent-ink` `rgb(138, 78, 18)` y 0 nodos en ámbar; Admin sin `main.css` cubierto por `test_project_structure`. Evidencias locales en `%TEMP%/opencode/t10/` (`results-t10.json`, `results-a11y.json`, `results-receipt-403.json`, `results-empty.json`, `results-step9.json`, `results-temp-password.json`, `results-fc-zoom.json`, `results-404-debug-off.json`, `contrast.py` y capturas por ancho y estado). Observaciones: O-15 a O-24 cerradas o verificadas (O-16 `tfoot` sin consumidor P0 y regla validada estáticamente; O-20 `[role="status"]` global retirado en T-09 y presente solo en el recibo y en el aviso de contraseña temporal; O-21 los vacíos conservan el copy verificado, la acción «Crear usuario» está en la cabecera de usuarios y en auditoría no existe acción aplicable, y `messages.success` solo se usa en operaciones exitosas; O-22 28 chips y 14 flechas `aria-hidden` y tabla de seguridad de 4 columnas verificadas; O-23 aviso de contraseña temporal y 403 de contexto capturados); O-25 queda para T-11. Limitación: el usuario de desarrollo no tiene privilegio DELETE, por lo que los registros temporales de la validación (`t10-receipt@example.com` y el superusuario `t10_super`) quedaron desactivados y no eliminados; el evento de auditoría de la creación es inmutable. Dictamen del Reviewer: APROBADO (2026-11-13), sin hallazgos bloqueantes; las precisiones N-1 a N-9, B-1 a B-4 y M-1 a M-5 se incorporaron a este registro y N-10 se mantiene como observación visual aprobada en T-07/RC-9.
 - **Trazabilidad:** D-02, D-03; RF-01, RF-13, RF-14; RNF-01, RNF-02, RNF-03, RNF-07, RNF-10; R-01 a R-04, R-07, R-08, R-11, R-12.
 - **Prohibiciones:** rediseñar pantallas; cambiar decisiones visuales, copy o comportamiento; ampliar P0/P1/P2; modificar backend, modelos, migraciones o pruebas sin autorización expresa; corregir accesibilidad cambiando copy o pruebas; introducir JS; ocultar columnas; rediseñar la home fuera de su bloque de compatibilidad.
 
@@ -368,7 +369,7 @@ T-01 a T-03 son documentales: no autorizan código. T-04 a T-11 requieren G-1. C
 |---|---|---|
 | G-0a | Aprobación de `spec.md` | APROBADO el 2026-11-12 |
 | G-0b | Aprobación de `plan.md` y `tasks.md` | APROBADO el 2026-11-12 |
-| G-1 | Autorización de implementación de T-04 a T-11 | APROBADO el 2026-11-12 para T-04 a T-09; T-10 y T-11 no autorizadas |
+| G-1 | Autorización de implementación de T-04 a T-11 | APROBADO el 2026-11-12 para T-04 a T-09 y el 2026-11-13 para T-10 y T-11 (T-11 condicionada a la aprobación de T-10) |
 | G-2 | Migraciones | No aplica |
 | G-3 | Servidor local y datos ficticios en `nexopyme_bootstrap_dev` | Confirmado por ejecución en T-05; se reconfirma por tarea |
 | G-4 | Pruebas con `nexopyme_bootstrap_test` | Confirmado por ejecución en T-05; se reconfirma por tarea |
@@ -389,10 +390,10 @@ El silencio no constituye aprobación. Ninguna aprobación de este documento aut
 - `[x]` T-07: login de una columna y panel con hoja, contexto y lista de trabajo aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-08: usuarios, empresa y auditoría migrados a hojas, badges, tablas y recibos; aprobados por el Reviewer (2026-11-12) y commiteados.
 - `[x]` T-09: perfil, contraseña y errores migrados y limpieza de compatibilidad aprobada por el Reviewer (2026-11-12) y commiteada.
-- `[ ]` T-10: no iniciada; requiere G-1, G-3 y G-4.
-- `[ ]` T-11: no iniciada; requiere G-1 y G-5.
-- **Registro de aprobación (2026-11-12):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 a T-09. T-10 y T-11 permanecen no autorizadas.
+- `[~]` T-10: validación responsive, accesibilidad y pruebas visuales con correcciones puntuales aprobadas por el Reviewer (2026-11-13); commit y push pendientes al momento de este registro; G-3 y G-4 reconfirmados.
+- `[ ]` T-11: autorizada en G-1 y condicionada a T-10; pendiente.
+- **Registro de aprobación (2026-11-13):** G-0a APROBADO para `spec.md`; G-0b APROBADO para `plan.md` y `tasks.md`; G-1 APROBADO para T-04 a T-09 (2026-11-12) y para T-10 y T-11 (2026-11-13, T-11 condicionada a la aprobación de T-10).
 
 ---
 
-**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 a T-09. T-04 a T-09 están publicadas; RC-8 y RC-9 están APROBADOS; T-10 y T-11 no están autorizadas y la Etapa 003 no se modifica.
+**Fin de las tareas v0.1.** Los tres documentos de la Etapa 004 están aprobados en G-0a/G-0b. G-1 está aprobado para T-04 a T-11 (T-11 condicionada a la aprobación de T-10). T-04 a T-09 están publicadas; T-10 está aprobada por el Reviewer; RC-8 y RC-9 están APROBADOS; T-11 está pendiente y la Etapa 003 no se modifica.

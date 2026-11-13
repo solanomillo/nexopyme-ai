@@ -257,6 +257,10 @@ samp {
   flex: 1 0 auto;
 }
 
+.site--panel .site-main {
+  padding-block: var(--space-6) var(--space-7);
+}
+
 .site-main:focus-visible {
   outline: var(--focus-ring);
   outline-offset: calc(var(--focus-offset) * -1);
@@ -619,6 +623,32 @@ samp {
   color: var(--color-danger);
 }
 
+.button--primary:active {
+  border-color: var(--color-primary-deep);
+  background-color: var(--color-primary-deep);
+  color: var(--color-surface);
+}
+
+.button--secondary:active {
+  border-color: var(--color-primary-deep);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-primary-deep);
+}
+
+.button--ghost:active {
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-deep);
+}
+
+.button--danger:active {
+  filter: brightness(0.85);
+}
+
+.button--danger-quiet:active {
+  background-color: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
 .button--sm {
   min-height: 2.5rem;
   padding: var(--space-1) var(--space-3);
@@ -633,6 +663,7 @@ samp {
 .button[aria-disabled="true"] {
   opacity: 0.55;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .button[aria-busy="true"] {
@@ -679,6 +710,16 @@ samp {
 .form-field textarea[aria-invalid="true"],
 .form-field__control[aria-invalid="true"] {
   border-color: var(--color-danger);
+}
+
+.form-field input:disabled,
+.form-field select:disabled,
+.form-field textarea:disabled,
+.form-field__control:disabled {
+  border-color: var(--color-border);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-ink-muted);
+  cursor: not-allowed;
 }
 
 .form-field__help {
@@ -858,7 +899,7 @@ samp {
 }
 
 .sheet__body {
-  padding: var(--space-5);
+  padding: var(--space-5) var(--space-6);
 }
 
 .sheet__title {
@@ -929,11 +970,22 @@ samp {
 }
 
 .table thead th {
+  border-bottom-color: var(--color-border-strong);
   color: var(--color-ink);
   font-size: var(--text-label);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.table tfoot th,
+.table tfoot td {
+  border-top: 1px solid var(--color-border-strong);
+  border-bottom: 0;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-surface-sunken);
 }
 
 .table tbody th {
@@ -987,6 +1039,19 @@ samp {
   color: var(--color-primary);
 }
 
+.table button:active,
+.table select:active {
+  border-color: var(--color-primary-deep);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-primary-deep);
+}
+
+.table button:disabled,
+.table select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .pagination__list {
   display: flex;
   flex-wrap: wrap;
@@ -1015,6 +1080,25 @@ samp {
   border-color: var(--color-primary-soft);
   background-color: var(--color-primary-soft);
   color: var(--color-primary-deep);
+}
+
+.pagination__link:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-deep);
+}
+
+.pagination__link:active {
+  border-color: var(--color-primary-deep);
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-deep);
+}
+
+.pagination__link[aria-disabled="true"],
+.pagination__link:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .pagination__meta {
@@ -1054,7 +1138,7 @@ samp {
 .receipt {
   margin-top: var(--space-4);
   padding: var(--space-4);
-  border: 1px solid var(--color-border);
+  border: 1px dashed var(--color-border);
   border-top: 3px solid var(--color-accent);
   border-radius: var(--radius-sm);
   background-color: var(--color-surface);
@@ -1107,6 +1191,7 @@ samp {
 
 .login {
   max-width: var(--measure-login);
+  margin-inline: auto;
   padding-top: var(--space-5);
   border-top: 3px solid var(--color-primary);
 }
@@ -1134,6 +1219,7 @@ samp {
 
 .login form .button {
   width: 100%;
+  margin-top: var(--space-5);
 }
 
 .work-list__heading {
